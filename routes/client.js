@@ -1,7 +1,17 @@
 import express from 'express';
-const router = express.Router();
+import * as clientController from '../controllers/clientController.js';const router = express.Router();
 
-// Маршрути для клієнта
-router.get('/', (req, res) => res.send('Client Dashboard'));
+// Сторінки (GET)
+router.get ('/orders', clientController.getMyOrders);
+router.get('/create', (req, res) => {
+    const clientId = req.query.clientId;
+    res.render('client/create-order', {
+        title: 'Create a request - Service Center',
+        clientId: clientId
+    });
+});
+
+// Дії (POST)
+router.post('/create', clientController.createOrder);
 
 export default router;

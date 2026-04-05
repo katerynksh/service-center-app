@@ -1,8 +1,14 @@
 import express from 'express';
+import * as authController from '../controllers/authController.js';
 const router = express.Router();
 
-// Маршрути для входу та реєстрації
-router.get('/login', (req, res) => res.send('Login Page'));
-router.get('/register', (req, res) => res.send('Registration Page'));
+// Сторінки (GET)
+router.get('/login', (req, res) => res.render('auth/login', { title: 'Login - Service Center' }));
+router.get('/register', (req, res) => res.render('auth/register', { title: 'Sign Up - Service Center' }));
+
+// Дії (POST)
+router.post('/register', authController.register);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout);
 
 export default router;
