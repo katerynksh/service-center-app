@@ -1,8 +1,12 @@
 //перевірка:
 //isClient
-
-
-
+export const isClient = (req, res, next) => {
+// Доступ дозволено, якщо роль 'client' або 'admin' (адмін зазвичай бачить все)
+    if (req.user && req.user.role === 'client') {
+        return next();
+    }
+    return res.status(403).render('error', { message: "Access denied: You are not a customer" });
+};
 //перевірка:
 //isAdmin
 //isMaster
