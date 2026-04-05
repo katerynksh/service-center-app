@@ -55,14 +55,6 @@ export const OrderModel = {
         );
         return res.rows[0];
     },
-
-    updateStatus: async (id, status, comment) => {
-        const res = await pool.query(
-            "UPDATE ORDERS SET status = $1, technician_comment = $2 WHERE order_id = $3 RETURNING *",
-            [status, comment, id]
-        );
-        return res.rows[0];
-    },
     // Отримати всі замовлення конкретного клієнта 
     getOrdersByClientId: async(clientId) => {
         const res = await pool.query(

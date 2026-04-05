@@ -8,14 +8,14 @@ const router = express.Router();
 router.get('/', (req, res) => {
 res.render('master/dashboardMaster')
 });
+
 // router.get('/edit/:id', isMaster, getEditMasterView); {
   // res.render('master/editMaster', {
   //     title: 'Edit Order',}
-router.get('/edit/:id', getEditMasterView, (req, res) => { //тестovий маршрут для отримання сторінки редагування замовлення майстром без авторизації// 
-  res.render('master/editMaster', {
-      title: 'Edit Order',}
-  )
+router.get('/edit/:id', getEditMasterView, (req, res) => { //тестoвий маршрут для отримання сторінки редагування замовлення майстром без авторизації// 
+  res.render('master/editMaster')
 });
+
 // router.get('/order-details/:id', isMaster, master.getOrderDetails);
 router.get('/order-details/:id', master.getOrderDetails); //тестoвий маршрут для отримання деталей замовлення майстром без авторизації
 
@@ -25,6 +25,3 @@ router.put('/order/:id', isMaster, master.updateOrder);
 
 
 export default router;
-
-
-

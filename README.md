@@ -81,11 +81,11 @@
 
 | Роль | Шлях | Файл сторінки |
 | :--- | :--- | :--- |
-| **Клієнт** | `/client/dashboard` | `dashboardClient.js` |
-| **Клієнт** | `/client/create` | `createClient.js` |
-| **Майстер** | `/master/dashboard` | `dashboardMaster.js` |
-| **Майстер** | `/master/edit/:id` | `editMaster.js` |
-| **Адмін** | `/admin/dashboard` | `dashboardAdmin.js` |
+| **Клієнт** | `/api/client` | `dashboardClient.js` |
+| **Клієнт** | `/api/client/create` | `createClient.js` |
+| **Майстер** | `/api/master` | `dashboardMaster.js` |
+| **Майстер** | `/api/master/edit/:id` | `editMaster.js` |
+| **Адмін** | `/api/admin/dashboard` | `dashboardAdmin.js` |
 
 ---
 

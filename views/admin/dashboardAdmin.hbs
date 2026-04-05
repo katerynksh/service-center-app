@@ -1,0 +1,99 @@
+{{!-- керування усіма замовленнями + призначення майстрів --}}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Admin Dashboard</h2>
+        <span class="badge bg-dark">Order Management</span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white fw-bold">All Orders in the System</div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Device</th>
+                        <th>Status</th>
+                        <th>Technician</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-orders-list">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadAdminData() {
+        try {
+            // Отримуємо всі замовлення та список майстрів
+            const response = await fetch('/api/admin/all-info');
+            const { orders, masters } = await response.json();
+
+            const tbody = document.getElementById('admin-orders-list');
+            tbody.innerHTML = orders.map(order => {
+                const isNew = order.status === 'new';
+                
+                // Створюємо випадаючий список майстрів
+                const masterOptions = masters.map(m => 
+                    `<option value="${m.id}">${m.email}</option>`
+                ).join('');
+
+                return `
+                    <tr>
+                        <td>№${order.order_id}</td>
+                        <td>${order.client_email || 'Not specified'}</td>
+                        <td><strong>${order.device_type}</strong> ${order.device_model}</td>
+                        <td><span class="badge ${order.status === 'new' ? 'bg-warning text-dark' : 'bg-info'}">${order.status}</span></td>
+                        <td>
+                            ${order.master_email ? order.master_email : 
+                                (isNew ? `
+                                    <select id="select-master-${order.order_id}" class="form-select form-select-sm">
+                                        <option value="">Choose a technician...</option>
+                                        ${masterOptions}
+                                    </select>
+                                ` : '<span class="text-muted">Not assigned</span>')
+                            }
+                        </td>
+                        <td>
+                            ${isNew ? `
+                                <button onclick="assignMaster(${order.order_id})" class="btn btn-sm btn-success">Assign</button>
+                            ` : '<span class="text-success">✔</span>'}
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="6" class="text-center p-3">No orders available</td></tr>';
+
+        } catch (err) {
+            console.error('Error loading admin data:', err);
+        }
+    }
+
+    async function assignMaster(orderId) {
+        const masterId = document.getElementById(`select-master-${orderId}`).value;
+        if (!masterId) return alert('Please select a technician!');
+
+        try {
+            const response = await fetch('/api/admin/assign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, masterId })
+            });
+
+            if (response.ok) {
+                alert('Technician assigned successfully!');
+                loadAdminData(); // Оновлюємо список замовлень після призначення
+            } else {
+                alert('Error assigning technician.');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+        }
+    }
+
+    loadAdminData();
+</script>

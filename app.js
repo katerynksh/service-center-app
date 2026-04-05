@@ -28,6 +28,7 @@ app.use('/master', masterViewRoutes);
 app.set('view engine', 'hbs');
 app.set('views', './views');
 hbs.registerPartials(path.join(process.cwd(), 'views/partials'));
+hbs.registerHelper('eq', (a, b) => a === b);
 app.use((req, res, next) => {
     res.locals.user = req.user || null; // Якщо залогінений, дані будуть доступні в hbs
     next();

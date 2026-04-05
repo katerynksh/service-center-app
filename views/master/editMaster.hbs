@@ -44,51 +44,48 @@
 </div>
 
 <script>
-    async function loadFullDetails() {
-        const id = "{{orderId}}";
-        const res = await fetch(`/api/master/order-details/${id}`);
-        const order = await res.json();
+    const id = "{{orderId}}"; // Отримуємо ID замовлення з шаблону
 
-        if (order) {
-            document.getElementById('client-email').innerText = order.client_email;
-            document.getElementById('device-type').innerText = order.device_type;
-            document.getElementById('device-model').innerText = order.device_model;
-            document.getElementById('os-version').innerText = order.os_version || 'Не вказано';
-            document.getElementById('issue-info').innerText = order.issue_description;
-            document.getElementById('created-at').innerText = new Date(order.created_at).toLocaleString();
-            
-            // Також заповнюємо поля форми
-            document.getElementById('status').value = order.status;
-            document.getElementById('comment').value = order.technician_comment || '';
-        } else {
-            alert('Order not found');
-            window.location.href = '/api/master';
-        } try {
-            const order = await response.json();
-            document.getElementById('client-email').innerText = order.client_email;
-            document.getElementById('device-type').innerText = order.device_type;
-            document.getElementById('device-model').innerText = order.device_model;
-            document.getElementById('os-version').innerText = order.os_version || 'Not specified';
-            document.getElementById('purchase-date').innerText = order.date_of_purchase ? new Date(order.date_of_purchase).toLocaleDateString() : 'Not specified';
-            document.getElementById('order-cost').innerText = order.cost ? `${order.cost} UAH` : 'Not specified';
-            document.getElementById('created-at').innerText = new Date(order.created_at).toLocaleString(); 
+    async function loadFullDetails() {
+        try {
+            const res = await fetch(`/api/master/order-details/${id}`);
+            const order = await res.json();
+
+            if (order) {
+                // Виводимо інформацію про замовлення
+                document.getElementById('client-email').innerText = order.client_email || 'Not specified';
+                document.getElementById('device-type').innerText = order.device_type;
+                document.getElementById('device-model').innerText = order.device_model;
+                document.getElementById('os-version').innerText = order.os_version || 'Not specified';
+                document.getElementById('issue-info').innerText = order.issue_description;
+
+                if (order.created_at) {
+                    document.getElementById('created-at').innerText = new Date(order.created_at).toLocaleString();
+                } else {
+                    document.getElementById('created-at').innerText = 'Not specified';
+                }
+                // Заповнюємо поля форми
+                document.getElementById('status').value = order.status;
+                document.getElementById('comment').value = order.technician_comment || '';
+            } else {
+                alert('Order not found');
+            }
         } catch (err) {
             console.error('Error loading order details:', err);
-            alert('Failed to load order details.');
         }
-    
+    }
 
-    // Обробка відправки форми (Оновлення даних)
+    // Обробка збереження змін
     document.getElementById('edit-order-form').addEventListener('submit', async (e) => {
-        export.preventDefault();
-        
-        const updateData = {
+        e.preventDefault();
+
+        const updateData = {    
             status: document.getElementById('status').value,
             comment: document.getElementById('comment').value
         };
 
         try {
-            const response = await fetch(`/api/master/order/${orderId}`, {
+            const response = await fetch(`/api/master/order/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData)
@@ -96,17 +93,14 @@
 
             if (response.ok) {
                 alert('Data updated successfully!');
-                window.location.href = '/master/dashboard'; // Повертаємося до оновленого списку замовлень
+                window.location.href = '/api/master/';
             } else {
-                const error = await response.json();
-                alert('Error: ' + error.message);
+                alert('Error updating data');
             }
         } catch (err) {
             console.error('Error saving changes:', err);
-            alert('Failed to save changes.');
         }
     });
-    }
-    loadOrderDetails();
-</script>
 
+    loadFullDetails(); 
+</script>

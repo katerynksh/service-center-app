@@ -11,4 +11,4 @@ Order.belongsTo(User, { foreignKey: 'client_id', as: 'client' });
 User.hasMany(Order, { foreignKey: 'assigned_to', as: 'masterOrders' });
 Order.belongsTo(User, { foreignKey: 'assigned_to', as: 'technician' });
 
-module.exports = { User, Order };   
+export { User, Order };   
