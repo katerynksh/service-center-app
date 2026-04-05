@@ -21,7 +21,12 @@ export const OrderModel = {
     },
     // Для Адміна: всі замовлення та всі майстри
     getAllOrders: async () => {
-        const res = await pool.query("SELECT * FROM ORDERS ORDER BY created_at DESC");
+        const res = await pool.query(`
+            SELECT o.*, u.email as master_email 
+            FROM ORDERS o 
+            LEFT JOIN USERS u ON o.assigned_to = u.id 
+            ORDER BY o.created_at DESC
+        `);
         return res.rows;
     },
     getAllMasters: async () => {
@@ -37,10 +42,10 @@ export const OrderModel = {
     },
     getOrderDetails: async (orderId) => {
         const res = await pool.query(
-            `SELECT o.*, user.email as client_email 
-             FROM ORDERS o 
-             JOIN USERS user ON o.client_id = user.id 
-             WHERE o.order_id = $1`, 
+            `SELECT o.*, u.email as client_email 
+            FROM ORDERS o 
+            JOIN USERS u ON o.client_id = u.id 
+            WHERE o.order_id = $1`, 
             [orderId]
         );
         return res.rows[0];

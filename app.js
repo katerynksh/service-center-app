@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
 })
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 import authRoutes from './routes/auth.js';
 import masterRoutes from './routes/master.js';
