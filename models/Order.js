@@ -33,5 +33,26 @@ export const OrderModel = {
             [masterId, orderId]
         );
         return res.rows[0];
-    }
+    },
+    // Отримати всі замовлення конкретного клієнта 
+    getOrdersByClientId: async(clientId) => {
+        const res = await pool.query(
+            "SELECT * FROM ORDERS WHERE client_id = $1 ORDER BY created_at DESC",
+            [clientId]
+        );
+        return res.rows;
+    },
+    // Створити нову заявку
+    createNewOrder: async(orderData) => {
+    const { client_id, device_type, device_model, os_version, date_of_purchase, issue_description } = orderData;
+    const res = await pool.query(
+         `INSERT INTO ORDERS 
+          (client_id, device_type, device_model, os_version, date_of_purchase, issue_description, status) 
+          VALUES ($1, $2, $3, $4, $5, $6, 'new') 
+          RETURNING *`,
+          [client_id, device_type, device_model, os_version, date_of_purchase, issue_description]
+        );
+        return res.rows[0];
+    },
 };
+
