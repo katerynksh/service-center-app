@@ -1,46 +1,134 @@
-<h2>Master Dashboard</h2>
+{{!-- katerynksh/service-center-app/service-center-app-master-admin/views/master/dashboardMaster.hbs --}}
 
-<div class="card">
-    <div class="card-header bg-primary text-white">New Orders</div>
-    <div class="card-body">
-        <table class="table">
-            <thead><tr><th>Device</th><th>Issue</th><th>Action</th></tr></thead>
-            <tbody id="new-orders"></tbody>
-        </table>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">Service Center</h4>
+            <small class="text-muted">Master Dashboard - {{user.email}}</small>
+        </div>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-link text-dark me-3"><i class="bi bi-moon"></i></button>
+            <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
     </div>
+
+    <div class="nav nav-pills nav-justified mb-4 custom-tabs">
+        <button class="nav-link active" id="tab-new" onclick="switchTab('new')">New Orders (0)</button>
+        <button class="nav-link" id="tab-my" onclick="switchTab('my')">My Orders (0)</button>
+    </div>
+
+    <div class="input-group mb-4 shadow-sm">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control border-start-0 ps-0" placeholder="Search by order ID, model, or client...">
+    </div>
+
+    <div id="orders-container">
+        </div>
 </div>
 
-<div class="card">
-    <div class="card-header bg-success text-white">My Orders</div>
-    <div class="card-body">
-        <table class="table">
-            <thead><tr><th>Device</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="my-orders"></tbody>
-        </table>
-    </div>
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+    .custom-tabs .nav-link { color: #6c757d; border-radius: 8px; font-weight: 500; }
+    .custom-tabs .nav-link.active { background-color: #dc3545 !important; color: white; }
+    .order-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
+    .order-card:hover { border-color: #ccc; }
+    .status-badge { border-radius: 6px; font-size: 0.75rem; padding: 4px 8px; font-weight: bold; }
+    .info-label { color: #888; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+    .info-value { font-weight: 500; font-size: 0.9rem; }
+    .comment-box { background: #f8f9fa; border-radius: 8px; padding: 12px; font-size: 0.9rem; border: 1px solid #eee; }
+</style>
 
 <script>
-    // Логіка завантаження даних
+    let currentOrders = { newOrders: [], myOrders: [] };
+    let activeTab = 'my'; // За замовчуванням "My Orders" як на скріншоті
+
     async function load() {
         const res = await fetch('/api/master/dashboard');
-        const data = await res.json();
+        currentOrders = await res.json();
         
-        document.getElementById('new-orders').innerHTML = data.newOrders.map(o => `
-            <tr>
-                <td>${o.device_model}</td>
-                <td>${o.issue_description}</td>
-                <td><a href="/api/master/edit/${o.order_id}" class="btn btn-sm btn-outline-primary">Edit</a></td>
-            </tr>
-        `).join('');
+        // Оновлюємо лічильники на вкладках
+        document.getElementById('tab-new').innerText = `New Orders (${currentOrders.newOrders.length})`;
+        document.getElementById('tab-my').innerText = `My Orders (${currentOrders.myOrders.length})`;
+        
+        renderOrders();
+    }
 
-        document.getElementById('my-orders').innerHTML = data.myOrders.map(o => `
-            <tr>
-                <td>${o.device_model}</td>
-                <td><span class="badge bg-info">${o.status}</span></td>
-                <td><a href="/api/master/edit/${o.order_id}" class="btn btn-sm btn-success">Update  </a></td>
-            </tr>
+    function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        renderOrders();
+    }
+
+    function renderOrders() {
+        const container = document.getElementById('orders-container');
+        const orders = activeTab === 'new' ? currentOrders.newOrders : currentOrders.myOrders;
+
+        if (orders.length === 0) {
+            container.innerHTML = `<div class="text-center py-5 text-muted">No orders found in this section.</div>`;
+            return;
+        }
+
+        container.innerHTML = orders.map(o => `
+            <div class="card order-card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title mb-1">${o.device_model} 
+                                <span class="status-badge ms-2 ${getStatusClass(o.status)}">${o.status.toUpperCase()}</span>
+                            </h5>
+                            <small class="text-muted"><i class="bi bi-box"></i> Order #${o.order_id} · ${o.device_type}</small>
+                        </div>
+                        <a href="/api/master/edit/${o.order_id}" class="btn btn-link text-dark p-0"><i class="bi bi-pencil-square fs-5"></i></a>
+                    </div>
+
+                    <p class="mb-4">${o.issue_description}</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="info-label"><i class="bi bi-person"></i> Client: <span class="info-value text-dark">${o.client_email || 'John Client'}</span></div>
+                            <div class="info-label mt-2"><i class="bi bi-cpu"></i> OS: <span class="info-value text-dark">${o.os_version || 'Not specified'}</span></div>
+                            <div class="info-label mt-2"><i class="bi bi-calendar"></i> Created: <span class="info-value text-dark">${new Date(o.created_at).toLocaleString()}</span></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-label"><i class="bi bi-tools"></i> Master: <span class="info-value text-dark">Mike Master</span></div>
+                            <div class="info-label mt-2"><i class="bi bi-currency-dollar"></i> Cost: <span class="info-value text-dark">$${o.cost || '0.00'}</span></div>
+                            <div class="info-label mt-2"><i class="bi bi-clock-history"></i> Updated: <span class="info-value text-dark">${new Date(o.updated_at).toLocaleString()}</span></div>
+                        </div>
+                    </div>
+
+                    ${o.technician_comment ? `
+                        <div class="comment-box">
+                            <small class="text-muted d-block mb-1"><i class="bi bi-chat-left-text"></i> Technician Comment:</small>
+                            ${o.technician_comment}
+                        </div>
+                    ` : ''}
+
+                    ${activeTab === 'new' ? `
+                        <button onclick="takeInWork(${o.order_id})" class="btn btn-success w-100 mt-3">Take in Work</button>
+                    ` : ''}
+                </div>
+            </div>
         `).join('');
     }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'new': return 'bg-warning-subtle text-warning border border-warning';
+            case 'in progress': return 'bg-warning-subtle text-warning border border-warning';
+            case 'done': return 'bg-success-subtle text-success border border-success';
+            default: return 'bg-info-subtle text-info border border-info';
+        }
+    }
+
+    async function takeInWork(id) {
+        // Логіка з попереднього кроку для прийняття замовлення
+        const res = await fetch(`/api/master/order/accept/${id}`, { method: 'PUT' });
+        if (res.ok) load();
+    }
+
     load();
 </script>

@@ -1,0 +1,143 @@
+/* Основні налаштування та змінні */
+:root {
+    --primary-red: #5f3075;
+    --primary-red-hover: #472259;
+    --bg-light: #f8f9fa;
+    --text-dark: #2d3748;
+    --text-muted: #718096;
+    --border-color: #edf2f7;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --border-radius: 12px;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+/* Навігаційна панель */
+.navbar {
+    padding: 1rem 0;
+    background: #ffffff !important;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    letter-spacing: -0.025em;
+}
+
+.nav-link {
+    color: var(--text-dark) !important;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--primary-red) !important;
+}
+
+/* Картки замовлень (Order Cards) */
+.order-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+    border-color: #cbd5e0;
+}
+
+/* Стилі статусів (Badges) */
+.badge-status {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Кольори статусів */
+.status-new { background-color: #ebf8ff; color: #3182ce; }
+.status-in-progress { background-color: #fffaf0; color: #dd6b20; }
+.status-waiting-customer-response { background-color: #e5caff; color: #805ad5; }
+.status-waiting-spare-parts { background-color: #fff5f5; color: #e53e3e; }
+.status-done { background-color: #e6ffec; color: #38a169; }
+.status-failed { background-color: #f7eded; color: #732c2c; }
+
+/* Кнопки */
+.btn-danger, .btn-primary-custom {
+    background-color: var(--primary-red);
+    border-color: var(--primary-red);
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover, .btn-primary-custom:hover {
+    background-color: var(--primary-red-hover);
+    border-color: var(--primary-red-hover);
+    box-shadow: 0 4px 12px rgba(164, 53, 229, 0.2);
+}
+
+.btn-outline-danger {
+    color: var(--primary-red);
+    border-color: var(--primary-red);
+    border-radius: 8px;
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--primary-red);
+    color: #ffffff;
+}
+
+/* Форми */
+.form-control, .form-select {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 3px rgba(176, 53, 229, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+/* Типографіка та допоміжні класи */
+h2, h4, h5 {
+    color: #1a202c;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .order-card {
+        padding: 1rem;
+    }
+}

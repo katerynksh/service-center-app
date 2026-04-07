@@ -12,10 +12,17 @@ export const OrderModel = {
     },
 
     // Оновлення статусу майстром
-    updateStatus: async (id, status, comment) => {
+    updateStatus: async (id, status, comment, cost) => { // Додано параметр cost
         const res = await pool.query(
-            "UPDATE ORDERS SET status = $1, technician_comment = $2, updated_at = NOW() WHERE order_id = $3 RETURNING *",
-            [status, comment, id]
+            "UPDATE ORDERS SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
+            [status, comment, cost || 0, id] // Записуємо ціну
+        );
+        return res.rows[0];
+    },
+    takeOrder: async (orderId, masterId) => {
+        const res = await pool.query(
+            "UPDATE ORDERS SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
+            [masterId, orderId]
         );
         return res.rows[0];
     },

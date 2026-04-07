@@ -5,6 +5,8 @@ import path from 'path';
 dotenv.config();
 const app = express()
 
+app.use(express.static(path.join(process.cwd(), 'public')));
+
 
 app.get('/', (req, res) => {
   res.send('Service-Center App')
@@ -31,7 +33,7 @@ app.set('views', './views');
 hbs.registerPartials(path.join(process.cwd(), 'views/partials'));
 hbs.registerHelper('eq', (a, b) => a === b);
 app.use((req, res, next) => {
-    res.locals.user = req.user || null; // Якщо залогінений, дані будуть доступні в hbs
+    res.locals.user = req.user || null;
     next();
 });
 

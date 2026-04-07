@@ -25,5 +25,7 @@ router.get('/dashboard', master.getDashboard); //тестовий маршрут
 router.put('/order/:id', master.updateOrder); //тестовий маршрут для оновлення замовлення майстром без авторизації
 // router.put('/order/:id', isMaster, master.updateOrder);
 
+router.put('/order/accept/:id', master.acceptOrder); //тестовий маршрут для прийняття замовлення майстром без авторизації
+// router.put('/order/accept/:id', isMaster, master.acceptOrder);
 
 export default router;
