@@ -4,8 +4,8 @@ import pool from '../config/db.js';
 export const getAllData = async (req, res) => {
     try {
         const orders = await OrderModel.getAllOrders();
-        const masters = await pool.query("SELECT id, email FROM USERS WHERE role = 'master'");
-        res.json({ orders, masters: masters.rows });
+        const masters = await OrderModel.getMasterStatus(); 
+        res.json({ orders, masters });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }

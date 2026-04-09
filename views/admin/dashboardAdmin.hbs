@@ -1,63 +1,118 @@
-<div class="container mt-2">
+{{!-- katerynksh/service-center-app/service-center-app-master-admin/views/admin/dashboardAdmin.hbs --}}
+
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Admin Management</h2>
-        <div class="input-group w-25">
-            <input type="text" class="form-control form-control-sm rounded-pill" placeholder="Search orders...">
+        <div>
+            <h4 class="mb-0 fw-bold">Service Center</h4>
+            <small class="text-muted">Admin Dashboard</small>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
+            <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
         </div>
     </div>
 
-    <div id="admin-orders-list" class="row g-3">
-        </div>
+    <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
+        <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">All Orders (0)</button>
+        <button class="nav-link" id="tab-masters" onclick="switchTab('masters')"><i class="bi bi-tools me-1"></i> Masters (0)</button>
+    </div>
+
+    <div class="input-group mb-4 shadow-sm rounded-3 overflow-hidden">
+        <span class="input-group-text bg-white border-end-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" id="adminSearch" class="form-control border-start-0 ps-2 py-2" placeholder="Search masters by name or email...">
+    </div>
+
+    <div id="admin-content-container"></div>
 </div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+    .custom-tabs { background: white; padding: 5px; }
+    .custom-tabs .nav-link { color: #6c757d; font-weight: 500; border: none; }
+    .custom-tabs .nav-link.active { background-color: #dc3545 !important; color: white; }
+    
+    .admin-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
+    .stat-box { border-radius: 10px; padding: 15px; flex: 1; }
+    .bg-active { background-color: #fff8f0; }
+    .bg-completed { background-color: #f0fdf4; }
+    .bg-total { background-color: #f8f9fa; border: 1px solid #eee; }
+    
+    .stat-label { font-size: 0.8rem; color: #6c757d; display: flex; align-items: center; gap: 6px; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 5px; }
+    .order-id-badge { font-size: 0.8rem; color: #6c757d; }
+</style>
+
 <script>
+    let allData = { orders: [], masters: [] };
+    let activeTab = 'orders'; 
+
     async function loadAdminData() {
-        try {
-            const response = await fetch('/api/admin/all-info');
-            const { orders, masters } = await response.json();
-            const container = document.getElementById('admin-orders-list');
+        const res = await fetch('/api/admin/all-info');
+        allData = await res.json();
+        
+        document.getElementById('tab-orders').innerText = `All Orders (${allData.orders.length})`;
+        document.getElementById('tab-masters').innerText = `Masters (${allData.masters.length})`;
+        
+        renderContent();
+    }
 
-            container.innerHTML = orders.map(order => {
-                const isNew = order.status === 'new';
-                const statusClass = order.status.replace(' ', '-');
-                const masterOptions = masters.map(m => `<option value="${m.id}">${m.email}</option>`).join('');
+    function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        renderContent();
+    }
 
-                return `
-                    <div class="col-12">
-                        <div class="order-card p-4 shadow-sm bg-white rounded-3 border">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="fw-bold mb-1">${order.device_model} <span class="badge-status status-${statusClass} ms-2 text-uppercase" style="font-size: 0.7rem;">${order.status}</span></h5>
-                                    <p class="text-muted small mb-3">Order ID: #${order.order_id} • Client: ${order.client_email || 'Guest'}</p>
-                                </div>
-                                <div class="text-end">
-                                    ${isNew ? `
-                                        <div class="d-flex gap-2">
-                                            <select id="select-master-${order.order_id}" class="form-select form-select-sm rounded-3">
-                                                <option value="">Assign technician...</option>
-                                                ${masterOptions}
-                                            </select>
-                                            <button onclick="assignMaster(${order.order_id})" class="btn btn-sm btn-danger px-3">Assign</button>
-                                        </div>
-                                    ` : `<span class="text-success fw-bold small"><i class="bi bi-check-circle"></i> Assigned to ${order.master_email}</span>`}
-                                </div>
+    function renderContent() {
+        const container = document.getElementById('admin-content-container');
+        
+        if (activeTab === 'masters') {
+            container.innerHTML = allData.masters.map(m => `
+                <div class="card admin-card shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-1">${m.email.split('@')[0]}</h5>
+                        <div class="text-muted small mb-3"><i class="bi bi-envelope"></i> ${m.email}</div>
+                        
+                        <div class="d-flex gap-3">
+                            <div class="stat-box bg-active">
+                                <div class="stat-label"><i class="bi bi-clock"></i> Active</div>
+                                <div class="stat-value text-dark">${m.active_orders}</div>
+                            </div>
+                            <div class="stat-box bg-completed">
+                                <div class="stat-label"><i class="bi bi-check-circle"></i> Completed</div>
+                                <div class="stat-value text-dark">${m.completed_orders}</div>
+                            </div>
+                            <div class="stat-box bg-total">
+                                <div class="stat-label">Total Orders</div>
+                                <div class="stat-value text-dark">${m.total_orders}</div>
                             </div>
                         </div>
                     </div>
-                `;
-            }).join('') || '<p class="text-center py-5 text-muted">No orders found.</p>';
-        } catch (err) { console.error(err); }
+                </div>
+            `).join('');
+        } else {
+            // Відображення замовлень
+            container.innerHTML = allData.orders.map(o => `
+                <div class="card admin-card shadow-sm">
+                    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-1">${o.device_model}</h5>
+                            <div class="order-id-badge"><i class="bi bi-box"></i> Order №${o.order_id} • ${o.status.toUpperCase()}</div>
+                        </div>
+                        <div>
+                            ${o.assigned_to ? 
+                                `<span class="text-success small"><i class="bi bi-person-check"></i> Assigned to ${o.master_email}</span>` :
+                                `<button onclick="assignMaster(${o.order_id})" class="btn btn-sm btn-danger px-3">Assign Master</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
-    async function assignMaster(orderId) {
-        const masterId = document.getElementById(`select-master-${orderId}`).value;
-        if (!masterId) return alert('Select a technician!');
-        const res = await fetch('/api/admin/assign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId, masterId })
-        });
-        if (res.ok) loadAdminData();
-    }
     loadAdminData();
 </script>

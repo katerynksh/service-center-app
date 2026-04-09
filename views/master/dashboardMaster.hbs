@@ -1,10 +1,8 @@
-{{!-- katerynksh/service-center-app/service-center-app-master-admin/views/master/dashboardMaster.hbs --}}
-
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-0">Service Center</h4>
-            <small class="text-muted">Master Dashboard - {{user.email}}</small>
+            <small class="text-muted">Master Dashboard - ${user.email}</small>
         </div>
         <div class="d-flex align-items-center">
             <button class="btn btn-link text-dark me-3"><i class="bi bi-moon"></i></button>
@@ -32,7 +30,7 @@
 
 <style>
     .custom-tabs .nav-link { color: #6c757d; border-radius: 8px; font-weight: 500; }
-    .custom-tabs .nav-link.active { background-color: #dc3545 !important; color: white; }
+    .custom-tabs .nav-link.active { background-color: #ec7979 !important; color: white; }
     .order-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
     .order-card:hover { border-color: #ccc; }
     .status-badge { border-radius: 6px; font-size: 0.75rem; padding: 4px 8px; font-weight: bold; }
@@ -43,7 +41,7 @@
 
 <script>
     let currentOrders = { newOrders: [], myOrders: [] };
-    let activeTab = 'my'; // За замовчуванням "My Orders" як на скріншоті
+    let activeTab = 'new';
 
     async function load() {
         const res = await fetch('/api/master/dashboard');
@@ -80,7 +78,7 @@
                             <h5 class="card-title mb-1">${o.device_model} 
                                 <span class="status-badge ms-2 ${getStatusClass(o.status)}">${o.status.toUpperCase()}</span>
                             </h5>
-                            <small class="text-muted"><i class="bi bi-box"></i> Order #${o.order_id} · ${o.device_type}</small>
+                            <small class="text-muted"><i class="bi bi-box"></i> Order №${o.order_id} · ${o.device_type}</small>
                         </div>
                         <a href="/api/master/edit/${o.order_id}" class="btn btn-link text-dark p-0"><i class="bi bi-pencil-square fs-5"></i></a>
                     </div>
@@ -89,12 +87,11 @@
 
                     <div class="row g-3 mb-4">
                         <div class="col-6">
-                            <div class="info-label"><i class="bi bi-person"></i> Client: <span class="info-value text-dark">${o.client_email || 'John Client'}</span></div>
+                            <div class="info-label"><i class="bi bi-person"></i> Client: <span class="info-value text-dark">${o.client_email || 'Not specified'}</span></div>
                             <div class="info-label mt-2"><i class="bi bi-cpu"></i> OS: <span class="info-value text-dark">${o.os_version || 'Not specified'}</span></div>
                             <div class="info-label mt-2"><i class="bi bi-calendar"></i> Created: <span class="info-value text-dark">${new Date(o.created_at).toLocaleString()}</span></div>
                         </div>
                         <div class="col-6">
-                            <div class="info-label"><i class="bi bi-tools"></i> Master: <span class="info-value text-dark">Mike Master</span></div>
                             <div class="info-label mt-2"><i class="bi bi-currency-dollar"></i> Cost: <span class="info-value text-dark">$${o.cost || '0.00'}</span></div>
                             <div class="info-label mt-2"><i class="bi bi-clock-history"></i> Updated: <span class="info-value text-dark">${new Date(o.updated_at).toLocaleString()}</span></div>
                         </div>

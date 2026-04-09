@@ -47,6 +47,21 @@ export const OrderModel = {
         );
         return res.rows[0];
     },
+    getMasterStatus: async () => {
+        const res = await pool.query(`
+            SELECT 
+                u.id, 
+                u.email, 
+                COUNT(CASE WHEN o.status != 'done' AND o.status != 'canceled' THEN 1 END) as active_orders,
+                COUNT(CASE WHEN o.status = 'done' THEN 1 END) as completed_orders,
+                COUNT(o.order_id) as total_orders
+            FROM USERS u
+            LEFT JOIN ORDERS o ON u.id = o.assigned_to
+            WHERE u.role = 'master'
+            GROUP BY u.id, u.email
+        `);
+        return res.rows;
+    },
     getOrderDetails: async (orderId) => {
         const res = await pool.query(
             `SELECT o.*, u.email as client_email 
