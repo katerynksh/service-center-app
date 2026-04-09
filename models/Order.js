@@ -3,12 +3,22 @@ import pool from '../config/db.js';
 export const OrderModel = {
     // Для Майстра: бачити нові та свої
     getNewOrders: async () => {
-        const res = await pool.query("SELECT * FROM ORDERS WHERE status = 'new'");
-        return res.rows;
+    const res = await pool.query(`
+        SELECT o.*, u.email as client_email 
+        FROM ORDERS o 
+        JOIN USERS u ON o.client_id = u.id 
+        WHERE o.status = 'new'
+    `);
+    return res.rows;
     },
     getOrdersByMaster: async (masterId) => {
-        const res = await pool.query("SELECT * FROM ORDERS WHERE assigned_to = $1", [masterId]);
-        return res.rows;
+    const res = await pool.query(`
+        SELECT o.*, u.email as client_email 
+        FROM ORDERS o 
+        JOIN USERS u ON o.client_id = u.id 
+        WHERE o.assigned_to = $1
+    `, [masterId]);
+    return res.rows;
     },
 
     // Оновлення статусу майстром
@@ -36,13 +46,62 @@ export const OrderModel = {
         `);
         return res.rows;
     },
+    createNewOrder: async (orderData) => {
+        const { 
+            client_id, device_type, device_model, 
+            os_version, date_of_purchase, issue_description 
+        } = orderData;
+    
+        const res = await pool.query(
+            `INSERT INTO ORDERS 
+            (client_id, device_type, device_model, os_version, date_of_purchase, issue_description, status) 
+            VALUES ($1, $2, $3, $4, $5, $6, 'new') 
+            RETURNING *`,
+            [
+                client_id, device_type, device_model, 
+                os_version || null, 
+                date_of_purchase || null, // Обробка порожньої дати
+                issue_description
+            ]
+        );
+        return res.rows[0];
+    },  
+    updateFullOrder: async (id, data) => {
+        const { device_type, device_model, os_version, issue_description, status, cost, assigned_to } = data;
+        const res = await pool.query(
+            `UPDATE ORDERS SET 
+                device_type = $1, device_model = $2, os_version = $3, 
+                issue_description = $4, status = $5, cost = $6, 
+                assigned_to = $7, updated_at = NOW() 
+             WHERE order_id = $8 RETURNING *`,
+            [device_type, device_model, os_version, issue_description, status, cost, assigned_to, id]
+        );
+        return res.rows[0];
+    },
+    deleteOrder: async (id) => {
+        await pool.query("DELETE FROM ORDERS WHERE order_id = $1", [id]);
+        return { success: true };
+    },    
     getAllMasters: async () => {
         const res = await pool.query("SELECT id, email FROM USERS WHERE role = 'master'");
         return res.rows;
     },
-    assignMaster: async (orderId, masterId) => {
+    assignMasterByEmail: async (orderId, masterEmail) => {
+        const masterRes = await pool.query(
+            "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",
+            [masterEmail]
+        );
+
+        if (masterRes.rows.length === 0) {
+            throw new Error('Master with this email not foundor user is not a master');
+        }
+
+        const masterId = masterRes.rows[0].id;
         const res = await pool.query(
-            "UPDATE ORDERS SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
+            `UPDATE ORDERS 
+             SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
+             WHERE order_id = $2 
+             RETURNING *`,
             [masterId, orderId]
         );
         return res.rows[0];

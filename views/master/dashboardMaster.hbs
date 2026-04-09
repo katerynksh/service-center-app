@@ -122,7 +122,6 @@
     }
 
     async function takeInWork(id) {
-        // Логіка з попереднього кроку для прийняття замовлення
         const res = await fetch(`/api/master/order/accept/${id}`, { method: 'PUT' });
         if (res.ok) load();
     }

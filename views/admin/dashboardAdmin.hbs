@@ -1,5 +1,3 @@
-{{!-- katerynksh/service-center-app/service-center-app-master-admin/views/admin/dashboardAdmin.hbs --}}
-
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -19,9 +17,15 @@
         <button class="nav-link" id="tab-masters" onclick="switchTab('masters')"><i class="bi bi-tools me-1"></i> Masters (0)</button>
     </div>
 
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-order'">
+            <i class="bi bi-plus-lg"></i> Create New Order
+        </button>
+    </div>
+
     <div class="input-group mb-4 shadow-sm rounded-3 overflow-hidden">
         <span class="input-group-text bg-white border-end-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-        <input type="text" id="adminSearch" class="form-control border-start-0 ps-2 py-2" placeholder="Search masters by name or email...">
+        <input type="text" id="adminSearch" class="form-control border-start-0 ps-2 py-2" placeholder="Search orders or masters...">
     </div>
 
     <div id="admin-content-container"></div>
@@ -59,6 +63,49 @@
         renderContent();
     }
 
+    // Функція видалення замовлення
+    async function deleteOrder(id) {
+        if (!confirm('Are you sure you want to PERMANENTLY delete this order?')) return;
+        
+        try {
+            const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('Order deleted successfully');
+                loadAdminData(); // Оновити список
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async function setMaster(orderId) {
+        const email = prompt("Enter master's email:");
+        if (!email) return;
+
+        try {
+            const res = await fetch('/api/admin/assign-master', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    orderId: parseInt(orderId), // Перетворюємо в число про всяк випадок
+                    masterEmail: email 
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("Master assigned successfully!");
+                loadAdminData(); // Оновлюємо список
+            } else {
+                // Тепер ви побачите в alert конкретну причину помилки
+                alert("Error: " + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Server connection error");
+        }
+    }
+
     function switchTab(tab) {
         activeTab = tab;
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
@@ -68,14 +115,21 @@
 
     function renderContent() {
         const container = document.getElementById('admin-content-container');
-        
+    
         if (activeTab === 'masters') {
-            container.innerHTML = allData.masters.map(m => `
+            const addButtonHtml = `
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-master'">
+                        <i class="bi bi-person-plus-fill me-1"></i> Add New Master
+                    </button>
+                </div>
+            `;
+
+            const mastersListHtml = allData.masters.map(m => `
                 <div class="card admin-card shadow-sm">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-1">${m.email.split('@')[0]}</h5>
                         <div class="text-muted small mb-3"><i class="bi bi-envelope"></i> ${m.email}</div>
-                        
                         <div class="d-flex gap-3">
                             <div class="stat-box bg-active">
                                 <div class="stat-label"><i class="bi bi-clock"></i> Active</div>
@@ -93,20 +147,33 @@
                     </div>
                 </div>
             `).join('');
+
+            container.innerHTML = addButtonHtml + mastersListHtml;
         } else {
-            // Відображення замовлень
             container.innerHTML = allData.orders.map(o => `
                 <div class="card admin-card shadow-sm">
                     <div class="card-body p-4 d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="fw-bold mb-1">${o.device_model}</h5>
                             <div class="order-id-badge"><i class="bi bi-box"></i> Order №${o.order_id} • ${o.status.toUpperCase()}</div>
-                        </div>
-                        <div>
                             ${o.assigned_to ? 
-                                `<span class="text-success small"><i class="bi bi-person-check"></i> Assigned to ${o.master_email}</span>` :
-                                `<button onclick="assignMaster(${o.order_id})" class="btn btn-sm btn-danger px-3">Assign Master</button>`
+                                `<div class="text-success small mt-1"><i class="bi bi-person-check"></i> Master: ${o.master_email}</div>` : 
+                                `<div class="text-danger small mt-1"><i class="bi bi-exclamation-circle"></i> Unassigned</div>`
                             }
+                        </div>
+                        <div class="d-flex gap-2">
+                            ${!o.assigned_to ? `
+                                <button onclick="setMaster(${o.order_id})" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                                    <i class="bi bi-person-plus"></i> Assign
+                                </button>
+                            ` : ''}
+                            
+                            <a href="/api/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
                         </div>
                     </div>
                 </div>
