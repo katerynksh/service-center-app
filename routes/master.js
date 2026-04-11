@@ -2,11 +2,12 @@ import express from 'express';
 import * as master from '../controllers/masterController.js';
 import { isMaster } from '../middleware/authMiddleware.js';
 import { getEditMasterView } from '../views/master/editMaster.js';
+import { getMasterDashboardView } from '../views/master/dashboardMaster.js';
 
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', getMasterDashboardView, (req, res) => {
 res.render('master/dashboardMaster')
 });
 

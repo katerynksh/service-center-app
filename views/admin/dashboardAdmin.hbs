@@ -1,16 +1,15 @@
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0 fw-bold">Service Center</h4>
-            <small class="text-muted">Admin Dashboard</small>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
-            <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Service Center</h4>
+        <small class="text-muted">{{title}} — {{user.email}}</small>
     </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
+        <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</div>
 
     <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
         <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">All Orders (0)</button>
@@ -36,7 +35,7 @@
 <style>
     .custom-tabs { background: white; padding: 5px; }
     .custom-tabs .nav-link { color: #6c757d; font-weight: 500; border: none; }
-    .custom-tabs .nav-link.active { background-color: #c093ef91 !important; color: white; }
+    .custom-tabs .nav-link.active { background-color: #70558d91 !important; color: white; }
     
     .admin-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
     .stat-box { border-radius: 10px; padding: 15px; flex: 1; }
@@ -119,7 +118,7 @@
         if (activeTab === 'masters') {
             const addButtonHtml = `
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-master'">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-master'">
                         <i class="bi bi-person-plus-fill me-1"></i> Add New Master
                     </button>
                 </div>
@@ -163,12 +162,12 @@
                         </div>
                         <div class="d-flex gap-2">
                             ${!o.assigned_to ? `
-                                <button onclick="setMaster(${o.order_id})" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                                <button onclick="setMaster(${o.order_id})" class="btn btn-outline-success btn-sm">
                                     <i class="bi bi-person-plus"></i> Assign
                                 </button>
                             ` : ''}
                             
-                            <a href="/api/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                            <a href="/api/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
                             <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-danger btn-sm rounded-pill px-3">

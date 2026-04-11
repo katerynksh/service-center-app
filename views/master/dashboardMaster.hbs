@@ -1,18 +1,17 @@
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0">Service Center</h4>
-            <small class="text-muted">Master Dashboard - {{user.email}}</small>
-        </div>
-        <div class="d-flex align-items-center">
-            <button class="btn btn-link text-dark me-3"><i class="bi bi-moon"></i></button>
-            <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Service Center</h4>
+        <small class="text-muted">{{title}} — {{user.email}}</small>
     </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
+        <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</div>
 
-    <div class="nav nav-pills nav-justified mb-4 custom-tabs">
+    <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
         <button class="nav-link active" id="tab-new" onclick="switchTab('new')">New Orders (0)</button>
         <button class="nav-link" id="tab-my" onclick="switchTab('my')">My Orders (0)</button>
     </div>
@@ -29,8 +28,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <style>
-    .custom-tabs .nav-link { color: #6c757d; border-radius: 8px; font-weight: 500; }
-    .custom-tabs .nav-link.active { background-color: #c093ef91 !important; color: white; }
+    .custom-tabs { background: white; padding: 5px; }
+    
+    .custom-tabs .nav-link { color: #6c757d; font-weight: 500; border: none; }
+    .custom-tabs .nav-link.active { background-color: #70558d91 !important; color: white; }
     .order-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
     .order-card:hover { border-color: #ccc; }
     .status-badge { border-radius: 6px; font-size: 0.75rem; padding: 4px 8px; font-weight: bold; }
@@ -105,8 +106,10 @@
                     ` : ''}
 
                     ${activeTab === 'new' ? `
-                        <button onclick="takeInWork(${o.order_id})" class="btn btn-success w-100 mt-3">Take in Work</button>
-                    ` : ''}
+                        <button onclick="takeInWork(${o.order_id})" class="btn btn-danger w-100 mt-3">
+                            Take in Work
+                        </button>                    
+        ` : ''}
                 </div>
             </div>
         `).join('');
