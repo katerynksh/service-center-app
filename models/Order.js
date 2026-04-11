@@ -86,6 +86,15 @@ export const OrderModel = {
         const res = await pool.query("SELECT id, email FROM USERS WHERE role = 'master'");
         return res.rows;
     },
+    assignToMaster: async (orderId, masterId) => {
+        const res = await pool.query(
+            `UPDATE ORDERS 
+             SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
+             WHERE order_id = $2 RETURNING *`,
+            [masterId, orderId]
+        );
+        return res.rows[0];
+    },
     assignMasterByEmail: async (orderId, masterEmail) => {
         const masterRes = await pool.query(
             "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",

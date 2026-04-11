@@ -29,8 +29,10 @@
                         <select class="form-select" name="status">
                             <option value="new" {{#if (eq order.status 'new')}}selected{{/if}}>NEW</option>
                             <option value="in progress" {{#if (eq order.status 'in progress')}}selected{{/if}}>IN PROGRESS</option>
+                            <option value="waiting customer response" {{#if (eq order.status 'waiting customer response')}}selected{{/if}}>WAITING CUSTOMER RESPONSE</option>
+                            <option value="waiting spare parts" {{#if (eq order.status 'waiting spare parts')}}selected{{/if}}>WAITING SPARE PARTS</option>
+                            <option value="failed" {{#if (eq order.status 'failed')}}selected{{/if}}>FAILED</option>
                             <option value="done" {{#if (eq order.status 'done')}}selected{{/if}}>DONE</option>
-                            <option value="canceled" {{#if (eq order.status 'canceled')}}selected{{/if}}>CANCELED</option>
                         </select>
                     </div>
                     <div class="col-md-4">

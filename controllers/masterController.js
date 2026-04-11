@@ -62,14 +62,15 @@ export const updateOrder = async (req, res) => {
 export const acceptOrder = async (req, res) => {
     try {
         const { id } = req.params;
+        const orderId = req.params.id;
         const masterId = 2; 
-        // const masterId = req.user.id; // У реальному режимі отримуємо ID майстра з токена
+        // const masterId = req.user.id; 
 
-        const updated = await OrderModel.assignMaster(id, masterId);
-        
-        res.json(updated);
+        const updatedOrder = await OrderModel.assignToMaster(orderId, masterId);
+
+        res.json(updatedOrder);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Помилка при прийнятті замовлення' });
+        res.status(500).json({ error: 'Error accepting order' });
     }
 };

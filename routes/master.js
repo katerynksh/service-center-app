@@ -3,6 +3,7 @@ import * as master from '../controllers/masterController.js';
 import { isMaster } from '../middleware/authMiddleware.js';
 import { getEditMasterView } from '../views/master/editMaster.js';
 
+
 const router = express.Router();
 
 router.get('/', (req, res) => {

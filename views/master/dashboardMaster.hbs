@@ -30,7 +30,7 @@
 
 <style>
     .custom-tabs .nav-link { color: #6c757d; border-radius: 8px; font-weight: 500; }
-    .custom-tabs .nav-link.active { background-color: #ec7979 !important; color: white; }
+    .custom-tabs .nav-link.active { background-color: #c093ef91 !important; color: white; }
     .order-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
     .order-card:hover { border-color: #ccc; }
     .status-badge { border-radius: 6px; font-size: 0.75rem; padding: 4px 8px; font-weight: bold; }
@@ -116,6 +116,10 @@
         switch(status) {
             case 'new': return 'bg-warning-subtle text-warning border border-warning';
             case 'in progress': return 'bg-warning-subtle text-warning border border-warning';
+            case 'waiting customer response': return 'bg-info-subtle text-info border border-info';
+            case 'waiting spare parts': return 'bg-secondary-subtle text-secondary border border-secondary';
+            case 'failed': return 'bg-danger-subtle text-danger border border-danger';
+
             case 'done': return 'bg-success-subtle text-success border border-success';
             default: return 'bg-info-subtle text-info border border-info';
         }

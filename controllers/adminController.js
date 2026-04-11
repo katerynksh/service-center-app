@@ -59,7 +59,7 @@ export const createOrderAdmin = async (req, res) => {
         res.status(201).json(newOrder);
     } catch (error) {
         console.error("Error creating order:", error.message);
-        res.status(500).json({ error: 'Error creating order' });
+        res.status(500).json({ error: 'Failed to create order, maybe this user already exists' });
     }
 };
 // export const assignMaster = async (req, res) => {

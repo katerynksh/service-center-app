@@ -5,7 +5,7 @@ export const getEditMasterView = (req, res) => {
     const { id } = req.params; 
 
     res.render('master/editMaster', { 
-        title: 'Edit Order',
+        title: 'Edit Order - Master',
         orderId: id,
     });
 };
