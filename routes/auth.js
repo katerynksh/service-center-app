@@ -3,8 +3,8 @@ import * as authController from '../controllers/authController.js';
 const router = express.Router();
 
 // Сторінки (GET)
-router.get('/login', (req, res) => res.render('auth/login', { title: 'Login - Service Center' }));
-router.get('/register', (req, res) => res.render('auth/register', { title: 'Sign Up - Service Center' }));
+router.get('/login', authController.getLoginView);
+router.get('/register', authController.getRegisterView);
 
 // Дії (POST)
 router.post('/register', authController.register);
