@@ -5,7 +5,7 @@ const { Pool } = pg;
 
 const pool = new Pool({
     connectionString: process.env.DB_URL,
-    sslmode: 'verify-full'
+    ssl: process.env.DB_URL.includes('localhost') ? false : { rejectUnauthorized: false }
 });
 
 const initializeDatabase = async () => {

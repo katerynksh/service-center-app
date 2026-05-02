@@ -18,11 +18,18 @@
 
     <div class="input-group mb-4 shadow-sm">
         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-        <input type="text" class="form-control border-start-0 ps-0" placeholder="Search by order ID, model, or client...">
+        <input type="text" id="order-search" class="form-control border-start-0 ps-0" placeholder="Search by order ID, model, or client..." oninput="renderOrders()">
+        <select id="search-category" class="form-select border-start-1" style="max-width: 150px;" onchange="renderOrders()">
+            <option value="all">All fields</option>
+            <option value="order_id">Order №</option>
+            <option value="device_model">Model</option>
+            <option value="client_email">Client</option>
+            <option value="issue_description">Description</option>
+        </select>
     </div>
 
     <div id="orders-container">
-        </div>
+    </div>
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -64,7 +71,26 @@
 
     function renderOrders() {
         const container = document.getElementById('orders-container');
-        const orders = activeTab === 'new' ? currentOrders.newOrders : currentOrders.myOrders;
+        const searchTerm = document.getElementById('order-search').value.toLowerCase();
+        const category = document.getElementById('search-category').value;
+
+        let orders = activeTab === 'new' ? currentOrders.newOrders : currentOrders.myOrders;
+        if (searchTerm) {
+            orders = orders.filter(o => {
+                const dataToSearch = {
+                    order_id: String(o.order_id),
+                    device_model: (o.device_model || '').toLowerCase(),
+                    client_email: (o.client_email || '').toLowerCase(),
+                    issue_description: (o.issue_description || '').toLowerCase()
+                };
+
+                if (category === 'all') {
+                    return Object.values(dataToSearch).some(val => val.includes(searchTerm));
+                } else {
+                    return dataToSearch[category]?.includes(searchTerm);
+                }
+            });
+        }
 
         if (orders.length === 0) {
             container.innerHTML = `<div class="text-center py-5 text-muted">No orders found in this section.</div>`;
