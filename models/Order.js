@@ -172,3 +172,4 @@ export const OrderModel = {
     },
 };
 
+export default OrderModel;

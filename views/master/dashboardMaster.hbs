@@ -5,7 +5,7 @@
     </div>
     <div class="d-flex align-items-center gap-2">
         <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
-        <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+        <a href="/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
             <i class="bi bi-box-arrow-right"></i> Logout
         </a>
     </div>
@@ -45,7 +45,7 @@
     let activeTab = 'new';
 
     async function load() {
-        const res = await fetch('/api/master/dashboard');
+        const res = await fetch('/master/dashboard');
         currentOrders = await res.json();
         
         // Оновлюємо лічильники на вкладках
@@ -81,7 +81,7 @@
                             </h5>
                             <small class="text-muted"><i class="bi bi-box"></i> Order №${o.order_id} · ${o.device_type}</small>
                         </div>
-                        <a href="/api/master/edit/${o.order_id}" class="btn btn-link text-dark p-0"><i class="bi bi-pencil-square fs-5"></i></a>
+                        <a href="/master/edit/${o.order_id}" class="btn btn-link text-dark p-0"><i class="bi bi-pencil-square fs-5"></i></a>
                     </div>
 
                     <p class="mb-4">${o.issue_description}</p>
@@ -129,7 +129,7 @@
     }
 
     async function takeInWork(id) {
-        const res = await fetch(`/api/master/order/accept/${id}`, { method: 'PUT' });
+        const res = await fetch(`/master/order/accept/${id}`, { method: 'PUT' });
         if (res.ok) load();
     }
 

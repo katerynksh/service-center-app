@@ -7,7 +7,7 @@ import authRoutes from "./routes/auth.js";
 import masterRoutes from "./routes/master.js";
 import adminRoutes from "./routes/admin.js";
 import clientRoutes from "./routes/client.js";
-import masterViewRoutes from "./views/master/editMaster.js";
+// import masterViewRoutes from "./views/master/editMaster.js";
 
 dotenv.config();
 const app = express();
@@ -30,7 +30,7 @@ app.use("/auth", authRoutes);
 app.use("/master", masterRoutes);
 app.use("/admin", adminRoutes);
 app.use("/client", clientRoutes);
-app.use("/master", masterViewRoutes);
+// app.use("/master", masterViewRoutes);
 
 /*
 app.get('/', (req, res) => {
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 */
 
 app.get('/', (req, res) => {
-    res.redirect('/auth/login'); // Перенаправляємо на вашу сторінку входу
+    res.redirect('/auth/login');
 });
 
 const PORT = process.env.PORT || 3000;

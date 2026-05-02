@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-import OrderModel from "../models/orderModel.js";
+import OrderModel from "../models/Order.js";
 
 // ПЕРЕГЛЯД СВОЇХ ЗАМОВЛЕНЬ
 export const getMyOrders = async (req, res) => {
