@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { User } from "./index.js";
 
 export const findUserByEmail = async (email) => {
   try {
@@ -39,9 +40,20 @@ export const getAllUsers = async () => {
   return res.rows;
 };
 
+export const UserModel = {
+    create: async ({ email, password, role }) => {
+        const res = await pool.query(
+            'INSERT INTO USERS (email, password, role) VALUES ($1, $2, $3) RETURNING id, email, role',
+            [email, password, role]
+        );
+        return res.rows[0];
+    }
+};
+
 export default {
   findUserByEmail,
   createUser,
   findUserById,
   getAllUsers,
+  UserModel,
 };

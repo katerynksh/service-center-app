@@ -1,15 +1,35 @@
-import { OrderModel } from '../models/Order.js';
+import OrderModel from '../models/Order.js';
+import UserModel from '../models/User.js';
+import { Op } from 'sequelize';
 
 export const getDashboard = async (req, res) => {
     try {
         // const masterId = req.user.id;
         
         const masterId = 2; //тестовий майстер
-        const newOrders = await OrderModel.getNewOrders();
-        const myOrders = await OrderModel.getOrdersByMaster(masterId);
+
+        const { search, category } = req.query;
+
+        let newOrders = await OrderModel.getNewOrders();
+        let myOrders = await OrderModel.getOrdersByMaster(masterId);
+
+        if (search && search.trim() !== '') {
+            const searchTerm = search.toLowerCase();
+            const filterCategory = category || 'description'; // Категорія за замовчуванням
+
+            const filterFn = (order) => {
+                const value = order[filterCategory] ? String(order[filterCategory]).toLowerCase() : '';
+                return value.includes(searchTerm);
+            };
+
+            newOrders = newOrders.filter(filterFn);
+            myOrders = myOrders.filter(filterFn);
+        }
         res.json({ 
             newOrders: newOrders || [], 
-            myOrders: myOrders || []
+            myOrders: myOrders || [],
+            search,    // Повертаємо назад, щоб відобразити в полі пошуку
+            category
         });
     } catch (error) {
         console.error("Dashboard error:", error);

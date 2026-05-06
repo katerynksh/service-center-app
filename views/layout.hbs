@@ -16,18 +16,18 @@
                 <ul class="navbar-nav me-auto">
                     {{#if user}}
                         {{#if (eq user.role 'admin')}}
-                            <li class="nav-item"><a class="nav-link" href="/api/admin/dashboard">Admin Panel</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin Panel</a></li>
                         {{/if}}
                         {{#if (eq user.role 'master')}}
-                            <li class="nav-item"><a class="nav-link" href="/api/master">Master Panel</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/master/dashboard">Master Panel</a></li>
                         {{/if}}
-                        <li class="nav-item"><a class="nav-link" href="/api/client/dashboard">My Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/client/dashboard">My Orders</a></li>
                     {{/if}}
                 </ul>
                 <div class="navbar-nav align-items-center">
                     {{#if user}}
                         <span class="text-muted small me-3">{{user.email}}</span>
-                        <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/api/auth/logout">Logout</a>
+                        <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/auth/logout">Logout</a>
                     {{/if}}
                 </div>
             </div>

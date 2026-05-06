@@ -1,16 +1,15 @@
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0 fw-bold">Service Center</h4>
-            <small class="text-muted">Admin Dashboard</small>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
-            <a href="/api/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Service Center</h4>
+        <small class="text-muted">{{title}} — {{user.email}}</small>
     </div>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
+        <a href="/auth/logout" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</div>
 
     <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
         <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">All Orders (0)</button>
@@ -18,14 +17,34 @@
     </div>
 
     <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-order'">
+        <button class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="location.href='/admin/create-order'">
             <i class="bi bi-plus-lg"></i> Create New Order
         </button>
     </div>
 
-    <div class="input-group mb-4 shadow-sm rounded-3 overflow-hidden">
-        <span class="input-group-text bg-white border-end-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-        <input type="text" id="adminSearch" class="form-control border-start-0 ps-2 py-2" placeholder="Search orders or masters...">
+    <div id="search-container">
+        <!-- Пошук для ЗАМОВЛЕНЬ (показується, коли активна вкладка 'orders') -->
+        <div id="order-search-block" class="input-group mb-4 shadow-sm">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="order-search" class="form-control border-start-0 ps-0" placeholder="Search orders..." oninput="renderContent()">
+            <select id="search-category" class="form-select border-start-1" style="max-width: 150px;" onchange="renderContent()">
+                <option value="all">All fields</option>
+                <option value="order_id">Order №</option>
+                <option value="device_model">Model</option>
+                <option value="status">Status</option>
+            </select>
+        </div>
+
+        <!-- Пошук для МАЙСТРІВ (показується, коли активна вкладка 'masters') -->
+        <div id="master-search-block" class="input-group mb-4 shadow-sm d-none">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-search"></i></span>
+            <input type="text" id="master-search" class="form-control border-start-0 ps-0" placeholder="Search masters..." oninput="renderContent()">
+            <select id="master-search-category" class="form-select border-start-1" style="max-width: 150px;" onchange="renderContent()">
+                <option value="all">All fields</option>
+                <option value="email">Email</option>
+                <option value="id">Master ID</option>
+            </select>
+        </div>
     </div>
 
     <div id="admin-content-container"></div>
@@ -36,7 +55,7 @@
 <style>
     .custom-tabs { background: white; padding: 5px; }
     .custom-tabs .nav-link { color: #6c757d; font-weight: 500; border: none; }
-    .custom-tabs .nav-link.active { background-color: #c093ef91 !important; color: white; }
+    .custom-tabs .nav-link.active { background-color: #70558d91 !important; color: white; }
     
     .admin-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
     .stat-box { border-radius: 10px; padding: 15px; flex: 1; }
@@ -54,7 +73,7 @@
     let activeTab = 'orders'; 
 
     async function loadAdminData() {
-        const res = await fetch('/api/admin/all-info');
+        const res = await fetch('/admin/all-info');
         allData = await res.json();
         
         document.getElementById('tab-orders').innerText = `All Orders (${allData.orders.length})`;
@@ -68,7 +87,7 @@
         if (!confirm('Are you sure you want to PERMANENTLY delete this order?')) return;
         
         try {
-            const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 alert('Order deleted successfully');
                 loadAdminData(); // Оновити список
@@ -82,7 +101,7 @@
         if (!email) return;
 
         try {
-            const res = await fetch('/api/admin/assign-master', {
+            const res = await fetch('/admin/assign-master', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -110,6 +129,16 @@
         activeTab = tab;
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');
+        
+        // Керування видимістю блоків пошуку
+        if (tab === 'orders') {
+            document.getElementById('order-search-block').classList.remove('d-none');
+            document.getElementById('master-search-block').classList.add('d-none');
+        } else {
+            document.getElementById('order-search-block').classList.add('d-none');
+            document.getElementById('master-search-block').classList.remove('d-none');
+        }
+        
         renderContent();
     }
 
@@ -117,15 +146,27 @@
         const container = document.getElementById('admin-content-container');
     
         if (activeTab === 'masters') {
+            // ЛОГІКА ПОШУКУ МАЙСТРІВ
+            const term = document.getElementById('master-search').value.toLowerCase();
+            const cat = document.getElementById('master-search-category').value;
+            
+            let filteredMasters = allData.masters.filter(m => {
+                if (!term) return true;
+                const fields = {
+                    id: String(m.id),
+                    email: m.email.toLowerCase()
+                };
+                return cat === 'all' ? Object.values(fields).some(v => v.includes(term)) : fields[cat]?.includes(term);
+            });
             const addButtonHtml = `
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-master'">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/api/admin/create-master'">
                         <i class="bi bi-person-plus-fill me-1"></i> Add New Master
                     </button>
                 </div>
             `;
 
-            const mastersListHtml = allData.masters.map(m => `
+            container.innerHTML = addButtonHtml + filteredMasters.map(m => `
                 <div class="card admin-card shadow-sm">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-1">${m.email.split('@')[0]}</h5>
@@ -133,44 +174,42 @@
                         <div class="d-flex gap-3">
                             <div class="stat-box bg-active">
                                 <div class="stat-label"><i class="bi bi-clock"></i> Active</div>
-                                <div class="stat-value text-dark">${m.active_orders}</div>
+                                <div class="stat-value text-dark">${m.active_orders || 0}</div>
                             </div>
                             <div class="stat-box bg-completed">
                                 <div class="stat-label"><i class="bi bi-check-circle"></i> Completed</div>
-                                <div class="stat-value text-dark">${m.completed_orders}</div>
-                            </div>
-                            <div class="stat-box bg-total">
-                                <div class="stat-label">Total Orders</div>
-                                <div class="stat-value text-dark">${m.total_orders}</div>
+                                <div class="stat-value text-dark">${m.completed_orders || 0}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             `).join('');
 
-            container.innerHTML = addButtonHtml + mastersListHtml;
         } else {
-            container.innerHTML = allData.orders.map(o => `
+            // ЛОГІКА ПОШУКУ ЗАМОВЛЕНЬ
+            const term = document.getElementById('order-search').value.toLowerCase();
+            const cat = document.getElementById('search-category').value;
+
+            let filteredOrders = allData.orders.filter(o => {
+                if (!term) return true;
+                const fields = {
+                    order_id: String(o.order_id),
+                    device_model: o.device_model.toLowerCase(),
+                    status: o.status.toLowerCase(),
+                    client_email: (o.client_email || "").toLowerCase()
+                };
+                return cat === 'all' ? Object.values(fields).some(v => v.includes(term)) : fields[cat]?.includes(term);
+            });
+
+            container.innerHTML = filteredOrders.map(o => `
                 <div class="card admin-card shadow-sm">
                     <div class="card-body p-4 d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="fw-bold mb-1">${o.device_model}</h5>
                             <div class="order-id-badge"><i class="bi bi-box"></i> Order №${o.order_id} • ${o.status.toUpperCase()}</div>
-                            ${o.assigned_to ? 
-                                `<div class="text-success small mt-1"><i class="bi bi-person-check"></i> Master: ${o.master_email}</div>` : 
-                                `<div class="text-danger small mt-1"><i class="bi bi-exclamation-circle"></i> Unassigned</div>`
-                            }
                         </div>
                         <div class="d-flex gap-2">
-                            ${!o.assigned_to ? `
-                                <button onclick="setMaster(${o.order_id})" class="btn btn-outline-success btn-sm rounded-pill px-3">
-                                    <i class="bi bi-person-plus"></i> Assign
-                                </button>
-                            ` : ''}
-                            
-                            <a href="/api/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
+                            <a href="/api/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm"><i class="bi bi-pencil"></i> Edit</a>
                             <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                                 <i class="bi bi-trash"></i> Delete
                             </button>

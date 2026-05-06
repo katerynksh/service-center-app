@@ -63,7 +63,7 @@
 
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="btn btn-danger px-4 rounded-pill">Save All Changes</button>
-                    <a href="/api/admin" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    <a href="/admin" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
                 </div>
             </form>
         </div>
@@ -76,7 +76,7 @@ document.getElementById('adminEditForm').addEventListener('submit', async (e) =>
     const formData = Object.fromEntries(new FormData(e.target));
     const id = document.getElementById('order-id-display').innerText;
 
-    const res = await fetch(`/api/admin/orders/${id}`, {
+    const res = await fetch(`/admin/orders/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -84,14 +84,14 @@ document.getElementById('adminEditForm').addEventListener('submit', async (e) =>
 
     if (res.ok) {
         alert('Order updated successfully!');
-        window.location.href = '/api/admin';
+        window.location.href = '/admin';
     }
 });
 
 async function confirmDelete(id) {
     if (confirm('Are you sure you want to PERMANENTLY delete this order?')) {
-        const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
-        if (res.ok) window.location.href = '/api/admin';
+        const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
+        if (res.ok) window.location.href = '/admin';
     }
 }
 </script>

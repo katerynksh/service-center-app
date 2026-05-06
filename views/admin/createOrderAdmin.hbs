@@ -38,7 +38,7 @@
 
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="btn btn-danger px-4 rounded-pill">Create Order</button>
-                    <a href="/api/admin" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    <a href="/admin" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
                 </div>
             </form>
         </div>
@@ -51,7 +51,7 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
     const formData = Object.fromEntries(new FormData(e.target));
 
     try {
-        const res = await fetch('/api/admin/orders', {
+        const res = await fetch('/admin/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -59,7 +59,7 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
 
         if (res.ok) {
             alert('Order created successfully!');
-            window.location.href = '/api/admin';
+            window.location.href = '/admin';
         } else {
             const err = await res.json();
             alert('Error: ' + err.error);
