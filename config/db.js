@@ -10,15 +10,16 @@ const pool = new Pool({
 
 const initializeDatabase = async () => {
    const createUsersTable = `
-    CREATE TABLE IF NOT EXISTS USERS (
+    CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL DEFAULT '',
         password VARCHAR(255) NOT NULL,
         role TEXT NOT NULL CHECK (role IN ('client', 'master', 'admin')) DEFAULT 'client'
     );`;
 
    const createOrdersTable = `
-    CREATE TABLE IF NOT EXISTS ORDERS (
+    CREATE TABLE IF NOT EXISTS orders (
         order_id SERIAL PRIMARY KEY,
         client_id INTEGER REFERENCES users(id),
         device_type TEXT NOT NULL,
@@ -44,46 +45,16 @@ const initializeDatabase = async () => {
    try {
     await pool.query(createUsersTable);
       await pool.query(createOrdersTable);
-      const checkUsers = await pool.query("SELECT COUNT(*) FROM USERS");
-      if (parseInt(checkUsers.rows[0].count) === 0) {
-        
-      await pool.query(`
-        INSERT INTO USERS (email, password, role) VALUES 
-        ('client@test.com', '123', 'client'),
-        ('master@test.com', '123', 'master'),
-        ('admin@test.com', '123', 'admin');
-
-        INSERT INTO ORDERS (client_id, device_type, device_model, issue_description, status) VALUES 
-        (1, 'Телефон', 'iPhone 13', 'Розбите скло', 'new'),
-        (1, 'Ноутбук', 'MacBook Air', 'Залити й водою', 'new');
-        
-        INSERT INTO ORDERS (client_id, device_type, device_model, issue_description, status, assigned_to) VALUES 
-        (1, 'Планшет', 'Samsung Tab', 'Заміна гнізда', 'in progress', 2);
-        `);
-        console.log('✅ Тестові дані успішно додані');
-        }
-      
+      const checkUsers = await pool.query("SELECT COUNT(*) FROM users");
+      const checkOrders = await pool.query("SELECT COUNT(*) FROM orders");
+      console.log(`✓ USERS table ready (${checkUsers.rows[0].count} records)`);
+      console.log(`✓ ORDERS table ready (${checkOrders.rows[0].count} records)`);      
       console.log('✓ Initialized database with USERS and ORDERS tables');
    } catch (error) {
       console.error('✕ Error initializing database:', error);
       throw error;
    }
 };
-
-//// тестові дані для зручності розробки
-// try {
-//     await pool.query(`
-//         INSERT INTO USERS (email, password, role) 
-//         VALUES ('test@master.com', '123', 'master') 
-//         ON CONFLICT (email) DO NOTHING;
-        
-//         INSERT INTO ORDERS (client_id, device_type, device_model, issue_description, status) 
-//         VALUES (1, 'Test Device', 'Test Model', 'Test Issue', 'new');
-//     `);
-//     console.log("✅ Тестові дані додано");
-// } catch (e) {
-//     console.log("Тестові дані вже існують або помилка клієнта");
-// }
 
 initializeDatabase();
 

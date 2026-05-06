@@ -150,7 +150,8 @@ export const getEditPage = async (req, res) => {
 
 export const createMaster = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        console.log("Create Master - Received data:", req.body);
+        const { email, name, password } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ error: 'Email and password are required' });
@@ -158,13 +159,14 @@ export const createMaster = async (req, res) => {
 
         const newMaster = await UserModel.createUser({
             email,
+            name,
             password,
             role: 'master'
         });
 
         res.status(201).json(newMaster);
     } catch (error) {
-        console.error("Create Master Error:", error.message);
-        res.status(500).json({ error: 'User already exists or data is invalid' });
+        console.error("Create Master Error:", error);
+        // res.status(500).json({ error: 'User already exists or data is invalid' });
     }
 };

@@ -4,9 +4,9 @@ import { Op } from 'sequelize';
 
 export const getDashboard = async (req, res) => {
     try {
-        // const masterId = req.user.id;
+        const masterId = req.user.id;
         
-        const masterId = 2; //тестовий майстер
+        // const masterId = 2; //тестовий майстер
 
         const { search, category } = req.query;
 
@@ -83,8 +83,8 @@ export const acceptOrder = async (req, res) => {
     try {
         const { id } = req.params;
         const orderId = req.params.id;
-        const masterId = 2; 
-        // const masterId = req.user.id; 
+        // const masterId = 2; 
+        const masterId = req.user.id; 
 
         const updatedOrder = await OrderModel.assignToMaster(orderId, masterId);
 

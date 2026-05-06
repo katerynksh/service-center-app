@@ -15,8 +15,8 @@ export const OrderModel = {
     const res = await pool.query(
       `
         SELECT o.*, u.email as client_email 
-        FROM ORDERS o 
-        JOIN USERS u ON o.client_id = u.id 
+        FROM orders o 
+        JOIN users u ON o.client_id = u.id 
         WHERE o.assigned_to = $1
     `,
       [masterId],
@@ -44,8 +44,8 @@ export const OrderModel = {
   getAllOrders: async () => {
     const res = await pool.query(`
             SELECT o.*, u.email as master_email 
-            FROM ORDERS o 
-            LEFT JOIN USERS u ON o.assigned_to = u.id 
+            FROM orders o 
+            LEFT JOIN users u ON o.assigned_to = u.id 
             ORDER BY o.created_at DESC
         `);
     return res.rows;
@@ -128,8 +128,8 @@ export const OrderModel = {
                 COUNT(CASE WHEN o.status != 'done' AND o.status != 'canceled' THEN 1 END) as active_orders,
                 COUNT(CASE WHEN o.status = 'done' THEN 1 END) as completed_orders,
                 COUNT(o.order_id) as total_orders
-            FROM USERS u
-            LEFT JOIN ORDERS o ON u.id = o.assigned_to
+            FROM users u
+            LEFT JOIN orders o ON u.id = o.assigned_to
             WHERE u.role = 'master'
             GROUP BY u.id, u.email
         `);
@@ -138,8 +138,8 @@ export const OrderModel = {
   getOrderDetails: async (orderId) => {
     const res = await pool.query(
       `SELECT o.*, u.email as client_email 
-            FROM ORDERS o 
-            JOIN USERS u ON o.client_id = u.id 
+            FROM orders o 
+            JOIN users u ON o.client_id = u.id 
             WHERE o.order_id = $1`,
       [orderId],
     );
@@ -148,8 +148,8 @@ export const OrderModel = {
   getOrderById: async (orderId) => {
     const res = await pool.query(
       `SELECT o.*, u.email as client_email 
-             FROM ORDERS o 
-             JOIN USERS u ON o.client_id = u.id 
+             FROM orders o 
+             JOIN users u ON o.client_id = u.id 
              WHERE o.order_id = $1`,
       [orderId],
     );
@@ -159,7 +159,7 @@ export const OrderModel = {
   getOrdersByClientId: async (clientId) => {
     try {
       const res = await pool.query(
-        "SELECT * FROM ORDERS WHERE client_id = $1 ORDER BY created_at DESC",
+        "SELECT * FROM orders WHERE client_id = $1 ORDER BY created_at DESC",
         [clientId],
       );
       return res.rows;
@@ -179,7 +179,7 @@ export const OrderModel = {
       issue_description,
     } = orderData;
     const res = await pool.query(
-      `INSERT INTO ORDERS 
+      `INSERT INTO orders 
           (client_id, device_type, device_model, os_version, date_of_purchase, issue_description, status) 
           VALUES ($1, $2, $3, $4, $5, $6, 'new') 
           RETURNING *`,
