@@ -1,16 +1,28 @@
 import pool from "../config/db.js";
-import OrderModel from "../models/Order.js";
+import { OrderModel } from "../models/Order.js";
+
+export const getCreateOrderView = (req, res) => {
+  res.render("client/createClient", {
+    title: "Create New Request",
+    user: req.session.user,
+    layout: false,
+  });
+};
 
 // ПЕРЕГЛЯД СВОЇХ ЗАМОВЛЕНЬ
 export const getMyOrders = async (req, res) => {
-  const clientId = req.query.clientId;
   try {
+    if (!req.session.user) {
+      return res.redirect("/auth/login");
+    }
+    const clientId = req.session.user.id;
     const orders = await OrderModel.getOrdersByClientId(clientId);
 
-    res.render("client/my-orders", {
+    res.render("client/dashboardClient", {
       orders: orders,
-      clientId: clientId,
-      title: "My Application History",
+      user: req.session.user,
+      title: "My Repair Orders",
+      layout: false,
     });
   } catch (err) {
     console.error("Error loading history:", err);
@@ -21,7 +33,6 @@ export const getMyOrders = async (req, res) => {
 // СТВОРЕННЯ ЗАМОВЛЕННЯ (POST)
 export const createOrder = async (req, res) => {
   const {
-    client_id,
     device_type,
     device_model,
     os_version,
@@ -29,7 +40,13 @@ export const createOrder = async (req, res) => {
     issue_description,
   } = req.body;
 
+  if (!req.session.user) {
+    return res.status(401).send("Unauthorized");
+  }
+
   try {
+    const client_id = req.session.user.id;
+
     await OrderModel.createNewOrder({
       client_id,
       device_type,
@@ -39,9 +56,13 @@ export const createOrder = async (req, res) => {
       issue_description,
     });
 
-    res.redirect(`/client/orders?clientId=${client_id}`);
+    res.redirect(`/client/dashboard`);
   } catch (err) {
     console.error("Failed to create request:", err);
-    res.status(500).send("Failed to create request");
+    res.render("client/createClient", {
+      error: "Failed to create request",
+      layout: false,
+      user: req.session.user,
+    });
   }
 };

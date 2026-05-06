@@ -1,20 +1,19 @@
 import express from 'express';
-import { getMyOrders, createOrder } from '../controllers/clientController.js';
+import { getMyOrders, createOrder, getCreateOrderView } from '../controllers/clientController.js';
 import { setUser, isClient } from '../middleware/authMiddleware.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-// Сторінки (GET)
-router.get ('/orders', setUser, isClient, getMyOrders);
+router.use(setUser);
+router.use(authMiddleware);
 
-router.get('/create', setUser, isClient, (req, res) => {
-    const clientId = req.query.clientId;
-    res.render('client/create-order', {
-        title: 'Create a request - Service Center',
-        clientId: clientId
-    });
-});
+// Сторінки (GET)
+router.get('/dashboard', isClient, getMyOrders);
+
+router.get('/create', isClient, getCreateOrderView);
 
 // Дії (POST)
-router.post('/create', setUser, isClient, createOrder);
+router.post('/create', isClient, createOrder);
 
 export default router;

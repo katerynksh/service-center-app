@@ -1,50 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — Service Center</title>
     
+    {{!-- Font Awesome для іконок --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root {
-            --primary-purple: #dcd0f9;
-            --hover-purple: #cbbdf0;
-            --active-text: #4a4e69;
-            --bg-light: #f8f9fa;
-            --text-main: #2d3436;
-            --text-sub: #636e72;
-            --border-color: #dfe6e9;
+            --primary-purple: #cbbdf0; /* Твій фіалковий колір */
+            --hover-purple: #b8a9e0;
+            --bg-body: #f8fafc;
             --card-bg: #ffffff;
-            --input-bg: #eef2ff;
+            --text-main: #2d3748;
+            --text-sub: #718096;
+            --border-color: #e2e8f0;
+            --input-bg: #fcfcfc;
+            --error-bg: #fff5f5;
+            --error-text: #e53e3e;
+            --error-border: #feb2b2;
         }
 
+        /* Стилі для темної теми на весь екран */
         body.dark-theme {
-            --bg-light: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-sub: #a0a0a0;
-            --border-color: #333;
-            --input-bg: #2d2d2d;
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --error-bg: rgba(229, 62, 62, 0.1);
+            --error-text: #fc8181;
+            --error-border: rgba(229, 62, 62, 0.2);
         }
 
+        /* Центрування форми */
         body, html {
             height: 100%;
+            width: 100%;
             margin: 0;
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            background-color: var(--bg-light);
+            padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
             transition: background-color 0.3s ease;
         }
 
+        /* Кнопка зміни теми */
         .theme-toggle {
-            position: absolute;
-            top: 30px;
-            right: 30px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
             width: 44px;
             height: 44px;
             background: var(--card-bg);
@@ -54,252 +64,228 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            color: var(--text-main);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 1000;
         }
 
-        .moon-icon {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            box-shadow: 4px 4px 0 0 var(--text-main);
-            position: relative;
-            left: -3px;
-            top: -3px;
-        }
-
-        .auth-header {
+        .auth-container {
+            width: 100%;
+            max-width: 400px; /* Квадратна ширина */
+            padding: 20px;
+            box-sizing: border-box;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .auth-logo {
+        .logo-box {
             background-color: var(--primary-purple);
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto 16px auto;
-            box-shadow: 0 10px 20px rgba(220, 208, 249, 0.3);
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(203, 189, 240, 0.4);
         }
 
-        .auth-brand {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-        }
-
-        .auth-subtitle {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-top: 5px;
-        }
-
-        .auth-wrapper {
-            width: 100%;
-            max-width: 520px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            padding: 50px 60px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid var(--border-color);
-        }
-
-        .auth-title {
-            text-align: center;
-            margin: 0 0 35px 0;
-            color: var(--text-main);
+        .brand-name {
             font-size: 24px;
             font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 25px 0;
         }
 
-        .form-group {
-            margin-bottom: 25px;
+        /* Картка форми */
+        .auth-card {
+            background: var(--card-bg);
+            padding: 45px 40px; 
+            border-radius: 28px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
         }
 
-        .form-label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 14px;
+        .auth-card h2 {
+            margin: 0 0 25px 0;
+            font-size: 20px;
             color: var(--text-main);
             font-weight: 600;
         }
 
+        /* Блок помилки */
+        .error-banner {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--error-border);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
         .form-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 13px 15px;
             border: 1px solid var(--border-color);
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 15px;
+            background-color: var(--input-bg);
             color: var(--text-main);
-            background: var(--input-bg);
             box-sizing: border-box;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary-purple);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(220, 208, 249, 0.4);
+            box-shadow: 0 0 0 4px rgba(203, 189, 240, 0.2);
         }
 
         .btn-submit {
             width: 100%;
-            padding: 16px;
             background-color: var(--primary-purple);
-            color: var(--active-text);
-            border: none;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 15px;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--hover-purple);
-            transform: translateY(-1px);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 25px;
-            font-size: 14px;
-            color: var(--text-sub);
-        }
-
-        .auth-footer a {
-            color: var(--active-text);
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .demo-credentials {
-            margin-top: 40px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 25px;
-        }
-
-        .demo-row {
-            background: var(--bg-light);
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-bottom: 10px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            transition: all 0.2s;
-        }
-
-        .demo-row:hover {
-            border-color: var(--primary-purple);
-            color: var(--active-text);
-            background: var(--card-bg);
-        }
-
-        .help-icon {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #2d3436;
             color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
         }
+
+        /* Блоки демо-даних */
+        .demo-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .demo-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .demo-pill {
+            background: var(--input-bg);
+            padding: 11px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .demo-pill:hover {
+            border-color: var(--primary-purple);
+            color: var(--text-main);
+            transform: translateX(4px);
+        }
+
+        .demo-pill b { color: var(--text-main); }
     </style>
 </head>
 <body>
 
-    <div class="theme-toggle" onclick="toggleTheme()">
-        <div class="moon-icon"></div>
+    <div class="theme-toggle" onclick="document.body.classList.toggle('dark-theme')">
+        <i class="fas fa-moon"></i>
     </div>
 
-    <div class="auth-header">
-        <div class="auth-logo">
-            <i class="fas fa-tools" style="font-size: 24px; color: var(--active-text);"></i>
+    <div class="auth-container">
+        <div class="logo-box">
+            <i class="fas fa-tools"></i>
         </div>
-        <h1 class="auth-brand">Service Center</h1>
-        <p class="auth-subtitle">Professional device repair and maintenance</p>
-    </div>
+        <h1 class="brand-name">Service Center</h1>
 
-    <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="auth-title">Sign In</h2>
+            <h2>Sign In</h2>
 
             {{#if error}}
-                <div style="background: #fff5f5; color: #c0392b; padding: 12px; border-radius: 12px; margin-bottom: 25px; text-align: center; border: 1px solid #feb2b2; font-size: 14px;">
-                    {{error}}
+                <div class="error-banner">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{error}}</span>
                 </div>
             {{/if}}
 
             <form action="/auth/login" method="POST">
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+                    <label>Email Address</label>
+                    <input type="email" name="email" id="email" placeholder="your@email.com" required class="form-input">
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    <label>Password</label>
+                    <input type="password" name="password" id="password" placeholder="••••••••" required class="form-input">
                 </div>
-
                 <button type="submit" class="btn-submit">Sign In</button>
             </form>
 
-            <div class="auth-footer">
-                Already have an account? <a href="/auth/register">Sign Up</a>
+            <div style="margin-top: 20px; font-size: 13px; color: var(--text-sub);">
+                Don't have an account? <a href="/auth/register" style="color: var(--primary-purple); text-decoration: none; font-weight: 700;">Sign Up</a>
             </div>
 
-            <div class="demo-credentials">
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Demo credentials</p>
+            <div class="demo-section">
+                <span class="demo-label">Demo credentials:</span>
                 
-                <div class="demo-row" onclick="fillForm('client@test.com', 'client123')">
-                    <strong>Client:</strong> client@test.com / client123
+                <div class="demo-pill" onclick="fill('client@test.com', 'client123')">
+                    <span><b>Client:</b> client@test.com / client123</span>
+                    <i class="fas fa-chevron-right" style="opacity: 0.5;"></i>
                 </div>
-                
-                <div class="demo-row" onclick="fillForm('master@test.com', 'master123')">
-                    <strong>Master:</strong> master@test.com / master123
+                <div class="demo-pill" onclick="fill('master@test.com', 'master123')">
+                    <span><b>Master:</b> master@test.com / master123</span>
+                    <i class="fas fa-chevron-right" style="opacity: 0.5;"></i>
                 </div>
-
-                <div class="demo-row" onclick="fillForm('admin@test.com', 'admin123')">
-                    <strong>Admin:</strong> admin@test.com / admin123
+                <div class="demo-pill" onclick="fill('admin@test.com', 'admin123')">
+                    <span><b>Admin:</b> admin@test.com / admin123</span>
+                    <i class="fas fa-chevron-right" style="opacity: 0.5;"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="help-icon">?</div>
-
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-        }
-
-        function fillForm(email, password) {
-            document.querySelector('input[name="email"]').value = email;
-            document.querySelector('input[name="password"]').value = password;
+        function fill(e, p) {
+            document.getElementById('email').value = e;
+            document.getElementById('password').value = p;
         }
     </script>
 </body>
