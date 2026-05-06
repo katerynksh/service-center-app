@@ -84,9 +84,9 @@ export const login = async (req, res) => {
       if (user.role === "client") {
         return res.redirect(`/client/dashboard`);
       } else if (user.role === "master") {
-        return res.redirect(`/master/dashboard`);
+        return res.redirect(`/master`);
       } else if (user.role === "admin") {
-        return res.redirect(`/admin/panel`);
+        return res.redirect(`/admin`);
       }
     } else {
       return res.render("auth/login", {
