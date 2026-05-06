@@ -41,7 +41,7 @@ export const createOrderAdmin = async (req, res) => {
         const { client_email, client_password, device_type, device_model, os_version, issue_description } = req.body;
 
         // 1. Створюємо клієнта з паролем, який ввів адмін
-        const newUser = await UserModel.create({
+        const newUser = await UserModel.createUser({
             email: client_email,
             password: client_password, // Передаємо введений пароль
             role: 'client'
@@ -156,7 +156,7 @@ export const createMaster = async (req, res) => {
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
-        const newMaster = await UserModel.create({
+        const newMaster = await UserModel.createUser({
             email,
             password,
             role: 'master'
