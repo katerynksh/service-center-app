@@ -5,10 +5,10 @@ const router = express.Router();
 // Сторінки (GET)
 router.get('/login', authController.getLoginView);
 router.get('/register', authController.getRegisterView);
+router.get('/logout', authController.logout);
 
 // Дії (POST)
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.post('/logout', authController.logout);
 
 export default router;

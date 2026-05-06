@@ -1,51 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up — Service Center</title>
+    <title>Create Account — Service Center</title>
     
+    {{!-- Font Awesome для іконок --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root {
-            --primary-purple: #dcd0f9;
-            --hover-purple: #cbbdf0;
-            --active-text: #4a4e69;
-            --bg-light: #f8f9fa;
-            --text-main: #2d3436;
-            --text-sub: #636e72;
-            --border-color: #dfe6e9;
+            --primary-purple: #cbbdf0;
+            --hover-purple: #b8a9e0;
+            --bg-body: #f8fafc;
             --card-bg: #ffffff;
-            --input-bg: #eef2ff; /* Світло-блакитний відтінок для інпутів як на фото */
+            --text-main: #2d3748;
+            --text-sub: #718096;
+            --border-color: #e2e8f0;
+            --input-bg: #fcfcfc;
         }
 
+        /* Темна тема на весь екран */
         body.dark-theme {
-            --bg-light: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-sub: #a0a0a0;
-            --border-color: #333;
-            --input-bg: #2d2d2d;
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
         }
 
         body, html {
             height: 100%;
+            width: 100%;
             margin: 0;
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            background-color: var(--bg-light);
+            padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
             transition: background-color 0.3s ease;
         }
 
-        /* Кнопка перемикання теми */
+        /* Кнопка зміни теми */
         .theme-toggle {
-            position: absolute;
-            top: 30px;
-            right: 30px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
             width: 44px;
             height: 44px;
             background: var(--card-bg);
@@ -55,203 +57,152 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            color: var(--text-main);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 1000;
         }
 
-        .moon-icon {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            box-shadow: 4px 4px 0 0 var(--text-main);
-            position: relative;
-            left: -3px;
-            top: -3px;
-        }
-
-        /* Логотип */
-        .auth-header {
+        .auth-container {
+            width: 100%;
+            max-width: 400px; /* Квадратна ширина */
+            padding: 20px;
+            box-sizing: border-box;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .auth-logo {
+        .logo-box {
             background-color: var(--primary-purple);
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto 16px auto;
-            box-shadow: 0 10px 20px rgba(220, 208, 249, 0.3);
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(203, 189, 240, 0.4);
         }
 
-        .auth-brand {
-            font-size: 26px;
+        .brand-name {
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-main);
-            margin: 0;
+            margin: 0 0 25px 0;
         }
 
-        .auth-subtitle {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-top: 5px;
-        }
-
-        /* Картка реєстрації (ШИРОКА) */
-        .auth-wrapper {
-            width: 100%;
-            max-width: 520px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
+        /* Картка реєстрації */
         .auth-card {
             background: var(--card-bg);
-            padding: 50px 60px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            box-sizing: border-box;
+            padding: 45px 40px; /* Симетричні відступи */
+            border-radius: 28px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
         }
 
-        .auth-title {
-            text-align: center;
-            margin: 0 0 30px 0;
-            color: var(--text-main);
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        /* Поля форми */
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
+        .auth-card h2 {
+            margin: 0 0 25px 0;
+            font-size: 20px;
             color: var(--text-main);
             font-weight: 600;
         }
 
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
         .form-input {
             width: 100%;
-            padding: 14px 18px;
+            padding: 13px 15px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
             font-size: 15px;
+            background-color: var(--input-bg);
             color: var(--text-main);
-            background: var(--input-bg);
             box-sizing: border-box;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary-purple);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(220, 208, 249, 0.4);
+            box-shadow: 0 0 0 4px rgba(203, 189, 240, 0.2);
         }
 
-        /* Кнопка Sign Up */
         .btn-submit {
             width: 100%;
-            padding: 15px;
             background-color: var(--primary-purple);
-            color: var(--active-text);
+            color: white;
+            padding: 14px;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: opacity 0.2s, transform 0.1s;
             margin-top: 10px;
         }
 
-        .btn-submit:hover {
-            background-color: var(--hover-purple);
-            transform: translateY(-1px);
-        }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:active { transform: scale(0.98); }
 
-        /* Футер картки */
         .auth-footer {
-            text-align: center;
             margin-top: 25px;
             font-size: 14px;
             color: var(--text-sub);
         }
 
         .auth-footer a {
-            color: var(--active-text);
-            font-weight: 700;
+            color: var(--primary-purple);
             text-decoration: none;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .help-icon {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #2d3436;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            cursor: pointer;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
-    <div class="theme-toggle" onclick="toggleTheme()">
-        <div class="moon-icon"></div>
+    <div class="theme-toggle" onclick="document.body.classList.toggle('dark-theme')">
+        <i class="fas fa-moon"></i>
     </div>
 
-    <div class="auth-header">
-        <div class="auth-logo">
-            <i class="fas fa-tools" style="font-size: 24px; color: var(--active-text);"></i>
+    <div class="auth-container">
+        <div class="logo-box">
+            <i class="fas fa-tools"></i>
         </div>
-        <h1 class="auth-brand">Service Center</h1>
-        <p class="auth-subtitle">Professional device repair and maintenance</p>
-    </div>
+        <h1 class="brand-name">Service Center</h1>
 
-    <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="auth-title">Create Account</h2>
+            <h2>Create Account</h2>
 
             {{#if error}}
-                <div style="background: #fff5f5; color: #c0392b; padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #feb2b2; font-size: 14px;">
+                <div style="color: #e53e3e; font-size: 13px; margin-bottom: 15px; background: #fff5f5; padding: 10px; border-radius: 10px; border: 1px solid #feb2b2;">
                     {{error}}
                 </div>
             {{/if}}
 
             <form action="/auth/register" method="POST">
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="your@email.com" required class="form-input">
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required class="form-input">
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" name="confirmPassword" class="form-input" placeholder="••••••••" required>
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirmPassword" placeholder="••••••••" required class="form-input">
                 </div>
-
                 <button type="submit" class="btn-submit">Sign Up</button>
             </form>
 
@@ -261,12 +212,5 @@
         </div>
     </div>
 
-    <div class="help-icon">?</div>
-
-    <script>
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-        }
-    </script>
 </body>
 </html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Repair Orders — Service Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-violet: #cbbdf0;
+            --hover-violet: #b8a9e0;
+            --bg-body: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --border-color: #e2e8f0;
+            --row-bg: #f8f9fa; 
+            
+            /* Кольори статусів */
+            --status-new-bg: #e1f5fe;
+            --status-new-text: #0288d1;
+            --status-progress-bg: #fff9e6;
+            --status-progress-text: #b7791f;
+            --status-waiting-bg: #f3e5f5;
+            --status-waiting-text: #7b1fa2;
+            --status-done-bg: #e6f9f0;
+            --status-done-text: #2f855a;
+            --status-cancel-bg: #fff5f5;
+            --status-cancel-text: #c53030;
+        }
+
+        body.dark-theme {
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --row-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background 0.3s ease;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand h1 { font-size: 18px; margin: 0; font-weight: 700; }
+        .header-brand p { font-size: 13px; margin: 2px 0 0; color: var(--text-muted); }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-new-order {
+            background-color: var(--primary-violet);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .btn-new-order:hover { 
+            background-color: var(--hover-violet);
+            transform: translateY(-1px);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .search-input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        /* КАРТКА ЗАМОВЛЕННЯ З ПІДСВІТКОЮ */
+        .order-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        /* Легке фіалкове підсвічування при наведенні */
+        .order-card:hover {
+            border-color: var(--primary-violet);
+            box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+        .card-top h3 { margin: 0; font-size: 18px; font-weight: 700; }
+
+        /* Динамічні статуси */
+        .status-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+        .status-new { background: var(--status-new-bg); color: var(--status-new-text); }
+        .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); }
+        .status-waiting { background: var(--status-waiting-bg); color: var(--status-waiting-text); }
+        .status-done { background: var(--status-done-bg); color: var(--status-done-text); }
+        .status-cancelled { background: var(--status-cancel-bg); color: var(--status-cancel-text); }
+
+        .order-id-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .issue-desc {
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .data-row {
+            background: var(--row-bg);
+            border-radius: 8px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        .data-row i { color: var(--text-muted); width: 16px; text-align: center; }
+        .data-row span.label { color: var(--text-muted); }
+        .data-row span.value { font-weight: 700; }
+
+        .comment-box {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            background: rgba(203, 189, 240, 0.03); /* Легкий відтінок фіалкового */
+        }
+        .comment-box i { color: var(--primary-violet); font-size: 16px; margin-top: 2px; }
+        .comment-content label { 
+            display: block; 
+            font-size: 12px; 
+            color: var(--text-muted); 
+            font-weight: 700; 
+            margin-bottom: 5px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .comment-content p { margin: 0; font-size: 14px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <h1>Service Center</h1>
+        <p>Welcome, {{user.email}}</p>
+    </div>
+    <div class="header-right">
+        <i class="fas fa-moon" style="cursor:pointer; font-size: 1.2rem;" onclick="document.body.classList.toggle('dark-theme')"></i>
+        <a href="/auth/logout" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</header>
+
+<div class="container">
+    <div class="dashboard-header">
+        <h2 style="margin:0; font-size: 24px;">My Repair Orders</h2>
+        <a href="/client/create" class="btn-new-order">
+            <i class="fas fa-plus"></i> New Order
+        </a>
+    </div>
+
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search by order ID, model, or issue...">
+    </div>
+
+    {{#each orders}}
+    <div class="order-card">
+        <div class="card-top">
+            <h3>{{this.device_model}}</h3>
+            {{!-- Покращена логіка статусів --}}
+            <span class="status-badge 
+                {{#if (eq this.status 'done')}}status-done{{/if}}
+                {{#if (eq this.status 'in progress')}}status-in-progress{{/if}}
+                {{#if (eq this.status 'new')}}status-new{{/if}}
+                {{#if (eq this.status 'waiting')}}status-waiting{{/if}}
+                {{#if (eq this.status 'cancelled')}}status-cancelled{{/if}}">
+                {{this.status}}
+            </span>
+        </div>
+
+        <div class="order-id-row">
+            <i class="fas fa-cube"></i> Order #{{this.id}} • {{this.device_type}}
+        </div>
+
+        <div class="issue-desc">
+            {{this.issue_description}}
+        </div>
+
+        <div class="data-grid">
+            <div class="data-row">
+                <i class="fas fa-wrench"></i>
+                <span class="label">Master:</span> <span class="value">{{this.master_name}}</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-microchip"></i>
+                <span class="label">OS:</span> <span class="value">{{this.os_version}}</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-dollar-sign"></i>
+                <span class="label">Cost:</span> <span class="value">${{this.cost}}</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="label">Created:</span> <span class="value">{{this.created_at}}</span>
+            </div>
+            <div class="data-row">
+                <i class="far fa-calendar-check"></i>
+                <span class="label">Updated:</span> <span class="value">{{this.updated_at}}</span>
+            </div>
+        </div>
+
+        {{#if this.tech_comment}}
+        <div class="comment-box">
+            <i class="fas fa-comment-dots"></i>
+            <div class="comment-content">
+                <label>Technician Comment:</label>
+                <p>{{this.tech_comment}}</p>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+    {{/each}}
+</div>
+
+</body>
+</html>

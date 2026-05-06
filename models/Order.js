@@ -1,8 +1,8 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 
 export const OrderModel = {
-    // Для Майстра: бачити нові та свої
-    getNewOrders: async () => {
+  // Для Майстра: бачити нові та свої
+  getNewOrders: async () => {
     const res = await pool.query(`
         SELECT o.*, u.email as client_email 
         FROM ORDERS o 
@@ -10,113 +10,118 @@ export const OrderModel = {
         WHERE o.status = 'new'
     `);
     return res.rows;
-    },
-    getOrdersByMaster: async (masterId) => {
-    const res = await pool.query(`
+  },
+  getOrdersByMaster: async (masterId) => {
+    const res = await pool.query(
+      `
         SELECT o.*, u.email as client_email 
         FROM ORDERS o 
         JOIN USERS u ON o.client_id = u.id 
         WHERE o.assigned_to = $1
-    `, [masterId]);
+    `,
+      [masterId],
+    );
     return res.rows;
-    },
+  },
 
-    // Оновлення статусу майстром
-    updateStatus: async (id, status, comment, cost) => { // Додано параметр cost
-        const res = await pool.query(
-            "UPDATE ORDERS SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
-            [status, comment, cost || 0, id] // Записуємо ціну
-        );
-        return res.rows[0];
-    },
-    takeOrder: async (orderId, masterId) => {
-        const res = await pool.query(
-            "UPDATE ORDERS SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
-            [masterId, orderId]
-        );
-        return res.rows[0];
-    },
-    // Для Адміна: всі замовлення та всі майстри
-    getAllOrders: async () => {
-        const res = await pool.query(`
+  // Оновлення статусу майстром
+  updateStatus: async (id, status, comment, cost) => {
+    // Додано параметр cost
+    const res = await pool.query(
+      "UPDATE ORDERS SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
+      [status, comment, cost || 0, id], // Записуємо ціну
+    );
+    return res.rows[0];
+  },
+  takeOrder: async (orderId, masterId) => {
+    const res = await pool.query(
+      "UPDATE ORDERS SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
+      [masterId, orderId],
+    );
+    return res.rows[0];
+  },
+  // Для Адміна: всі замовлення та всі майстри
+  getAllOrders: async () => {
+    const res = await pool.query(`
             SELECT o.*, u.email as master_email 
             FROM ORDERS o 
             LEFT JOIN USERS u ON o.assigned_to = u.id 
             ORDER BY o.created_at DESC
         `);
-        return res.rows;
-    },
-    createNewOrder: async (orderData) => {
-        const { 
-            client_id, device_type, device_model, 
-            os_version, date_of_purchase, issue_description 
-        } = orderData;
-    
-        const res = await pool.query(
-            `INSERT INTO ORDERS 
-            (client_id, device_type, device_model, os_version, date_of_purchase, issue_description, status) 
-            VALUES ($1, $2, $3, $4, $5, $6, 'new') 
-            RETURNING *`,
-            [
-                client_id, device_type, device_model, 
-                os_version || null, 
-                date_of_purchase || null, // Обробка порожньої дати
-                issue_description
-            ]
-        );
-        return res.rows[0];
-    },  
-    updateFullOrder: async (id, data) => {
-        const { device_type, device_model, os_version, issue_description, status, cost, assigned_to } = data;
-        const res = await pool.query(
-            `UPDATE ORDERS SET 
+    return res.rows;
+  },
+  updateFullOrder: async (id, data) => {
+    const {
+      device_type,
+      device_model,
+      os_version,
+      issue_description,
+      status,
+      cost,
+      assigned_to,
+    } = data;
+    const res = await pool.query(
+      `UPDATE ORDERS SET 
                 device_type = $1, device_model = $2, os_version = $3, 
                 issue_description = $4, status = $5, cost = $6, 
                 assigned_to = $7, updated_at = NOW() 
              WHERE order_id = $8 RETURNING *`,
-            [device_type, device_model, os_version, issue_description, status, cost, assigned_to, id]
-        );
-        return res.rows[0];
-    },
-    deleteOrder: async (id) => {
-        await pool.query("DELETE FROM ORDERS WHERE order_id = $1", [id]);
-        return { success: true };
-    },    
-    getAllMasters: async () => {
-        const res = await pool.query("SELECT id, email FROM USERS WHERE role = 'master'");
-        return res.rows;
-    },
-    assignToMaster: async (orderId, masterId) => {
-        const res = await pool.query(
-            `UPDATE ORDERS 
+      [
+        device_type,
+        device_model,
+        os_version,
+        issue_description,
+        status,
+        cost,
+        assigned_to,
+        id,
+      ],
+    );
+    return res.rows[0];
+  },
+  deleteOrder: async (id) => {
+    await pool.query("DELETE FROM ORDERS WHERE order_id = $1", [id]);
+    return { success: true };
+  },
+  getAllMasters: async () => {
+    const res = await pool.query(
+      "SELECT id, email FROM USERS WHERE role = 'master'",
+    );
+    return res.rows;
+  },
+  assignToMaster: async (orderId, masterId) => {
+    const res = await pool.query(
+      `UPDATE ORDERS 
              SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
              WHERE order_id = $2 RETURNING *`,
-            [masterId, orderId]
-        );
-        return res.rows[0];
-    },
-    assignMasterByEmail: async (orderId, masterEmail) => {
-        const masterRes = await pool.query(
-            "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",
-            [masterEmail]
-        );
+      [masterId, orderId],
+    );
+    return res.rows[0];
+  },
+  assignMasterByEmail: async (orderId, masterEmail) => {
+    const masterRes = await pool.query(
+      "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",
+      [masterEmail],
+    );
 
-        if (masterRes.rows.length === 0) {
-            throw new Error('Master with this email not foundor user is not a master');
-        }
+    if (masterRes.rows.length === 0) {
+      throw new Error(
+        "Master with this email not found or user is not a master",
+      );
+    }
 
-        const masterId = masterRes.rows[0].id;
-        const res = await pool.query(
-            `UPDATE ORDERS 
+    const masterId = masterRes.rows[0].id;
+    const res = await pool.query(
+      `UPDATE ORDERS 
              SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
              WHERE order_id = $2 
              RETURNING *`,
-            [masterId, orderId]
-        );
-        return res.rows[0];
-    },
-    getMasterStatus: async () => {
-        const res = await pool.query(`
+      [masterId, orderId],
+    );
+    return res.rows[0];
+  },
+  getMasterStatus: async () => {
+    const res = await pool.query(`
             SELECT 
                 u.id, 
                 u.email, 
@@ -128,47 +133,80 @@ export const OrderModel = {
             WHERE u.role = 'master'
             GROUP BY u.id, u.email
         `);
-        return res.rows;
-    },
-    getOrderDetails: async (orderId) => {
-        const res = await pool.query(
-            `SELECT o.*, u.email as client_email 
+    return res.rows;
+  },
+  getOrderDetails: async (orderId) => {
+    const res = await pool.query(
+      `SELECT o.*, u.email as client_email 
             FROM ORDERS o 
             JOIN USERS u ON o.client_id = u.id 
-            WHERE o.order_id = $1`, 
-            [orderId]
-        );
-        return res.rows[0];
-    },
-    getOrderById: async (orderId) => {
-        const res = await pool.query(
-            `SELECT o.*, u.email as client_email 
+            WHERE o.order_id = $1`,
+      [orderId],
+    );
+    return res.rows[0];
+  },
+  getOrderById: async (orderId) => {
+    const res = await pool.query(
+      `SELECT o.*, u.email as client_email 
              FROM ORDERS o 
              JOIN USERS u ON o.client_id = u.id 
-             WHERE o.order_id = $1`, 
-            [orderId]
-        );
-        return res.rows[0];
-    },
-    // Отримати всі замовлення конкретного клієнта 
-    getOrdersByClientId: async(clientId) => {
-        const res = await pool.query(
-            "SELECT * FROM ORDERS WHERE client_id = $1 ORDER BY created_at DESC",
-            [clientId]
-        );
-        return res.rows;
-    },
-    // Створити нову заявку
-    createNewOrder: async(orderData) => {
-    const { client_id, device_type, device_model, os_version, date_of_purchase, issue_description } = orderData;
+             WHERE o.order_id = $1`,
+      [orderId],
+    );
+    return res.rows[0];
+  },
+  // Отримати всі замовлення конкретного клієнта
+  getOrdersByClientId: async (clientId) => {
+    try {
+      const res = await pool.query(
+        "SELECT * FROM ORDERS WHERE client_id = $1 ORDER BY created_at DESC",
+        [clientId],
+      );
+      return res.rows;
+    } catch (err) {
+      console.error("Database error in getOrdersByClientId:", err.message);
+      throw err;
+    }
+  },
+  // Створити нову заявку
+  createNewOrder: async (orderData) => {
+    const {
+      client_id,
+      device_type,
+      device_model,
+      os_version,
+      date_of_purchase,
+      issue_description,
+    } = orderData;
     const res = await pool.query(
-         `INSERT INTO ORDERS 
+      `INSERT INTO ORDERS 
           (client_id, device_type, device_model, os_version, date_of_purchase, issue_description, status) 
           VALUES ($1, $2, $3, $4, $5, $6, 'new') 
           RETURNING *`,
-          [client_id, device_type, device_model, os_version, date_of_purchase, issue_description]
-        );
-        return res.rows[0];
-    },
+      [
+        client_id,
+        device_type,
+        device_model,
+        os_version,
+        date_of_purchase,
+        issue_description,
+      ],
+    );
+    return res.rows[0];
+  },
+  cancelOrderByClient: async (orderId, clientId) => {
+    try {
+      const res = await pool.query(
+        "UPDATE ORDERS SET status = 'canceled', updated_at = NOW() WHERE order_id = $1 AND client_id = $2 AND status = 'new' RETURNING *",
+        [orderId, clientId],
+      );
+      if (res.rows.length === 0) {
+        throw new Error("Order not found or cannot be canceled");
+      }
+      return res.rows[0];
+    } catch (err) {
+      console.error("Order cancellation error:", err.message);
+      throw err;
+    }
+  },
 };
-
