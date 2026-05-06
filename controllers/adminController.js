@@ -1,6 +1,5 @@
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
-import pool from '../config/db.js';
 
 export const getAllData = async (req, res) => {
     try {
@@ -8,6 +7,7 @@ export const getAllData = async (req, res) => {
         const masters = await OrderModel.getMasterStatus(); 
         res.json({ orders, masters });
     } catch (error) {
+        console.error("GetAllData error:", error);
         res.status(500).json({ error: 'Server error' });
     }
 };
@@ -18,6 +18,7 @@ export const assignToMaster = async (req, res) => {
         const updated = await OrderModel.assignMaster(orderId, masterId);
         res.json(updated);
     } catch (error) {
+        console.error("AssignToMaster error:", error);
         res.status(500).json({ error: 'Server error' });
     }
 };
@@ -43,7 +44,7 @@ export const createOrderAdmin = async (req, res) => {
         // 1. Створюємо клієнта з паролем, який ввів адмін
         const newUser = await UserModel.createUser({
             email: client_email,
-            password: client_password, // Передаємо введений пароль
+            password: client_password, 
             role: 'client'
         });
 
@@ -134,6 +135,7 @@ export const deleteOrder = async (req, res) => {
         await OrderModel.deleteOrder(req.params.id);
         res.json({ message: 'Order deleted successfully' });
     } catch (error) {
+        console.error("Delete Error:", error);
         res.status(500).json({ error: 'Error deleting order' });
     }
 };
@@ -144,6 +146,7 @@ export const getEditPage = async (req, res) => {
         const masters = await OrderModel.getAllMasters();
         res.render('admin/editOrderAdmin', { order, masters });
     } catch (error) {
+        console.error("Error loading edit page:", error);
         res.status(500).send('Error loading edit page');
     }
 };
@@ -167,6 +170,6 @@ export const createMaster = async (req, res) => {
         res.status(201).json(newMaster);
     } catch (error) {
         console.error("Create Master Error:", error);
-        // res.status(500).json({ error: 'User already exists or data is invalid' });
+        res.status(500).json({ error: 'User already exists or data is invalid' });
     }
 };
