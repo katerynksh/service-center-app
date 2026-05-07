@@ -9,7 +9,7 @@
             <i class="bi bi-box-arrow-right"></i> Logout
         </a>
     </div>
-</div>
+</div>  
 
     <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
         <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">All Orders (0)</button>
@@ -48,9 +48,44 @@
     </div>
 
     <div id="admin-content-container"></div>
+</div> <div class="modal fade" id="assignMasterModal" tabindex="-1" aria-labelledby="assignMasterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignMasterModalLabel">Assign Master to Order №<span id="modalDisplayOrderId"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modalOrderId"> 
+        <div class="mb-3">
+            <label for="masterSelect" class="form-label">Select a Master from the list:</label>
+            <select id="masterSelect" class="form-select">
+                </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="confirmAssignMaster()">Assign</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<dialog id="assignDialog" style="border: none; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 350px; max-width: 90%;">
+    <h5 class="fw-bold mb-3" id="dialogTitle">Assign Master</h5>
+    <input type="hidden" id="dialogOrderId">
+    
+    <div class="mb-3">
+        <label class="form-label text-muted small">Select a master from the list:</label>
+        <select id="dialogMasterSelect" class="form-select mt-1">
+            </select>
+    </div>
+    
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <button onclick="document.getElementById('assignDialog').close()" class="btn btn-light border px-3">Cancel</button>
+        <button onclick="confirmDialogAssign()" class="btn btn-primary px-4">Assign</button>
+    </div>
+</dialog>
 
 <style>
     .custom-tabs { background: white; padding: 5px; }
@@ -68,6 +103,7 @@
     .order-id-badge { font-size: 0.8rem; color: #6c757d; }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let allData = { orders: [], masters: [] };
     let activeTab = 'orders'; 
@@ -96,34 +132,53 @@
             console.error(err);
         }
     }
-    async function setMaster(orderId) {
-        const email = prompt("Enter master's email:");
-        if (!email) return;
+// 1. Функція для відкриття нативного вікна
+function setMaster(orderId) {
+    document.getElementById('dialogOrderId').value = orderId;
+    document.getElementById('dialogTitle').innerText = `Assign Master to Order №${orderId}`;
+    
+    // Заповнюємо список майстрів
+    const select = document.getElementById('dialogMasterSelect');
+    select.innerHTML = '<option value="" disabled selected>Select a master...</option>' + 
+        allData.masters.map(m => `<option value="${m.email}">${m.email}</option>`).join('');
+        
+    // Відкриваємо вікно
+    document.getElementById('assignDialog').showModal();
+}
 
-        try {
-            const res = await fetch('/admin/assign-master', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    orderId: parseInt(orderId), // Перетворюємо в число про всяк випадок
-                    masterEmail: email 
-                })
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                alert("Master assigned successfully!");
-                loadAdminData(); // Оновлюємо список
-            } else {
-                // Тепер ви побачите в alert конкретну причину помилки
-                alert("Error: " + data.error);
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Server connection error");
-        }
+// 2. Функція для збереження вибору
+async function confirmDialogAssign() {
+    const orderId = document.getElementById('dialogOrderId').value;
+    const email = document.getElementById('dialogMasterSelect').value;
+    
+    if (!email) {
+        alert("Please select a master from the list!");
+        return;
     }
+
+    try {
+        const res = await fetch('/admin/assign-master', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                orderId: parseInt(orderId), 
+                masterEmail: email 
+            })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Master assigned successfully!");
+            document.getElementById('assignDialog').close(); 
+            loadAdminData(); 
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server connection error");
+    }
+}
 
     function switchTab(tab) {
         activeTab = tab;
@@ -160,7 +215,7 @@
             });
             const addButtonHtml = `
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-outline-dark btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/admin/create-master'">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/admin/create-master'">
                         <i class="bi bi-person-plus-fill me-1"></i> Add New Master
                     </button>
                 </div>
@@ -196,10 +251,14 @@
                     order_id: String(o.order_id),
                     device_model: o.device_model.toLowerCase(),
                     status: o.status.toLowerCase(),
-                    client_email: (o.client_email || "").toLowerCase()
+                    client_email: (o.client_email || "").toLowerCase()                    
                 };
                 return cat === 'all' ? Object.values(fields).some(v => v.includes(term)) : fields[cat]?.includes(term);
             });
+
+            const masterOptions = allData.masters.map(m => 
+                `<option value="${m.email}">${m.email}</option>`
+            ).join('');
 
             container.innerHTML = filteredOrders.map(o => `
                 <div class="card admin-card shadow-sm">
@@ -207,10 +266,16 @@
                         <div>
                             <h5 class="fw-bold mb-1">${o.device_model}</h5>
                             <div class="order-id-badge"><i class="bi bi-box"></i> Order №${o.order_id} • ${o.status.toUpperCase()}</div>
+                            ${o.assigned_to ? `<div class="text-muted small mt-1"><i class="bi bi-person-check"></i> Master assigned</div>` : ''}
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="/admin/edit/${o.order_id}" class="btn btn-outline-dark btn-sm"><i class="bi bi-pencil"></i> Edit</a>
-                            <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+
+                            <button onclick="setMaster(${o.order_id})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                <i class="bi bi-person-plus"></i> Assign Master
+                            </button>
+
+                            <a href="/admin/edit/${o.order_id}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                            <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                 <i class="bi bi-trash"></i> Delete
                             </button>
                         </div>
