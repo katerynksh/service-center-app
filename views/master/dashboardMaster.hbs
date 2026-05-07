@@ -69,7 +69,7 @@
         renderOrders();
     }
 
-    function renderOrders() {
+function renderOrders() {
         const container = document.getElementById('orders-container');
         const searchTerm = document.getElementById('order-search').value.toLowerCase();
         const category = document.getElementById('search-category').value;
@@ -107,7 +107,9 @@
                             </h5>
                             <small class="text-muted"><i class="bi bi-box"></i> Order №${o.order_id} · ${o.device_type}</small>
                         </div>
-                        <a href="/master/edit/${o.order_id}" class="btn btn-link text-dark p-0"><i class="bi bi-pencil-square fs-5"></i></a>
+                        
+                        ${activeTab === 'my' ? `<a href="/master/edit/${o.order_id}" class="btn btn-link text-dark p-0" title="Edit Order"><i class="bi bi-pencil-square fs-5"></i></a>` : ''}
+                        
                     </div>
 
                     <p class="mb-4">${o.issue_description}</p>
