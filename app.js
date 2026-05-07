@@ -50,7 +50,7 @@ app.use("/client", clientRoutes);
 
 
 app.get('/', (req, res) => {
-    res.redirect('/auth/login');
+    res.render('index', { title: 'Main', layout: false});
 });
 
 const PORT = process.env.PORT || 3000;

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Center</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-purple: #cbbdf0;
+            --hover-purple: #b8a9e0;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-sub: #718096;
+            --border-color: #e2e8f0;
+        }
+
+        body.dark-theme {
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+        }
+
+        /* Завдяки цьому темна тема буде на ВЕСЬ екран */
+        body, html {
+            min-height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body) !important;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-main);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+
+        /* Головна обгортка для всього контенту */
+        .landing-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            padding: 60px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 1. БЛОК ЛОГОТИПУ (ПОСЕРЕДИНІ ЗВЕРХУ) */
+        .header-section {
+            text-align: center;
+            margin-bottom: 50px;
+            width: 100%;
+        }
+
+        .logo-box {
+            background-color: var(--primary-purple);
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 35px;
+            box-shadow: 0 8px 20px rgba(203, 189, 240, 0.4);
+        }
+
+        .brand-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            color: var(--text-sub);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* 2. КОНТЕЙНЕР ДЛЯ ДВОХ БЛОКІВ НА ОДНОМУ РІВНІ */
+        .content-section {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start; /* Вирівнювання по верхньому краю */
+            justify-content: center;
+            width: 100%;
+            gap: 60px;
+        }
+
+        /* ЛІВА КОЛОНКА (Картка з кнопкою Log In) */
+        .left-column {
+            width: 100%;
+            max-width: 420px;
+            flex: 1;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 32px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background-color: var(--primary-purple);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-bottom: 30px;
+            box-sizing: border-box;
+        }
+
+        .btn-login:hover {
+            background-color: var(--hover-purple);
+            transform: translateY(-2px);
+        }
+
+        .info-section {
+            text-align: left;
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-icon {
+            color: var(--primary-purple);
+            font-size: 18px;
+            margin-top: 3px;
+        }
+
+        .info-text b {
+            display: block;
+            color: var(--text-main);
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .info-text span {
+            color: var(--text-sub);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* ПРАВА КОЛОНКА (Блок інформації) */
+        .right-column {
+            flex: 1;
+            max-width: 450px;
+            text-align: left;
+            padding-top: 10px; /* Трохи опускаємо текст, щоб візуально вирівняти з кнопкою */
+        }
+
+        .right-column h2 {
+            font-size: 32px;
+            color: var(--text-main);
+            margin: 0 0 20px 0;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .right-column p {
+            color: var(--text-sub);
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 35px 0;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .feature-icon-box {
+            color: var(--primary-purple);
+            background: rgba(203, 189, 240, 0.15);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 14px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Адаптивність для мобільних пристроїв */
+        @media (max-width: 850px) {
+            .content-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 50px;
+            }
+            .right-column {
+                text-align: center;
+                padding-top: 0;
+            }
+            .feature-list li {
+                justify-content: center;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="theme-toggle" onclick="document.body.classList.toggle('dark-theme')">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="landing-wrapper">
+        
+        <div class="header-section">
+            <div class="logo-box">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h1 class="brand-name">Service Center</h1>
+            <p class="tagline">Professional Service</p>
+        </div>
+
+        <div class="content-section">
+            
+            <div class="left-column">
+                <div class="main-card">
+                    <a href="/auth/login" class="btn-login">
+                        <span>Log In</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                    <div class="info-section">
+                        <div class="info-item">
+                            <i class="fas fa-clock info-icon"></i>
+                            <div class="info-text">
+                                <b>We are open</b>
+                                <span>Mon-Fri: 09:00 — 19:00<br>Sat: 10:00 — 15:00</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt info-icon"></i>
+                            <div class="info-text">
+                                <b>Our Address</b>
+                                <span>King Danylo Uni, Ivano-Frankivsk</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-shield-alt info-icon"></i>
+                            <div class="info-text">
+                                <b>Quality Guarantee</b>
+                                <span>We provide a warranty on all types of repair work for up to 6 months.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <h2>Reliable Repair Management</h2>
+                <p>Our platform is designed for seamless interaction between clients and technicians. Track your device's status, get real-time updates, and manage all your requests in one place.</p>
+                
+                <ul class="feature-list">
+                    <li>
+                        <div class="feature-icon-box"><i class="fas fa-laptop-medical"></i></div>
+                        Fast online repair requests
+                    </li>
+                    <li>
+                        <div class="feature-icon-box"><i class="fas fa-search"></i></div>
+                        Transparent progress tracking
+                    </li>
+                    <li>
+                        <div class="feature-icon-box"><i class="fas fa-comments"></i></div>
+                        Direct communication with staff
+                    </li>
+                </ul>
+            </div>
+
+        </div> </div>
+
+</body>
+</html>
