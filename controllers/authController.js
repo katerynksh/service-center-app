@@ -1,4 +1,3 @@
-//логін та реєстрація користувача
 import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 import UserModel from "../models/User.js";
@@ -6,32 +5,31 @@ import UserModel from "../models/User.js";
 export const getLoginView = (req, res) => {
   res.render("auth/login", {
     title: "Login - Service Center",
-    layout: false
+    layout: false,
   });
 };
 
 export const getRegisterView = (req, res) => {
   res.render("auth/register", {
     title: "Sign Up - Service Center",
-    layout: false
+    layout: false,
   });
 };
 
-//РЕЄСТРАЦІЯ (Створення нового клієнта)
 export const register = async (req, res) => {
-  const { email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
-  if (!email || !password || !confirmPassword) {
+  if (!name || !email || !password || !confirmPassword) {
     return res.render("auth/register", {
       error: "All fields are required",
-      layout: false
+      layout: false,
     });
   }
 
   if (password !== confirmPassword) {
     return res.render("auth/register", {
       error: "Passwords do not match",
-      layout: false
+      layout: false,
     });
   }
 
@@ -40,36 +38,37 @@ export const register = async (req, res) => {
     if (userCheck) {
       return res.render("auth/register", {
         error: "A user with this email address is already registered",
-        layout: false
+        layout: false,
       });
     }
 
-    const saltRound = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRound);
-
-    await UserModel.createUser(email, hashedPassword, "client");
+    await UserModel.createUser({
+      name,
+      email,
+      password,
+      role: "client",
+    });
 
     res.redirect("/auth/login");
   } catch (err) {
     console.error("Registration error:", err);
     res.render("auth/register", {
       error: "Server error during registration",
-      layout: false
+      layout: false,
     });
   }
 };
 
-// ВХІД (Логін)
 export const login = async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
     const user = await UserModel.findUserByEmail(email);
 
     if (!user) {
       return res.render("auth/login", {
         title: "Login",
         error: "User not found",
-        layout: false
+        layout: false,
       });
     }
 
@@ -78,6 +77,7 @@ export const login = async (req, res) => {
       req.session.user = {
         id: user.id,
         email: user.email,
+        name: user.name,
         role: user.role,
       };
 
@@ -92,19 +92,18 @@ export const login = async (req, res) => {
       return res.render("auth/login", {
         title: "Login",
         error: "Incorrect password",
-        layout: false
+        layout: false,
       });
     }
   } catch (err) {
     console.error("Login error:", err);
     res.render("auth/login", {
       error: "Server error",
-      layout: false
+      layout: false,
     });
   }
 };
 
-// ВИХІД
 export const logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) {

@@ -155,19 +155,27 @@ export const OrderModel = {
     );
     return res.rows[0];
   },
-  // Отримати всі замовлення конкретного клієнта
-  getOrdersByClientId: async (clientId) => {
+
+ getOrdersByClientId: async (clientId) => {
+    const query = `
+        SELECT 
+            o.*, 
+            m.name AS master_name 
+        FROM orders o
+        LEFT JOIN users m ON o.assigned_to = m.id
+        WHERE o.client_id = $1
+        ORDER BY o.created_at DESC
+    `;
+    
     try {
-      const res = await pool.query(
-        "SELECT * FROM orders WHERE client_id = $1 ORDER BY created_at DESC",
-        [clientId],
-      );
-      return res.rows;
+        const { rows } = await pool.query(query, [clientId]);
+        return rows;
     } catch (err) {
-      console.error("Database error in getOrdersByClientId:", err.message);
-      throw err;
+        console.error("SQL Error in getOrdersByClientId:", err);
+        throw err;
     }
   },
+
   // Створити нову заявку
   createNewOrder: async (orderData) => {
     const {

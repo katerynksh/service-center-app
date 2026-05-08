@@ -9,7 +9,6 @@ export const getCreateOrderView = (req, res) => {
   });
 };
 
-// ПЕРЕГЛЯД СВОЇХ ЗАМОВЛЕНЬ
 export const getMyOrders = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -30,7 +29,6 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
-// СТВОРЕННЯ ЗАМОВЛЕННЯ (POST)
 export const createOrder = async (req, res) => {
   const {
     device_type,

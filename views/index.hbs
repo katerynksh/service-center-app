@@ -26,7 +26,6 @@
             --border-color: #334155;
         }
 
-        /* Завдяки цьому темна тема буде на ВЕСЬ екран */
         body, html {
             min-height: 100vh;
             width: 100%;
@@ -58,7 +57,6 @@
             z-index: 1000;
         }
 
-        /* Головна обгортка для всього контенту */
         .landing-wrapper {
             width: 100%;
             max-width: 1000px;
@@ -69,7 +67,6 @@
             align-items: center;
         }
 
-        /* 1. БЛОК ЛОГОТИПУ (ПОСЕРЕДИНІ ЗВЕРХУ) */
         .header-section {
             text-align: center;
             margin-bottom: 50px;
@@ -104,17 +101,15 @@
             margin: 0;
         }
 
-        /* 2. КОНТЕЙНЕР ДЛЯ ДВОХ БЛОКІВ НА ОДНОМУ РІВНІ */
         .content-section {
             display: flex;
             flex-direction: row;
-            align-items: flex-start; /* Вирівнювання по верхньому краю */
+            align-items: flex-start; 
             justify-content: center;
             width: 100%;
             gap: 60px;
         }
 
-        /* ЛІВА КОЛОНКА (Картка з кнопкою Log In) */
         .left-column {
             width: 100%;
             max-width: 420px;
@@ -131,7 +126,7 @@
             box-sizing: border-box;
         }
 
-        .btn-login {
+        .btn-login, .btn-register {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -145,11 +140,18 @@
             font-weight: 700;
             text-decoration: none;
             transition: transform 0.2s, background-color 0.2s;
-            margin-bottom: 30px;
             box-sizing: border-box;
         }
 
-        .btn-login:hover {
+        .btn-login {
+            margin-bottom: 15px; 
+        }
+
+        .btn-register {
+            margin-bottom: 30px;
+        }
+
+        .btn-login:hover, .btn-register:hover {
             background-color: var(--hover-purple);
             transform: translateY(-2px);
         }
@@ -186,12 +188,11 @@
             line-height: 1.4;
         }
 
-        /* ПРАВА КОЛОНКА (Блок інформації) */
         .right-column {
             flex: 1;
             max-width: 450px;
             text-align: left;
-            padding-top: 10px; /* Трохи опускаємо текст, щоб візуально вирівняти з кнопкою */
+            padding-top: 10px; 
         }
 
         .right-column h2 {
@@ -238,7 +239,6 @@
             flex-shrink: 0;
         }
 
-        /* Адаптивність для мобільних пристроїв */
         @media (max-width: 850px) {
             .content-section {
                 flex-direction: column;
@@ -279,6 +279,11 @@
                     <a href="/auth/login" class="btn-login">
                         <span>Log In</span>
                         <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                    <a href="/auth/register" class="btn-register">
+                        <span>Create Account</span>
+                        <i class="fas fa-user-plus"></i>
                     </a>
 
                     <div class="info-section">
