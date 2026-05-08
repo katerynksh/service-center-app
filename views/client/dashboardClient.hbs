@@ -293,9 +293,19 @@
         </a>
     </div>
 
-    <div class="search-container">
-        <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="Search by order ID, model, or issue...">
+   <div class="search-container" style="display: flex; gap: 10px; align-items: center;">
+        <div style="position: relative; flex: 1;">
+            <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" class="search-input" placeholder="Start typing to search..." style="width: 100%; padding-left: 45px;">
+        </div>
+        
+        <select id="search-category" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
+            <option value="all">Everywhere</option>
+            <option value="model">By Model</option>
+            <option value="id">By Order №</option>
+            <option value="master">By Master</option>
+            <option value="issue">By Issue</option>
+        </select>
     </div>
 
    {{#each orders}}
@@ -409,37 +419,40 @@
 
     document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.querySelector('.search-input');
+    const categorySelect = document.querySelector('#search-category');
     const orderCards = document.querySelectorAll('.order-card');
-    
-    const noResultsMsg = document.createElement('div');
-    noResultsMsg.id = 'no-results';
-    noResultsMsg.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 20px;">No matching orders found.</p>';
-    noResultsMsg.style.display = 'none';
-    document.querySelector('.container').appendChild(noResultsMsg);
 
-    searchInput.addEventListener('input', function () {
-        const query = this.value.toLowerCase().trim();
-        let visibleCards = 0;
+    function performSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        const category = categorySelect.value;
 
         orderCards.forEach(card => {
             const model = card.querySelector('h3').textContent.toLowerCase();
             const description = card.querySelector('.issue-desc').textContent.toLowerCase();
             const orderId = card.querySelector('.order-id-row').textContent.toLowerCase();
-            
-            const allValues = Array.from(card.querySelectorAll('.value'))
-                                   .map(v => v.textContent.toLowerCase())
-                                   .join(' ');
+            const master = card.querySelector('.value').textContent.toLowerCase(); // Перше поле .value це майстер
 
-            if (model.includes(query) || description.includes(query) || orderId.includes(query) || allValues.includes(query)) {
-                card.style.display = '';
-                visibleCards++;
-            } else {
-                card.style.display = 'none';
+            let isMatch = false;
+
+            if (category === 'all') {
+                isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
+            } else if (category === 'model') {
+                isMatch = model.includes(query);
+            } else if (category === 'id') {
+                isMatch = orderId.includes(query);
+            } else if (category === 'master') {
+                isMatch = master.includes(query);
+            } else if (category === 'issue') {
+                isMatch = description.includes(query);
             }
-        });
 
-        noResultsMsg.style.display = (visibleCards === 0 && query !== '') ? 'block' : 'none';
-    });
+            card.style.display = isMatch ? '' : 'none';
+        });
+    }
+
+    // Слухаємо і введення тексту, і зміну категорії
+    searchInput.addEventListener('input', performSearch);
+    categorySelect.addEventListener('change', performSearch);
 });
 </script>
 
