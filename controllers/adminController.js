@@ -1,3 +1,4 @@
+import e from 'express';
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
 
@@ -166,6 +167,7 @@ export const createMaster = async (req, res) => {
         const { email, name, password } = req.body;
 
         if (!email || !name || !password) {
+            console.error(error);
             return res.status(400).json({ error: 'Email, name, and password are required' });
         }
 
