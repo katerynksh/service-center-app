@@ -293,7 +293,7 @@
                 <div class="form-section">
                     <h6 class="form-title">Update Order Status</h6>
                     
-                    <form id="editOrderForm">
+                    <form id="editOrderForm" novalidate>
                         <div class="row">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -310,6 +310,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="cost" class="form-label info-label"><i class="bi bi-currency-dollar"></i> Service Cost ($):</label>
                                     <input type="number" class="form-control" id="cost" name="cost" step="0.01" min="0" placeholder="0.00">
+                                    <div class="error-text">Please enter a valid service cost</div>
                                 </div>
                             </div>
                         </div>
@@ -418,37 +419,56 @@
 
     // Обробка відправки форми (оновлення замовлення)
     document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = {
-            status: document.getElementById('status').value,
-            comment: document.getElementById('technician_comment').value,
-            cost: document.getElementById('cost').value        };
+    e.preventDefault();
+    const form = e.target;
 
-        try {
-            // Викликаємо існуючий PUT-маршрут updateOrder
-            const response = await fetch(`/master/order/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
+    // Очищення попередніх помилок
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.error-text').forEach(el => el.style.display = 'none');
 
-            if (response.ok) {
-                document.getElementById('status-message').style.display = 'block';
-                // Перезавантажуємо деталі, щоб оновити блок "Updated" та "Technician Comment"
-                loadOrderDetails();
-                // Ховаємо повідомлення про успіх через 3 секунди
-                setTimeout(() => {
-                    window.location.href = '/master';
-                }, 1500);
-            } else {
-                alert('Failed to update order.');
-            }
-        } catch (err) {
-            console.error('Error:', err);
-            alert('An error occurred while saving.');
+    let isValid = true;
+    
+    // Валідація вартості (щоб не була від'ємною)
+    const costField = document.getElementById('cost');
+    if (costField.value && parseFloat(costField.value) < 0) {
+        isValid = false;
+        costField.classList.add('is-invalid');
+        const errDiv = costField.nextElementSibling;
+        if (errDiv && errDiv.classList.contains('error-text')) {
+            errDiv.innerText = 'Cost cannot be negative';
+            errDiv.style.display = 'block';
         }
-    });
+    }
+
+    if (!isValid) return;
+
+    const formData = {
+        status: document.getElementById('status').value,
+        comment: document.getElementById('technician_comment').value,
+        cost: document.getElementById('cost').value
+    };
+
+    try {
+        const response = await fetch(`/master/order/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            document.getElementById('status-message').style.display = 'block';
+            loadOrderDetails();
+            setTimeout(() => {
+                window.location.href = '/master';
+            }, 1500);
+        } else {
+            alert('Failed to update order.');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('An error occurred while saving.');
+    }
+});
 
     // Завантаження при старті
     loadOrderDetails();

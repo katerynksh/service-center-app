@@ -4,27 +4,32 @@
             <h4 class="fw-bold mb-0">Create New Order</h4>
         </div>
         <div class="card-body p-4">
-            <form id="createOrderForm">
+            <form id="createOrderForm" novalidate>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Client Email (New Client)</label>
                         <input type="email" class="form-control" name="client_email" placeholder="example@mail.com" required>
+                        <div class="error-text">Please enter a valid email address</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Client Name</label>
                         <input type="name" name="client_name" class="form-control" placeholder="Client Name" required>
+                        <div class="error-text">Please enter a valid client name</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Set Client Password</label>
                         <input type="password" class="form-control" name="client_password" placeholder="Minimum 6 characters" required>
+                        <div class="error-text">Password must be at least 6 characters long</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Device Model</label>
                         <input type="text" class="form-control" name="device_model" placeholder="iPhone 15 Pro" required>
+                        <div class="error-text">Please enter a device model</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Device Type</label>
                         <input type="text" class="form-control" name="device_type" placeholder="Smartphone" required>
+                        <div class="error-text">Please enter a device type</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">OS Version</label>
@@ -37,6 +42,7 @@
                     <div class="col-12">
                         <label class="form-label text-muted small">Issue Description</label>
                         <textarea class="form-control" name="issue_description" rows="3" placeholder="Describe the problem..." required></textarea>
+                        <div class="error-text">Please enter an issue description</div>
                     </div>
                 </div>
 
@@ -52,7 +58,57 @@
 <script>
 document.getElementById('createOrderForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = Object.fromEntries(new FormData(e.target));
+    const form = e.target;
+    
+    // Очищення попередніх помилок
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.error-text').forEach(el => el.style.display = 'none');
+
+    let isValid = true;
+
+    // Перевірка на порожні значення
+    form.querySelectorAll('[required]').forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+            const errorDiv = field.nextElementSibling;
+            if (errorDiv && errorDiv.classList.contains('error-text')) {
+                errorDiv.innerText = 'This field is required';
+                errorDiv.style.display = 'block';
+            }
+        }
+    });
+
+    // Валідація Email
+    const emailField = form.querySelector('input[type="email"]');
+    if (emailField && emailField.value.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailField.value.trim())) {
+            isValid = false;
+            emailField.classList.add('is-invalid');
+            const errorDiv = emailField.nextElementSibling;
+            if (errorDiv && errorDiv.classList.contains('error-text')) {
+                errorDiv.innerText = 'Please enter a valid email address';
+                errorDiv.style.display = 'block';
+            }
+        }
+    }
+
+    // Валідація довжини пароля
+    const passwordField = form.querySelector('input[type="password"]');
+    if (passwordField && passwordField.value.trim() && passwordField.value.length < 6) {
+        isValid = false;
+        passwordField.classList.add('is-invalid');
+        const errorDiv = passwordField.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('error-text')) {
+            errorDiv.innerText = 'Password must be at least 6 characters long';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    if (!isValid) return; 
+
+    const formData = Object.fromEntries(new FormData(form));
 
     try {
         const res = await fetch('/admin/orders', {
@@ -60,7 +116,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
-
         if (res.ok) {
             alert('Order created successfully!');
             window.location.href = '/admin';
