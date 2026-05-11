@@ -106,6 +106,42 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         }
     }
 
+    // Валідація імені клієнта
+    const nameField = form.querySelector('input[name="client_name"]');
+    const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
+    if (nameField && (!nameField.value.trim() || !nameRegex.test(nameField.value.trim()))) {
+        isValid = false;
+        nameField.classList.add('is-invalid');
+        const errorDiv = nameField.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('error-text')) {
+            errorDiv.innerText = 'Client name should only contain letters, spaces, hyphens, and apostrophes';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // Валідація дати покупки (від 1900 року до сьогодні)
+    const dateField = form.querySelector('input[name="date_of_purchase"]');
+    if (dateField && dateField.value) {
+        const selectedDate = new Date(dateField.value);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // Враховуємо весь сьогоднішній день
+        const minDate = new Date('1900-01-01'); 
+        
+        if (selectedDate > today || selectedDate < minDate) {
+            isValid = false;
+            dateField.classList.add('is-invalid');
+            
+            let errorDiv = dateField.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains('error-text')) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'error-text text-danger mt-1 small';
+                dateField.parentNode.insertBefore(errorDiv, dateField.nextSibling);
+            }
+            errorDiv.innerText = 'Please select a valid purchase date (between 1900 and today)';
+            errorDiv.style.display = 'block';
+        }
+    }
+
     if (!isValid) return; 
 
     const formData = Object.fromEntries(new FormData(form));

@@ -55,10 +55,11 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
     }
 
     // Валідація Імені
-    if (!nameInput.value.trim()) {
+    const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
+    if (!nameInput.value.trim() || !nameRegex.test(nameInput.value.trim())) {
         isValid = false;
         nameInput.classList.add('is-invalid');
-        nameInput.nextElementSibling.textContent = 'Name is a required field.';
+        nameInput.nextElementSibling.textContent = 'Name can only contain letters, spaces, hyphens, and apostrophes.';
     }
 
     // Валідація Пароля

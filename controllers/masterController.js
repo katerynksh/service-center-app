@@ -56,6 +56,10 @@ export const updateOrder = async (req, res) => {
     try {
         const { id } = req.params;
         const { status, comment, cost } = req.body;
+
+        if (cost !== undefined && cost !== null && parseFloat(cost) < 0) {
+            return res.status(400).json({ error: 'Cost cannot be negative' });
+        }
         
         const currentOrder = await OrderModel.getOrderById(id);
         
@@ -69,16 +73,7 @@ export const updateOrder = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
-// export const updateOrder = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { status, comment, cost } = req.body;
-//         const updated = await OrderModel.updateStatus(id, status, comment, cost);
-//         res.json(updated);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Server error' });
-//     }
-// };
+
 export const acceptOrder = async (req, res) => {
     try {
         const { id } = req.params;

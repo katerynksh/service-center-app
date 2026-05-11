@@ -74,6 +74,12 @@
 document.getElementById('adminEditForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target));
+
+    if (formData.cost && parseFloat(formData.cost) < 0) {
+        alert("Cost cannot be negative!");
+        return;
+    }
+
     const id = document.getElementById('order-id-display').innerText;
 
     const res = await fetch(`/admin/orders/${id}`, {

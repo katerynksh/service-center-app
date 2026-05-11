@@ -50,7 +50,24 @@ export const createOrderAdmin = async (req, res) => {
             issue_description 
         } = req.body;
 
-        // 1. Створюємо клієнта з паролем, який ввів адмін
+        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
+        if (!nameRegex.test(client_name)) {
+            return res.status(400).json({ error: 'Name should only contain letters, spaces, hyphens, and apostrophes' });
+        }
+
+        if (client_password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+
+        if (date_of_purchase) {
+            const selectedDate = new Date(date_of_purchase);
+            const today = new Date();
+            const minDate = new Date('1900-01-01');
+            if (selectedDate > today || selectedDate < minDate) {
+                return res.status(400).json({ error: 'Invalid purchase date' });
+            }
+        }
+
         const newUser = await UserModel.createUser({
             email: client_email,
             name: client_name,
@@ -58,7 +75,6 @@ export const createOrderAdmin = async (req, res) => {
             role: 'client'
         });
 
-        // 2. Створюємо замовлення
         const newOrder = await OrderModel.createNewOrder({
             client_id: newUser.id,
             device_type,
@@ -112,6 +128,10 @@ export const updateOrderFull = async (req, res) => {
             assigned_to, 
             technician_comment 
         } = req.body;
+
+        if (cost !== undefined && cost !== null && parseFloat(cost) < 0) {
+            return res.status(400).json({ error: 'Cost cannot be negative' });
+        }
 
         const updated = await OrderModel.updateFullOrder(orderId, {
             device_type,
@@ -169,6 +189,15 @@ export const createMaster = async (req, res) => {
         if (!email || !name || !password) {
             console.error(error);
             return res.status(400).json({ error: 'Email, name, and password are required' });
+        }
+
+        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
+        if (!nameRegex.test(name)) {
+            return res.status(400).json({ error: 'Name should only contain letters, spaces, hyphens, and apostrophes' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
         }
 
         const newMaster = await UserModel.createUser({
