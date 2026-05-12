@@ -21,15 +21,17 @@ export const register = async (req, res) => {
 
   if (!name || !email || !password || !confirmPassword) {
     return res.render("auth/register", {
-      error: "All fields are required",
+      errors: { name: "All fields are required" }, 
       layout: false,
+      values: { name, email }
     });
   }
 
   if (password !== confirmPassword) {
     return res.render("auth/register", {
-      error: "Passwords do not match",
+      errors: { confirmPassword: "Passwords do not match" }, 
       layout: false,
+      values: { name, email }
     });
   }
 
@@ -37,8 +39,9 @@ export const register = async (req, res) => {
     const userCheck = await UserModel.findUserByEmail(email);
     if (userCheck) {
       return res.render("auth/register", {
-        error: "A user with this email address is already registered",
+        errors: { email: "A user with this email address is already registered" }, 
         layout: false,
+        values: { name, email }
       });
     }
 
@@ -53,8 +56,9 @@ export const register = async (req, res) => {
   } catch (err) {
     console.error("Registration error:", err);
     res.render("auth/register", {
-      error: "Server error during registration",
+      error: "Server error during registration", 
       layout: false,
+      values: { name, email }
     });
   }
 };
@@ -67,8 +71,9 @@ export const login = async (req, res) => {
     if (!user) {
       return res.render("auth/login", {
         title: "Login",
-        error: "User not found",
+        errors: { email: "User not found" },
         layout: false,
+        values: { email }
       });
     }
 
@@ -91,8 +96,9 @@ export const login = async (req, res) => {
     } else {
       return res.render("auth/login", {
         title: "Login",
-        error: "Incorrect password",
+        errors: { password: "Incorrect password" },
         layout: false,
+        values: { email }
       });
     }
   } catch (err) {

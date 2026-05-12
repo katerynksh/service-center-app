@@ -245,6 +245,31 @@
         }
 
         .demo-pill b { color: var(--text-main); }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .form-input.is-invalid {
+            border-color: #fc8181;
+            background-color: #fff5f5;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i.error-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #e53e3e;
+        }
+
     </style>
 </head>
 <body>
@@ -267,7 +292,7 @@
         <div class="auth-card">
             <h2>Log in</h2>
 
-            {{#if error}}
+           {{#if error}}
                 <div class="error-banner">
                     <i class="fas fa-exclamation-circle"></i>
                     <span>{{error}}</span>
@@ -277,12 +302,24 @@
             <form action="/auth/login" method="POST">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" name="email" id="email" placeholder="your@email.com" required class="form-input">
+                    <div class="input-wrapper">
+                        <input type="email" name="email" id="email" value="{{values.email}}" placeholder="your@email.com" 
+                               class="form-input {{#if errors.email}}is-invalid{{/if}}">
+                        {{#if errors.email}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                    </div>
+                    {{#if errors.email}}<div class="error-message">{{errors.email}}</div>{{/if}}
                 </div>
+
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" id="password" placeholder="••••••••" required class="form-input">
+                    <div class="input-wrapper">
+                        <input type="password" name="password" id="password" placeholder="••••••••" 
+                               class="form-input {{#if errors.password}}is-invalid{{/if}}">
+                        {{#if errors.password}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                    </div>
+                    {{#if errors.password}}<div class="error-message">{{errors.password}}</div>{{/if}}
                 </div>
+
                 <button type="submit" class="btn-submit">Log in</button>
             </form>
 
