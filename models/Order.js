@@ -8,6 +8,7 @@ export const OrderModel = {
         FROM orders o 
         JOIN USERS u ON o.client_id = u.id 
         WHERE o.status = 'new'
+        ORDER BY o.created_at DESC
     `);
     return res.rows;
   },
@@ -18,6 +19,7 @@ export const OrderModel = {
         FROM orders o 
         JOIN users u ON o.client_id = u.id 
         WHERE o.assigned_to = $1
+        ORDER BY o.created_at DESC
     `,
       [masterId],
     );
@@ -43,10 +45,15 @@ export const OrderModel = {
   // Для Адміна: всі замовлення та всі майстри
   getAllOrders: async () => {
     const res = await pool.query(`
-            SELECT o.*, u.email as master_email 
-            FROM orders o 
-            LEFT JOIN users u ON o.assigned_to = u.id 
-            ORDER BY o.created_at DESC
+          SELECT 
+            o.*, 
+            m.email as master_email,
+            c.email as client_email,
+            c.name as client_name
+          FROM orders o 
+        LEFT JOIN users m ON o.assigned_to = m.id 
+        LEFT JOIN users c ON o.client_id = c.id
+        ORDER BY o.created_at DESC
         `);
     return res.rows;
   },
@@ -85,7 +92,7 @@ export const OrderModel = {
   },
   getAllMasters: async () => {
     const res = await pool.query(
-      "SELECT id, email FROM USERS WHERE role = 'master'",
+      "SELECT id, email FROM users WHERE role = 'master'",
     );
     return res.rows;
   },
@@ -100,7 +107,7 @@ export const OrderModel = {
   },
   assignMasterByEmail: async (orderId, masterEmail) => {
     const masterRes = await pool.query(
-      "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",
+      "SELECT id FROM users WHERE email = $1 AND role = 'master'",
       [masterEmail],
     );
 

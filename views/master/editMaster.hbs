@@ -241,10 +241,10 @@
                 <span id="info-status-badge"></span>
             </div>
 
-            <ul class="nav nav-pills custom-tabs mb-4">
+            {{!-- <ul class="nav nav-pills custom-tabs mb-4">
                 <li class="nav-link active">General Info</li>
                 <li class="nav-link">History</li>
-            </ul>
+            </ul> --}}
 
             <div id="general-info-tab">
                 
@@ -258,8 +258,8 @@
                         <div class="info-label mt-3"><i class="bi bi-pc-display"></i> Device Model:</div>
                         <div class="info-value" id="info-device-model"></div>
 
-                        <div class="info-label mt-3"><i class="bi bi-tools"></i> Technician:</div>
-                        <div class="info-value" id="info-technician-name"></div>
+                        <div class="info-label mt-3"><i class="bi bi-tools"></i> Date of Purchase:</div>
+                        <div class="info-value" id="info-purchase-date"></div>
                     </div>
                     
                     <div class="info-block">
@@ -360,6 +360,7 @@
             document.getElementById('info-device-type').innerText = o.device_type;
             document.getElementById('info-client-email').innerText = o.client_email;
             document.getElementById('info-device-model').innerText = o.device_model;
+            document.getElementById('info-purchase-date').innerText = o.date_of_purchase ? new Date(o.date_of_purchase).toLocaleDateString() : 'Not specified';
             document.getElementById('info-updated').innerText = new Date(o.updated_at).toLocaleString();
             
             const costVal = o.cost ? `$${o.cost}` : 'Not set';
@@ -418,56 +419,54 @@
 
     // Обробка відправки форми (оновлення замовлення)
     document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
+        e.preventDefault();
+        const form = e.target;
 
-    // Очищення попередніх помилок
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.querySelectorAll('.error-text').forEach(el => el.style.display = 'none');
+        // Очищення попередніх помилок
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
 
-    let isValid = true;
-    
-    // Валідація вартості (щоб не була від'ємною)
-    const costField = document.getElementById('cost');
-    if (costField.value && parseFloat(costField.value) < 0) {
-        isValid = false;
-        costField.classList.add('is-invalid');
-        const errDiv = costField.nextElementSibling;
-        if (errDiv && errDiv.classList.contains('error-text')) {
-            errDiv.innerText = 'Cost cannot be negative';
-            errDiv.style.display = 'block';
+        let isValid = true;
+        
+        // Валідація вартості (щоб не була від'ємною)
+        const costField = document.getElementById('cost');
+        if (costField.value && parseFloat(costField.value) < 0) {
+            isValid = false;
+            costField.classList.add('is-invalid');
+            const errDiv = costField.nextElementSibling;
+            if (errDiv && errDiv.classList.contains('error-text')) {
+                errDiv.innerText = 'Cost cannot be negative';
+            }
         }
-    }
 
-    if (!isValid) return;
+        if (!isValid) return;
 
-    const formData = {
-        status: document.getElementById('status').value,
-        comment: document.getElementById('technician_comment').value,
-        cost: document.getElementById('cost').value
-    };
+        const formData = {
+            status: document.getElementById('status').value,
+            comment: document.getElementById('technician_comment').value,
+            cost: document.getElementById('cost').value
+        };
 
-    try {
-        const response = await fetch(`/master/order/${orderId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        });
+        try {
+            const response = await fetch(`/master/order/${orderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
 
-        if (response.ok) {
-            document.getElementById('status-message').style.display = 'block';
-            loadOrderDetails();
-            setTimeout(() => {
-                window.location.href = '/master';
-            }, 1500);
-        } else {
-            alert('Failed to update order.');
+            if (response.ok) {
+                document.getElementById('status-message').style.display = 'block';
+                loadOrderDetails();
+                setTimeout(() => {
+                    window.location.href = '/master';
+                }, 1500);
+            } else {
+                alert('Failed to update order.');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            alert('An error occurred while saving.');
         }
-    } catch (err) {
-        console.error('Error:', err);
-        alert('An error occurred while saving.');
-    }
-});
+    });
 
     // Завантаження при старті
     loadOrderDetails();

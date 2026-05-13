@@ -62,7 +62,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
     
     // Очищення попередніх помилок
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.querySelectorAll('.error-text').forEach(el => el.style.display = 'none');
 
     let isValid = true;
 
@@ -74,7 +73,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
             const errorDiv = field.nextElementSibling;
             if (errorDiv && errorDiv.classList.contains('error-text')) {
                 errorDiv.innerText = 'This field is required';
-                errorDiv.style.display = 'block';
             }
         }
     });
@@ -89,7 +87,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
             const errorDiv = emailField.nextElementSibling;
             if (errorDiv && errorDiv.classList.contains('error-text')) {
                 errorDiv.innerText = 'Please enter a valid email address';
-                errorDiv.style.display = 'block';
             }
         }
     }
@@ -102,7 +99,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         const errorDiv = passwordField.nextElementSibling;
         if (errorDiv && errorDiv.classList.contains('error-text')) {
             errorDiv.innerText = 'Password must be at least 6 characters long';
-            errorDiv.style.display = 'block';
         }
     }
 
@@ -115,7 +111,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         const errorDiv = nameField.nextElementSibling;
         if (errorDiv && errorDiv.classList.contains('error-text')) {
             errorDiv.innerText = 'Client name should only contain letters, spaces, hyphens, and apostrophes';
-            errorDiv.style.display = 'block';
         }
     }
 
@@ -138,7 +133,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
                 dateField.parentNode.insertBefore(errorDiv, dateField.nextSibling);
             }
             errorDiv.innerText = 'Please select a valid purchase date (between 1900 and today)';
-            errorDiv.style.display = 'block';
         }
     }
 
