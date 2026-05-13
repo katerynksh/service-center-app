@@ -211,6 +211,13 @@ h2, h4, h5 {
     font-size: 0.85rem;
     margin-top: 4px;
     display: none; /* Приховано за замовчуванням */
+    font-weight: 500;
+}
+
+/* АВТОМАТИЧНИЙ ПОКАЗ ПОМИЛКИ: якщо поле має клас is-invalid, показувати наступний за ним .error-text */
+.form-control.is-invalid ~ .error-text, 
+.form-select.is-invalid ~ .error-text {
+    display: block !important;
 }
 
 /* Підсвічування поля з помилкою червоним кольором */

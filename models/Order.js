@@ -8,6 +8,7 @@ export const OrderModel = {
         FROM ORDERS o 
         JOIN USERS u ON o.client_id = u.id 
         WHERE o.status = 'new'
+        ORDER BY o.created_at DESC
     `);
     return res.rows;
   },
@@ -18,6 +19,7 @@ export const OrderModel = {
         FROM orders o 
         JOIN users u ON o.client_id = u.id 
         WHERE o.assigned_to = $1
+        ORDER BY o.created_at DESC
     `,
       [masterId],
     );
@@ -28,14 +30,14 @@ export const OrderModel = {
   updateStatus: async (id, status, comment, cost) => {
     // Додано параметр cost
     const res = await pool.query(
-      "UPDATE ORDERS SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
+      "UPDATE orders SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
       [status, comment, cost || 0, id], // Записуємо ціну
     );
     return res.rows[0];
   },
   takeOrder: async (orderId, masterId) => {
     const res = await pool.query(
-      "UPDATE ORDERS SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
+      "UPDATE orders SET assigned_to = $1, status = 'in progress', updated_at = NOW() WHERE order_id = $2 RETURNING *",
       [masterId, orderId],
     );
     return res.rows[0];
@@ -61,7 +63,7 @@ export const OrderModel = {
       assigned_to,
     } = data;
     const res = await pool.query(
-      `UPDATE ORDERS SET 
+      `UPDATE orders SET 
                 device_type = $1, device_model = $2, os_version = $3, 
                 issue_description = $4, status = $5, cost = $6, 
                 assigned_to = $7, updated_at = NOW() 
@@ -80,18 +82,18 @@ export const OrderModel = {
     return res.rows[0];
   },
   deleteOrder: async (id) => {
-    await pool.query("DELETE FROM ORDERS WHERE order_id = $1", [id]);
+    await pool.query("DELETE FROM orders WHERE order_id = $1", [id]);
     return { success: true };
   },
   getAllMasters: async () => {
     const res = await pool.query(
-      "SELECT id, email FROM USERS WHERE role = 'master'",
+      "SELECT id, email FROM users WHERE role = 'master'",
     );
     return res.rows;
   },
   assignToMaster: async (orderId, masterId) => {
     const res = await pool.query(
-      `UPDATE ORDERS 
+      `UPDATE orders 
              SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
              WHERE order_id = $2 RETURNING *`,
       [masterId, orderId],
@@ -100,7 +102,7 @@ export const OrderModel = {
   },
   assignMasterByEmail: async (orderId, masterEmail) => {
     const masterRes = await pool.query(
-      "SELECT id FROM USERS WHERE email = $1 AND role = 'master'",
+      "SELECT id FROM users WHERE email = $1 AND role = 'master'",
       [masterEmail],
     );
 
@@ -112,7 +114,7 @@ export const OrderModel = {
 
     const masterId = masterRes.rows[0].id;
     const res = await pool.query(
-      `UPDATE ORDERS 
+      `UPDATE orders 
              SET assigned_to = $1, status = 'in progress', updated_at = NOW() 
              WHERE order_id = $2 
              RETURNING *`,
@@ -205,7 +207,7 @@ export const OrderModel = {
   cancelOrderByClient: async (orderId, clientId) => {
     try {
       const res = await pool.query(
-        "UPDATE ORDERS SET status = 'canceled', updated_at = NOW() WHERE order_id = $1 AND client_id = $2 AND status = 'new' RETURNING *",
+        "UPDATE orders SET status = 'canceled', updated_at = NOW() WHERE order_id = $1 AND client_id = $2 AND status = 'new' RETURNING *",
         [orderId, clientId],
       );
       if (res.rows.length === 0) {
