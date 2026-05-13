@@ -45,10 +45,15 @@ export const OrderModel = {
   // Для Адміна: всі замовлення та всі майстри
   getAllOrders: async () => {
     const res = await pool.query(`
-            SELECT o.*, u.email as master_email 
-            FROM orders o 
-            LEFT JOIN users u ON o.assigned_to = u.id 
-            ORDER BY o.created_at DESC
+          SELECT 
+            o.*, 
+            m.email as master_email,
+            c.email as client_email,
+            c.name as client_name
+          FROM orders o 
+        LEFT JOIN users m ON o.assigned_to = m.id 
+        LEFT JOIN users c ON o.client_id = c.id
+        ORDER BY o.created_at DESC
         `);
     return res.rows;
   },
