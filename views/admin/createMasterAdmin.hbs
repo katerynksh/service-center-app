@@ -46,7 +46,9 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
     const passwordInput = form.querySelector('[name="password"]');
 
     // Валідація Email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    {{!-- const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; --}}
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
         isValid = false;
         emailInput.classList.add('is-invalid');

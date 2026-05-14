@@ -242,7 +242,7 @@
             document.getElementById('master-search-block').style.display = 'flex';
         }
 
-        // БЕЗПЕЧНЕ перемикання видимості кнопки Create New Order
+        // перемикання видимості кнопки Create New Order
         const createBtnContainer = document.getElementById('create-order-container');
         if (createBtnContainer) {
             if (tab === 'orders') {
@@ -369,8 +369,8 @@
 
                     <div class="card-actions">
                         ${activeTab === 'orders' ? `
+                        <button onclick="setMaster(${o.order_id})" class="btn-action outline-primary"><i class="fas fa-user-plus"></i> Assign Master</button>
                         <button onclick="archiveOrder(${o.order_id})" class="btn-action outline-secondary"><i class="fas fa-archive"></i> Archive</button>
-                        <button onclick="setMaster(${o.order_id})" class="btn-action outline-primary"><i class="fas fa-user-plus"></i> Assign</button>
                         ` : ''}
                         <a href="/admin/edit/${o.order_id}" class="btn-action outline-primary"><i class="fas fa-edit"></i> Edit</a>
                         <button onclick="deleteOrder(${o.order_id})" class="btn-action outline-danger"><i class="fas fa-trash"></i> Delete</button>

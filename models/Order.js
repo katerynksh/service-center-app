@@ -4,9 +4,9 @@ export const OrderModel = {
   // Для Майстра: бачити нові та свої
   getNewOrders: async () => {
     const res = await pool.query(`
-        SELECT o.*, u.email as client_email 
+        SELECT o.*, u.email as client_email, u.name as client_name 
         FROM orders o 
-        JOIN USERS u ON o.client_id = u.id 
+        JOIN users u ON o.client_id = u.id 
         WHERE o.status = 'new'
         ORDER BY o.created_at DESC
     `);
@@ -15,7 +15,7 @@ export const OrderModel = {
   getOrdersByMaster: async (masterId) => {
     const res = await pool.query(
       `
-        SELECT o.*, u.email as client_email 
+        SELECT o.*, u.email as client_email, u.name as client_name 
         FROM orders o 
         JOIN users u ON o.client_id = u.id 
         WHERE o.assigned_to = $1
