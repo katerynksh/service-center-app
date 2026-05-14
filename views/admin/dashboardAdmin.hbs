@@ -1,96 +1,167 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold mb-0">Service Center</h4>
-        <small class="text-muted">{{title}} — {{user.name}}</small>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-link text-dark p-0"><i class="bi bi-moon"></i></button>
-        <a href="/" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
-            <i class="bi bi-box-arrow-right"></i> Logout
-        </a>
-    </div>
-</div>  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <div class="nav nav-pills nav-justified mb-4 custom-tabs shadow-sm rounded-3">
-        <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">Active Orders (0)</button>
-        <button class="nav-link" id="tab-archive" onclick="switchTab('archive')"><i class="bi bi-archive me-1"></i> Archive (0)</button>
-        <button class="nav-link" id="tab-masters" onclick="switchTab('masters')"><i class="bi bi-tools me-1"></i> Masters (0)</button>
-    </div>
+<style>
+    :root {
+        --primary-violet: #ae9ebe;
+        --hover-violet: rgb(145, 132, 179);
+        --bg-body: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-main: #2d3748;
+        --text-muted: #718096;
+        --border-color: #e2e8f0;
+        --row-bg: #f8f9fa; 
 
-    <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="location.href='/admin/create-order'">
-            <i class="bi bi-plus-lg"></i> Create New Order
-        </button>
-    </div>
+        --status-new-bg: #e0f7ff; --status-new-text: #00a8e8; --status-new-border: #00a8e8;
+        --status-progress-bg: #fff3e0; --status-progress-text: #ff9800; --status-progress-border: #ff9800;
+        --status-waiting-bg: #e0fbff; --status-waiting-text: #00c4cc; --status-waiting-border: #00c4cc;
+        --status-parts-bg: #f0f4f8; --status-parts-text: #607d8b; --status-parts-border: #607d8b;
+        --status-fail-bg: #ffebee; --status-fail-text: #e53935; --status-fail-border: #e53935;
+        --status-done-bg: #e8f5e9; --status-done-text: #43a047; --status-done-border: #43a047;
+    }
 
-    <div id="search-container">
-        <div id="order-search-block" class="input-group mb-4 shadow-sm">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-            <input type="text" id="order-search" class="form-control border-start-0 ps-0" placeholder="Search orders..." oninput="renderContent()">
-            <select id="search-category" class="form-select border-start-1" style="max-width: 150px;" onchange="renderContent()">
-                <option value="all">All fields</option>
-                <option value="order_id">Order №</option>
-                <option value="device_model">Model</option>
-                <option value="status">Status</option>
-                <option value="master_email">Master Email</option>
-            </select>
+    body.dark-theme {
+        --bg-body: #0f172a;
+        --card-bg: #1e293b;
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --row-bg: rgba(255, 255, 255, 0.03);
+    }
+
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        transition: background 0.3s ease;
+    }
+
+    /* Адаптація заголовка */
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .header-brand h1 { font-size: 24px; margin: 0; font-weight: 700; color: var(--text-main); }
+    .header-brand p { font-size: 14px; margin: 5px 0 0; color: var(--text-muted); }
+    
+    .btn-logout { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 500; }
+    .btn-new-order { background-color: var(--primary-violet); color: white; padding: 10px 22px; border-radius: 10px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-new-order:hover { background-color: var(--hover-violet); transform: translateY(-1px); color: white; }
+
+    /* Таби */
+    .custom-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: var(--card-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border-color); }
+    .custom-tabs .nav-link { flex: 1; text-align: center; color: var(--text-muted); font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
+    .custom-tabs .nav-link.active { background-color: var(--primary-violet); color: white; }
+
+    /* Пошук */
+    .search-container { display: flex; gap: 10px; align-items: center; margin-bottom: 30px; }
+    .search-input-wrapper { position: relative; flex: 1; }
+    .search-input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-input { width: 100%; padding: 14px 15px 14px 45px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; }
+    .search-select { padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; }
+
+    /* Картки */
+    .order-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 25px; transition: all 0.3s ease; }
+    .order-card:hover { border-color: var(--primary-violet); box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25); transform: translateY(-2px); }
+    
+    .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 8px; }
+    .card-top h3 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main); }
+    
+    .status-badge { font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; border: 1.5px solid; display: inline-block; }
+    .status-new { background: var(--status-new-bg); color: var(--status-new-text); border-color: var(--status-new-border); }
+    .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); border-color: var(--status-progress-border); }
+    .status-waiting-response { background: var(--status-waiting-bg); color: var(--status-waiting-text); border-color: var(--status-waiting-border); }
+    .status-waiting-parts { background: var(--status-parts-bg); color: var(--status-parts-text); border-color: var(--status-parts-border); }
+    .status-failed { background: var(--status-fail-bg); color: var(--status-fail-text); border-color: var(--status-fail-border); }
+    .status-done { background: var(--status-done-bg); color: var(--status-done-text); border-color: var(--status-done-border); }
+    
+    .order-id-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
+    .issue-desc { font-size: 14px; margin-bottom: 25px; line-height: 1.5; color: var(--text-main); }
+    
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+    .data-row { background: var(--row-bg); border-radius: 8px; padding: 12px 15px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+    .data-row i { color: var(--text-muted); width: 16px; text-align: center; }
+    .data-row span.label { color: var(--text-muted); }
+    .data-row span.value { font-weight: 700; color: var(--text-main); }
+
+    .comment-box { margin-top: 20px; padding: 16px 20px; background: var(--row-bg); border-radius: 14px; border: 1px solid var(--border-color); display: flex; gap: 15px; position: relative; }
+    .comment-box::before { content: "TECHNICIAN COMMENT"; position: absolute; top: -9px; left: 15px; background: var(--card-bg); color: var(--text-muted); font-size: 10px; font-weight: 700; padding: 0 8px; letter-spacing: 0.5px; }
+    .comment-content p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-main); }
+
+    .card-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+    .btn-action { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; background: var(--card-bg); }
+    .btn-action.outline-primary { border: 1px solid var(--primary-violet); color: var(--primary-violet); }
+    .btn-action.outline-primary:hover { background: var(--primary-violet); color: white; }
+    .btn-action.outline-secondary { border: 1px solid var(--text-muted); color: var(--text-muted); }
+    .btn-action.outline-secondary:hover { background: var(--text-muted); color: white; }
+    .btn-action.outline-danger { border: 1px solid var(--status-fail-text); color: var(--status-fail-text); }
+    .btn-action.outline-danger:hover { background: var(--status-fail-text); color: white; }
+</style>
+
+<div class="dashboard-header mt-4">
+    <div class="header-brand">
+        <h1>Service Center</h1>
+        <p>{{title}} — {{user.name}}</p>
+    </div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <i class="fas fa-moon" style="cursor:pointer; font-size: 1.2rem; color: var(--text-main);" onclick="document.body.classList.toggle('dark-theme')"></i>
+        <a href="/" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</div>
+
+<div class="custom-tabs">
+    <button class="nav-link active" id="tab-orders" onclick="switchTab('orders')">Active Orders (0)</button>
+    <button class="nav-link" id="tab-archive" onclick="switchTab('archive')"><i class="fas fa-archive"></i> Archive (0)</button>
+    <button class="nav-link" id="tab-masters" onclick="switchTab('masters')"><i class="fas fa-tools"></i> Masters (0)</button>
+</div>
+
+<div id="search-container">
+    <div id="order-search-block" class="search-container">
+        <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="order-search" class="search-input" placeholder="Search orders..." oninput="renderContent()">
         </div>
-
-        <div id="master-search-block" class="input-group mb-4 shadow-sm d-none">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-search"></i></span>
-            <input type="text" id="master-search" class="form-control border-start-0 ps-0" placeholder="Search masters..." oninput="renderContent()">
-            <select id="master-search-category" class="form-select border-start-1" style="max-width: 150px;" onchange="renderContent()">
-                <option value="all">All fields</option>
-                <option value="email">Email</option>
-                <option value="id">Master ID</option>
-            </select>
-        </div>
+        <select id="search-category" class="search-select" onchange="renderContent()">
+            <option value="all">All fields</option>
+            <option value="order_id">Order №</option>
+            <option value="device_model">Model</option>
+            <option value="status">Status</option>
+            <option value="master_email">Master Email</option>
+        </select>
     </div>
 
-    <div id="admin-content-container"></div>
-</div> 
+    <div id="master-search-block" class="search-container" style="display: none;">
+        <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="master-search" class="search-input" placeholder="Search masters..." oninput="renderContent()">
+        </div>
+        <select id="master-search-category" class="search-select" onchange="renderContent()">
+            <option value="all">All fields</option>
+            <option value="email">Email</option>
+            <option value="id">Master ID</option>
+        </select>
+    </div>
+</div>
 
-<dialog id="assignDialog" style="border: none; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 350px; max-width: 90%;">
-    <h5 class="fw-bold mb-3" id="dialogTitle">Assign Master</h5>
+<div id="create-order-container" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+    <button class="btn-new-order" onclick="location.href='/admin/create-order'">
+        <i class="fas fa-plus"></i> Create New Order
+    </button>
+</div>
+
+<div id="admin-content-container"></div>
+
+<dialog id="assignDialog" style="background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 350px; max-width: 90%;">
+    <h3 style="margin-top: 0; font-size: 18px;" id="dialogTitle">Assign Master</h3>
     <input type="hidden" id="dialogOrderId">
     
-    <div class="mb-3">
-        <label class="form-label text-muted small">Select a master from the list:</label>
-        <select id="dialogMasterSelect" class="form-select mt-1">
-            </select>
+    <div style="margin-bottom: 20px;">
+        <label style="color: var(--text-muted); font-size: 13px; display: block; margin-bottom: 8px;">Select a master from the list:</label>
+        <select id="dialogMasterSelect" class="search-select" style="width: 100%;">
+        </select>
     </div>
     
-    <div class="d-flex justify-content-end gap-2 mt-4">
-        <button onclick="document.getElementById('assignDialog').close()" class="btn btn-light border px-3">Cancel</button>
-        <button onclick="confirmDialogAssign()" class="btn btn-primary px-4">Assign</button>
+    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="document.getElementById('assignDialog').close()" class="btn-action outline-secondary">Cancel</button>
+        <button onclick="confirmDialogAssign()" class="btn-new-order" style="padding: 8px 16px;">Assign</button>
     </div>
 </dialog>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
-<style>
-    /* Загальні стилі */
-    .custom-tabs { background: white; padding: 5px; }
-    .custom-tabs .nav-link { color: #6c757d; font-weight: 500; border: none; }
-    .custom-tabs .nav-link.active { background-color: #70558d91 !important; color: white; }
-    
-    /* Стилі для вкладки майстрів */
-    .stat-box { border-radius: 10px; padding: 15px; flex: 1; }
-    .bg-active { background-color: #fff8f0; }
-    .bg-completed { background-color: #f0fdf4; }
-    .stat-label { font-size: 0.8rem; color: #6c757d; display: flex; align-items: center; gap: 6px; }
-    .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 5px; }
-
-    /* ЄДИНИЙ СТИЛЬ КАРТОК */
-    .order-card, .admin-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.2s; }
-    .order-card:hover, .admin-card:hover { border-color: #ccc; }
-    .status-badge { border-radius: 6px; font-size: 0.75rem; padding: 4px 8px; font-weight: bold; display: inline-block; }
-    .info-label { color: #888; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
-    .info-value { font-weight: 500; font-size: 0.9rem; }
-    .comment-box { background: #f8f9fa; border-radius: 8px; padding: 12px; font-size: 0.9rem; border: 1px solid #eee; }
-</style>
-
-{{!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 <script>
     let allData = { orders: [], masters: [] };
     let activeTab = 'orders'; 
@@ -104,67 +175,37 @@
         const archiveOrdersCount = allData.orders.filter(o => archiveStatuses.includes(o.status.toLowerCase())).length;
         
         document.getElementById('tab-orders').innerText = `Active Orders (${activeOrdersCount})`;
-        document.getElementById('tab-archive').innerHTML = `<i class="bi bi-archive me-1"></i> Archive (${archiveOrdersCount})`;
-        document.getElementById('tab-masters').innerHTML = `<i class="bi bi-tools me-1"></i> Masters (${allData.masters.length})`;
+        document.getElementById('tab-archive').innerHTML = `<i class="fas fa-archive"></i> Archive (${archiveOrdersCount})`;
+        document.getElementById('tab-masters').innerHTML = `<i class="fas fa-tools"></i> Masters (${allData.masters.length})`;
         
         renderContent();
     }
 
-    // Функція для ручного перенесення в архів
     async function archiveOrder(id) {
         if (!confirm('Move this order to archive (set status to DONE)?')) return;
-        
         const order = allData.orders.find(o => o.order_id === id);
-        if (!order) {
-            alert('Order data not found!');
-            return;
-        }
+        if (!order) { alert('Order data not found!'); return; }
 
         const payload = {
-            device_type: order.device_type,
-            device_model: order.device_model,
-            os_version: order.os_version,
-            issue_description: order.issue_description,
-            status: 'done', 
-            cost: order.cost || 0,
-            assigned_to: order.assigned_to || "",
-            technician_comment: order.technician_comment || "",
-            client_email: order.client_email || "",
-            date_of_purchase: order.date_of_purchase || null,
-            master_email: order.master_email || null
+            device_type: order.device_type, device_model: order.device_model, os_version: order.os_version,
+            issue_description: order.issue_description, status: 'done', cost: order.cost || 0,
+            assigned_to: order.assigned_to || "", technician_comment: order.technician_comment || "",
+            client_email: order.client_email || "", date_of_purchase: order.date_of_purchase || null, master_email: order.master_email || null
         };
         
         try {
-            const res = await fetch(`/admin/orders/${id}`, { 
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                alert('Order moved to archive successfully!');
-                loadAdminData(); 
-            } else {
-                const data = await res.json();
-                alert('Error: ' + data.error);
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Server error');
-        }
+            const res = await fetch(`/admin/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.ok) { alert('Order moved to archive successfully!'); loadAdminData(); } 
+            else { const data = await res.json(); alert('Error: ' + data.error); }
+        } catch (err) { console.error(err); alert('Server error'); }
     }
 
     async function deleteOrder(id) {
         if (!confirm('Are you sure you want to PERMANENTLY delete this order?')) return;
         try {
             const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                alert('Order deleted successfully');
-                loadAdminData();
-            }
-        } catch (err) {
-            console.error(err);
-        }
+            if (res.ok) { alert('Order deleted successfully'); loadAdminData(); }
+        } catch (err) { console.error(err); }
     }
 
     function setMaster(orderId) {
@@ -182,16 +223,8 @@
         if (!email) { alert("Please select a master!"); return; }
 
         try {
-            const res = await fetch('/admin/assign-master', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: parseInt(orderId), masterEmail: email })
-            });
-            if (res.ok) {
-                alert("Master assigned successfully!");
-                document.getElementById('assignDialog').close(); 
-                loadAdminData(); 
-            }
+            const res = await fetch('/admin/assign-master', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: parseInt(orderId), masterEmail: email }) });
+            if (res.ok) { alert("Master assigned successfully!"); document.getElementById('assignDialog').close(); loadAdminData(); }
         } catch (err) { console.error(err); }
     }
 
@@ -200,31 +233,43 @@
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');
         
+        // Перемикання блоків пошуку
         if (tab === 'orders' || tab === 'archive') {
-            document.getElementById('order-search-block').classList.remove('d-none');
-            document.getElementById('master-search-block').classList.add('d-none');
+            document.getElementById('order-search-block').style.display = 'flex';
+            document.getElementById('master-search-block').style.display = 'none';
         } else {
-            document.getElementById('order-search-block').classList.add('d-none');
-            document.getElementById('master-search-block').classList.remove('d-none');
+            document.getElementById('order-search-block').style.display = 'none';
+            document.getElementById('master-search-block').style.display = 'flex';
         }
+
+        // БЕЗПЕЧНЕ перемикання видимості кнопки Create New Order
+        const createBtnContainer = document.getElementById('create-order-container');
+        if (createBtnContainer) {
+            if (tab === 'orders') {
+                createBtnContainer.style.display = 'flex';
+            } else {
+                createBtnContainer.style.display = 'none';
+            }
+        }
+
         renderContent();
     }
 
     function getStatusClass(status) {
         switch(status.toLowerCase()) {
-            case 'new': return 'bg-warning-subtle text-warning border border-warning';
-            case 'in progress': return 'bg-warning-subtle text-warning border border-warning';
-            case 'waiting customer response': return 'bg-info-subtle text-info border border-info';
-            case 'waiting spare parts': return 'bg-secondary-subtle text-secondary border border-secondary';
-            case 'failed': return 'bg-danger-subtle text-danger border border-danger';
-            case 'done': return 'bg-success-subtle text-success border border-success';
-            default: return 'bg-info-subtle text-info border border-info';
+            case 'new': return 'status-new';
+            case 'in progress': return 'status-in-progress';
+            case 'waiting customer response': return 'status-waiting-response';
+            case 'waiting spare parts': return 'status-waiting-parts';
+            case 'failed': return 'status-failed';
+            case 'done': return 'status-done';
+            default: return 'status-new';
         }
     }
 
     function renderContent() {
         const container = document.getElementById('admin-content-container');
-        
+
         if (activeTab === 'masters') {
             const term = document.getElementById('master-search').value.toLowerCase();
             const cat = document.getElementById('master-search-category').value;
@@ -233,18 +278,28 @@
                 const fields = { id: String(m.id), email: m.email.toLowerCase() };
                 return cat === 'all' ? Object.values(fields).some(v => v.includes(term)) : fields[cat]?.includes(term);
             });
-            container.innerHTML = `<div class="d-flex justify-content-end mb-3"><button class="btn btn-outline-primary btn-sm rounded-pill px-4 shadow-sm" onclick="location.href='/admin/create-master'"><i class="bi bi-person-plus-fill me-1"></i> Add New Master</button></div>` + filteredMasters.map(m => `
-                <div class="card admin-card shadow-sm">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-1">${m.email.split('@')[0]}</h5>
-                        <div class="text-muted small mb-3"><i class="bi bi-envelope"></i> ${m.email}</div>
-                        <div class="d-flex gap-3">
-                            <div class="stat-box bg-active"><div class="stat-label"><i class="bi bi-clock"></i> Active</div><div class="stat-value">${m.active_orders || 0}</div></div>
-                            <div class="stat-box bg-completed"><div class="stat-label"><i class="bi bi-check-circle"></i> Completed</div><div class="stat-value">${m.completed_orders || 0}</div></div>
+            container.innerHTML = `<div style="display: flex; justify-content: flex-end; margin-bottom: 20px;"><button class="btn-action outline-primary" onclick="location.href='/admin/create-master'"><i class="fas fa-user-plus"></i> Add New Master</button></div>` + filteredMasters.map(m => `
+                <div class="order-card">
+                    <div class="card-top">
+                        <h3>${m.email.split('@')[0]}</h3>
+                    </div>
+                    <div class="order-id-row">
+                        <i class="fas fa-envelope"></i> ${m.email}
+                    </div>
+                    <div class="data-grid">
+                        <div class="data-row" style="background: var(--status-progress-bg);">
+                            <i class="fas fa-clock" style="color: var(--status-progress-text);"></i> 
+                            <span class="label">Active:</span> 
+                            <span class="value" style="color: var(--status-progress-text);">${m.active_orders || 0}</span>
+                        </div>
+                        <div class="data-row" style="background: var(--status-done-bg);">
+                            <i class="fas fa-check-circle" style="color: var(--status-done-text);"></i> 
+                            <span class="label">Completed:</span> 
+                            <span class="value" style="color: var(--status-done-text);">${m.completed_orders || 0}</span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `).join('');    
         } else {
             const term = document.getElementById('order-search').value.toLowerCase();
             const cat = document.getElementById('search-category').value;
@@ -253,7 +308,7 @@
             let targetOrders = activeTab === 'orders' 
                 ? allData.orders.filter(o => !archiveStatuses.includes(o.status.toLowerCase()))
                 : allData.orders.filter(o => archiveStatuses.includes(o.status.toLowerCase()));
-
+            
             let filteredOrders = targetOrders.filter(o => {
                 if (!term) return true;
                 const fields = { order_id: String(o.order_id), device_model: o.device_model.toLowerCase(), status: o.status.toLowerCase(), client_email: (o.client_email || "").toLowerCase(), master_email: (o.master_email || "").toLowerCase() };
@@ -261,63 +316,64 @@
             });
 
             if (filteredOrders.length === 0) {
-                container.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${activeTab === 'archive' ? 'bi-archive' : 'bi-inbox'} display-4"></i><p class="mt-3">No orders found.</p></div>`;
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas ${activeTab === 'archive' ? 'fa-archive' : 'fa-inbox'}" style="font-size: 3rem;"></i><p style="margin-top: 15px;">No orders found.</p></div>`;
                 return;
             }
 
-            // Рендер карток 
             container.innerHTML = filteredOrders.map(o => `
-                <div class="card order-card shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h5 class="card-title mb-1">${o.device_model} 
-                                    <span class="status-badge ms-2 ${getStatusClass(o.status)}">${o.status.toUpperCase()}</span>
-                                </h5>
-                                <small class="text-muted"><i class="bi bi-box"></i> Order №${o.order_id} · ${o.device_type || 'Unknown Type'}</small>
-                            </div>
+                <div class="order-card">
+                    <div class="card-top">
+                        <h3>${o.device_model}</h3>
+                        <span class="status-badge ${getStatusClass(o.status)}">${o.status.toUpperCase()}</span>
+                    </div>
+                    <div class="order-id-row">
+                        <i class="fas fa-cube"></i> Order №${o.order_id} • ${o.device_type || 'Unknown Type'}
+                    </div>
+                    <div class="issue-desc">
+                        ${o.issue_description || 'No description provided.'}
+                    </div>
+                    <div class="data-grid">
+                        <div class="data-row">
+                            <i class="fas fa-user"></i> <span class="label">Client:</span> 
+                            <span class="value">${o.client_name || o.client_email || 'Not specified'}</span>
                         </div>
-
-                        <p class="mb-4">${o.issue_description || 'No description provided.'}</p>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <div class="info-label"><i class="bi bi-person"></i> Client: <span class="info-value text-dark">${o.client_name || o.client_email || 'Not specified'}</span></div>
-                                <div class="info-label mt-2"><i class="bi bi-envelope"></i> Email: <span class="info-value text-dark">${o.client_email || 'Not specified'}</span></div>
-                                <div class="info-label mt-2"><i class="bi bi-cpu"></i> OS: <span class="info-value text-dark">${o.os_version || 'Not specified'}</span></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="info-label"><i class="bi bi-person-badge"></i> Master: 
-                                    <span class="info-value ms-1 ${o.assigned_to ? 'text-dark fw-bold' : 'text-warning'}">
-                                        ${o.assigned_to ? (allData.masters.find(m => m.id === o.assigned_to)?.email || o.master_email || o.assigned_to) : '<i class="bi bi-person-x"></i> Unassigned'}
-                                    </span>
-                                </div>
-                                <div class="info-label mt-2"><i class="bi bi-currency-dollar"></i> Cost: <span class="info-value text-success">$${o.cost || '0.00'}</span></div>
-                                <div class="info-label mt-2"><i class="bi bi-calendar"></i> Created: <span class="info-value text-dark">${o.created_at ? new Date(o.created_at).toLocaleString() : 'N/A'}</span></div>
-                            </div>
+                        <div class="data-row">
+                            <i class="fas fa-wrench"></i> <span class="label">Master:</span> 
+                            <span class="value">${o.assigned_to ? (allData.masters.find(m => m.id === o.assigned_to)?.email || o.master_email || o.assigned_to) : '<span style="color:var(--text-muted);font-style:italic;">Unassigned</span>'}</span>
                         </div>
+                        <div class="data-row">
+                            <i class="fas fa-tools"></i> <span class="label">Device Type:</span> <span class="value">${o.device_type || 'Not specified'}</span>
+                        </div>
+                        <div class="data-row">
+                            <i class="fas fa-calendar-alt"></i> <span class="label">Created:</span> <span class="value">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <i class="fas fa-microchip"></i> <span class="label">OS:</span> <span class="value">${o.os_version || 'Not specified'}</span>
+                        </div>
+                        <div class="data-row">
+                            <i class="fas fa-envelope"></i> <span class="label">Updated:</span> <span class="value">${o.updated_at ? new Date(o.updated_at).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <i class="fas fa-shopping-cart"></i> <span class="label">Purchase Date:</span> <span class="value">${o.date_of_purchase ? new Date(o.date_of_purchase).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <i class="fas fa-dollar-sign"></i> <span class="label">Cost:</span> <span class="value">$${o.cost || '0.00'}</span>
+                        </div>
+                    </div>
 
-                        ${o.technician_comment ? `
-                            <div class="comment-box">
-                                <small class="text-muted d-block mb-1"><i class="bi bi-chat-left-text"></i> Technician Comment:</small>
-                                ${o.technician_comment}
-                            </div>
+                    ${o.technician_comment ? `
+                    <div class="comment-box">
+                        <i class="fas fa-comment-dots" style="color: var(--text-muted); font-size: 16px; margin-top: 3px;"></i>
+                        <div class="comment-content"><p>${o.technician_comment}</p></div>
+                    </div>` : ''}
+
+                    <div class="card-actions">
+                        ${activeTab === 'orders' ? `
+                        <button onclick="archiveOrder(${o.order_id})" class="btn-action outline-secondary"><i class="fas fa-archive"></i> Archive</button>
+                        <button onclick="setMaster(${o.order_id})" class="btn-action outline-primary"><i class="fas fa-user-plus"></i> Assign</button>
                         ` : ''}
-
-                        <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
-                            ${activeTab === 'orders' ? `
-                            <button onclick="archiveOrder(${o.order_id})" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                                <i class="bi bi-archive"></i> Archive
-                            </button>
-                            <button onclick="setMaster(${o.order_id})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                <i class="bi bi-person-plus"></i> Assign
-                            </button>
-                            ` : ''}
-                            <a href="/admin/edit/${o.order_id}" class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="bi bi-pencil"></i> Edit</a>
-                            <button onclick="deleteOrder(${o.order_id})" class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                        </div>
+                        <a href="/admin/edit/${o.order_id}" class="btn-action outline-primary"><i class="fas fa-edit"></i> Edit</a>
+                        <button onclick="deleteOrder(${o.order_id})" class="btn-action outline-danger"><i class="fas fa-trash"></i> Delete</button>
                     </div>
                 </div>
             `).join('');
