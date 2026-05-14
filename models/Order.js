@@ -28,8 +28,7 @@ export const OrderModel = {
 
   // Оновлення статусу майстром
   updateStatus: async (id, status, comment, cost) => {
-    // Додано параметр cost
-    const res = await pool.query(
+      const res = await pool.query(
       "UPDATE orders SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
       [status, comment, cost || 0, id], // Записуємо ціну
     );
