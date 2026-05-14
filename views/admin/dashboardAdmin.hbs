@@ -335,14 +335,14 @@
                     <div class="data-grid">
                         <div class="data-row">
                             <i class="fas fa-user"></i> <span class="label">Client:</span> 
-                            <span class="value">${o.client_name || o.client_email || 'Not specified'}</span>
+                            <span class="value">${o.client_name || 'Not specified'}</span>
                         </div>
                         <div class="data-row">
                             <i class="fas fa-wrench"></i> <span class="label">Master:</span> 
                             <span class="value">${o.assigned_to ? (allData.masters.find(m => m.id === o.assigned_to)?.email || o.master_email || o.assigned_to) : '<span style="color:var(--text-muted);font-style:italic;">Unassigned</span>'}</span>
                         </div>
                         <div class="data-row">
-                            <i class="fas fa-tools"></i> <span class="label">Device Type:</span> <span class="value">${o.device_type || 'Not specified'}</span>
+                            <i class="fas fa-envelope"></i> <span class="label">Client Email:</span> <span class="value">${o.client_email || 'Not specified'}</span>
                         </div>
                         <div class="data-row">
                             <i class="fas fa-calendar-alt"></i> <span class="label">Created:</span> <span class="value">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</span>
@@ -351,7 +351,7 @@
                             <i class="fas fa-microchip"></i> <span class="label">OS:</span> <span class="value">${o.os_version || 'Not specified'}</span>
                         </div>
                         <div class="data-row">
-                            <i class="fas fa-envelope"></i> <span class="label">Updated:</span> <span class="value">${o.updated_at ? new Date(o.updated_at).toLocaleDateString() : 'N/A'}</span>
+                            <i class="fas fa-sync-alt"></i> <span class="label">Updated:</span> <span class="value">${o.updated_at ? new Date(o.updated_at).toLocaleDateString() : 'N/A'}</span>
                         </div>
                         <div class="data-row">
                             <i class="fas fa-shopping-cart"></i> <span class="label">Purchase Date:</span> <span class="value">${o.date_of_purchase ? new Date(o.date_of_purchase).toLocaleDateString() : 'N/A'}</span>
