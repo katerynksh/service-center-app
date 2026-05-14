@@ -5,7 +5,7 @@ export const OrderModel = {
   getNewOrders: async () => {
     const res = await pool.query(`
         SELECT o.*, u.email as client_email 
-        FROM ORDERS o 
+        FROM orders o 
         JOIN USERS u ON o.client_id = u.id 
         WHERE o.status = 'new'
         ORDER BY o.created_at DESC

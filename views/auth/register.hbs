@@ -141,7 +141,7 @@
         .form-group label {
             display: block;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 600; 
             margin-bottom: 8px;
             color: var(--text-main);
         }
@@ -149,7 +149,7 @@
         .form-input {
             width: 100%;
             padding: 13px 15px;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color); 
             border-radius: 12px;
             font-size: 15px;
             background-color: var(--input-bg);
@@ -201,8 +201,8 @@
         }
 
         .form-input.is-invalid {
-            border-color: #fc8181;
-            background-color: #fff5f5;
+            border-color: #fc8181 !important;
+            background-color: #fff5f5 !important;
         }
 
         .input-wrapper {
@@ -215,6 +215,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: #e53e3e;
+            pointer-events: none; 
         }
     </style>
 </head>

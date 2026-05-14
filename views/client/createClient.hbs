@@ -59,7 +59,7 @@
             position: absolute;
             top: 25px;
             right: 25px;
-            color: var(--text-muted);
+            color: #a0aec0;
             text-decoration: none;
             font-size: 20px;
             z-index: 1001;
@@ -183,6 +183,37 @@
             background-color: #e2e8f0;
             color: var(--text-darker);
         }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .is-invalid {
+            border-color: #fc8181 !important;
+            background-color: #fff5f5 !important;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-wrapper i.error-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #e53e3e;
+            pointer-events: none;
+        }
+
+        .textarea-wrapper i.error-icon {
+            top: 20px;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -197,41 +228,84 @@
                 <h2>Create New Repair Order</h2>
             </div>
 
+            {{#if error}}
+                <div style="margin: 0 35px 15px; color: white; background-color: #e74c3c; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px;">
+                    {{error}}
+                </div>
+            {{/if}}
+
             <form action="/client/create" method="POST">
                 <div class="modal-body">
                     <div class="form-grid">
+                        
                         <div class="form-group">
                             <label>Device Type</label>
-                            <select name="device_type" required>
-                                <option value="" disabled selected>Select type</option>
-                                <option value="Smartphone">Smartphone</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Desktop">Desktop</option>
-                                <option value="Smartwatch">Smartwatch</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            
+                            <div class="input-wrapper">
+                                <select name="device_type" id="device_type_select">
+                                    <option value="" disabled selected>Select type</option>
+                                    <option value="Smartphone">Smartphone</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Desktop">Desktop</option>
+                                    <option value="Smartwatch">Smartwatch</option>
+                                    <option value="Other">Other (Please specify)</option>
+                                </select>
+                                {{#if errors.device_type}}
+                                    <i class="fas fa-exclamation-circle error-icon" id="select_error_icon" style="display: none; right: 35px;"></i>
+                                {{/if}}
+                            </div>
+                            
+                            <div class="input-wrapper" id="custom_device_wrapper" style="display: none; margin-top: 10px;">
+                                <input type="text" name="custom_device_type" id="custom_device_input" 
+                                       value="{{values.custom_device_type}}" 
+                                       placeholder="Enter your device type">
+                                {{#if errors.device_type}}
+                                    <i class="fas fa-exclamation-circle error-icon" id="custom_error_icon" style="display: none;"></i>
+                                {{/if}}
+                            </div>
+                            
+                            {{#if errors.device_type}}
+                                <div class="error-message" id="device_type_error_msg">{{errors.device_type}}</div>
+                            {{/if}}
                         </div>
 
                         <div class="form-group">
                             <label>Device Model</label>
-                            <input type="text" name="device_model" placeholder="e.g., iPhone 13 Pro" required>
+                            <div class="input-wrapper">
+                                <input type="text" name="device_model" value="{{values.device_model}}" placeholder="e.g., iPhone 13 Pro" class="{{#if errors.device_model}}is-invalid{{/if}}">
+                                {{#if errors.device_model}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                            </div>
+                            {{#if errors.device_model}}<div class="error-message">{{errors.device_model}}</div>{{/if}}
                         </div>
 
                         <div class="form-group">
                             <label>OS Version (Optional)</label>
-                            <input type="text" name="os_version" placeholder="e.g., iOS 17.2">
+                            <div class="input-wrapper">
+                                <input type="text" name="os_version" value="{{values.os_version}}" placeholder="e.g., iOS 17.2" class="{{#if errors.os_version}}is-invalid{{/if}}">
+                                {{#if errors.os_version}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                            </div>
+                            {{#if errors.os_version}}<div class="error-message">{{errors.os_version}}</div>{{/if}}
                         </div>
 
                         <div class="form-group">
                             <label>Purchase Date (Optional)</label>
-                            <input type="date" name="date_of_purchase">
+                            <div class="input-wrapper">
+                                <input type="date" name="date_of_purchase" value="{{values.date_of_purchase}}" class="{{#if errors.date_of_purchase}}is-invalid{{/if}}">
+                                {{#if errors.date_of_purchase}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                            </div>
+                            {{#if errors.date_of_purchase}}<div class="error-message">{{errors.date_of_purchase}}</div>{{/if}}
                         </div>
 
                         <div class="form-group full-width">
                             <label>Issue Description</label>
-                            <textarea name="issue_description" placeholder="Describe the issue in detail..." required></textarea>
+                            <div class="input-wrapper textarea-wrapper">
+                                <textarea name="issue_description" placeholder="Describe the issue in detail..." class="{{#if errors.issue_description}}is-invalid{{/if}}">{{values.issue_description}}</textarea>
+                                {{#if errors.issue_description}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                            </div>
+                            {{#if errors.issue_description}}<div class="error-message">{{errors.issue_description}}</div>{{/if}}
                         </div>
+
                     </div>
                 </div>
 
@@ -242,6 +316,77 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectElement = document.getElementById('device_type_select');
+            const customWrapper = document.getElementById('custom_device_wrapper');
+            const customInput = document.getElementById('custom_device_input');
+            const deviceErrorMsg = document.getElementById('device_type_error_msg');
+
+            const savedDeviceType = "{{values.device_type}}";
+            const savedCustomType = "{{values.custom_device_type}}";
+
+            if (savedDeviceType === 'Other' || savedCustomType) {
+                for (let i = 0; i < selectElement.options.length; i++) {
+                    if (selectElement.options[i].value === 'Other') {
+                        selectElement.selectedIndex = i;
+                        break;
+                    }
+                }
+            } else if (savedDeviceType) {
+                for (let i = 0; i < selectElement.options.length; i++) {
+                    if (selectElement.options[i].value === savedDeviceType) {
+                        selectElement.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            function toggleCustomInput() {
+                const isOther = selectElement.value === 'Other';
+                
+                if (isOther) {
+                    customWrapper.style.display = 'block';
+                } else {
+                    customWrapper.style.display = 'none';
+                }
+
+                if (deviceErrorMsg) {
+                    if (isOther) {
+                        selectElement.classList.remove('is-invalid');
+                        if (document.getElementById('select_error_icon')) {
+                            document.getElementById('select_error_icon').style.display = 'none';
+                        }
+                        
+                        customInput.classList.add('is-invalid');
+                        if (document.getElementById('custom_error_icon')) {
+                            document.getElementById('custom_error_icon').style.display = 'block';
+                        }
+                    } else {
+                        customInput.classList.remove('is-invalid');
+                        if (document.getElementById('custom_error_icon')) {
+                            document.getElementById('custom_error_icon').style.display = 'none';
+                        }
+                        
+                        selectElement.classList.add('is-invalid');
+                        if (document.getElementById('select_error_icon')) {
+                            document.getElementById('select_error_icon').style.display = 'block';
+                        }
+                    }
+                }
+            }
+
+            toggleCustomInput();
+
+            selectElement.addEventListener('change', function() {
+                if (selectElement.value !== 'Other') {
+                    customInput.value = ''; 
+                }
+                toggleCustomInput();
+            });
+        });
+    </script>
 
 </body>
 </html>
