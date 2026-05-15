@@ -46,7 +46,11 @@
     /* Таби */
     .custom-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: var(--card-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border-color); }
     .custom-tabs .nav-link { flex: 1; text-align: center; color: var(--text-muted); font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
-    .custom-tabs .nav-link.active { background-color: var(--primary-violet); color: white; }
+    .custom-tabs .nav-link { flex: 1; text-align: center; color: var(--text-main); font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
+
+    .dark-theme .custom-tabs .nav-link {color: #cbd5e1 !important;}
+    .dark-theme .custom-tabs .nav-link:hover {color: #ffffff !important;}
+    .dark-theme .custom-tabs .nav-link.active {color: #ffffff !important;}
 
     /* Пошук */
     .search-container { display: flex; gap: 10px; align-items: center; margin-bottom: 30px; }
