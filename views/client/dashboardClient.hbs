@@ -137,6 +137,43 @@
             font-size: 14px;
         }
 
+        /* Стилі для порожнього стану */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        /* ДОДАНО ЗНАК > : стиль діє ТІЛЬКИ на головну іконку, а не на кнопку */
+        .empty-state > i {
+            font-size: 48px;
+            color: var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            color: var(--text-main);
+            font-size: 20px;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+        
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            line-height: 1.5;
+        }
+        
+        .empty-state .btn-new-order {
+            display: inline-flex;
+        }
+
+
         .order-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -349,7 +386,14 @@
             </div>
             <div class="data-row">
                 <i class="fas fa-dollar-sign"></i>
-                <span class="label">Cost:</span> <span class="value">${{this.cost}}</span>
+                <span class="label">Cost:</span> 
+                <span class="value">
+                    {{#if this.cost}}
+                        ${{this.cost}}
+                    {{else}}
+                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Pending Diagnostics</span>
+                    {{/if}}
+                </span>
             </div>
             <div class="data-row">
                 <i class="far fa-calendar-check"></i>
@@ -373,8 +417,17 @@
         {{else}}
         <p class="no-comment">No additional notes from the master.</p>
         {{/if}}
-            </div>
-    {{/each}}
+    </div>
+   {{else}}
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>No Repair Orders Yet</h3>
+        <p>It looks like you haven't submitted any devices for repair. When you do, you can track their status and master's notes right here.</p>
+        <a href="/client/create" class="btn-new-order">
+            <i class="fas fa-plus"></i> Create Your First Order
+        </a>
+    </div>
+   {{/each}}
 </div>
 
 <footer>
