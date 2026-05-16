@@ -83,19 +83,21 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
         const data = await res.json();
 
         if (res.ok) {
-            alert('Master account created successfully!');
-            window.location.href = '/admin'; 
+            Swal.fire('Success', 'Master account created successfully!', 'success').then(() => {
+                window.location.href = '/admin';
+            });
+            {{!-- window.location.href = '/admin';  --}}
         } else {
             if (data.error && data.error.toLowerCase().includes('email')) {
                 emailInput.classList.add('is-invalid');
                 emailInput.nextElementSibling.textContent = data.error;
             } else {
-                alert('Error: ' + (data.error || 'Unknown error occurred'));
+                Swal.fire('Error', 'Error: ' + (data.error || 'Unknown error occurred'), 'error');
             }
         }
     } catch (err) {
         console.error(err);
-        alert('Server connection error');
+        Swal.fire('Error', 'Server connection error', 'error');
     }
 });
 </script>

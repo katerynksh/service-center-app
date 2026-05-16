@@ -1,6 +1,7 @@
 import e from 'express';
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
+import { error } from 'console';
 
 export const getAllData = async (req, res) => {
     try {
@@ -9,7 +10,8 @@ export const getAllData = async (req, res) => {
         res.json({ orders, masters });
     } catch (error) {
         console.error("GetAllData error:", error);
-        res.status(500).json({ error: 'Server error' });
+        // res.status(500).json({ error: 'Server error' });
+        next(error);
     }
 };
 
@@ -20,7 +22,8 @@ export const assignToMaster = async (req, res) => {
         res.json(updated);
     } catch (error) {
         console.error("AssignToMaster error:", error);
-        res.status(500).json({ error: 'Server error' });
+        // res.status(500).json({ error: 'Server error' });
+        next(error);
     }
 };
 export const assignMaster = async (req, res) => {
@@ -35,7 +38,8 @@ export const assignMaster = async (req, res) => {
         res.json(updatedOrder);
     } catch (error) {
         console.error("Assign error:", error.message);
-        res.status(400).json({ error: error.message });
+        // res.status(400).json({ error: error.message });
+        next(error);
     }
 };
 export const createOrderAdmin = async (req, res) => {
@@ -65,6 +69,7 @@ export const createOrderAdmin = async (req, res) => {
             const minDate = new Date('1900-01-01');
             if (selectedDate > today || selectedDate < minDate) {
                 return res.status(400).json({ error: 'Invalid purchase date' });
+                // next(error);
             }
         }
 
@@ -86,7 +91,8 @@ export const createOrderAdmin = async (req, res) => {
         res.status(201).json(newOrder);
     } catch (error) {
         console.error("Error creating order:", error.message);
-        res.status(500).json({ error: 'Failed to create order, maybe this user already exists' });
+        // res.status(500).json({ error: 'Failed to create order, maybe this user already exists' });
+        next(error);
     }
 };
 // export const assignMaster = async (req, res) => {
@@ -147,7 +153,8 @@ export const updateOrderFull = async (req, res) => {
         res.json(updated);
     } catch (error) {
         console.error("Update Error:", error);
-        res.status(500).json({ error: 'Failed to update order' });
+        // res.status(500).json({ error: 'Failed to update order' });
+        next(error);
     }
 };
 
@@ -156,7 +163,8 @@ export const updateOrderAdmin = async (req, res) => {
         const updated = await OrderModel.updateFullOrder(req.params.id, req.body);
         res.json(updated);
     } catch (error) {
-        res.status(500).json({ error: 'Error updating order' });
+        // res.status(500).json({ error: 'Error updating order' });
+        next(error);
     }
 };
 
@@ -166,7 +174,8 @@ export const deleteOrder = async (req, res) => {
         res.json({ message: 'Order deleted successfully' });
     } catch (error) {
         console.error("Delete Error:", error);
-        res.status(500).json({ error: 'Error deleting order' });
+        // res.status(500).json({ error: 'Error deleting order' });
+        next(error);
     }
 };
 
@@ -177,7 +186,8 @@ export const getEditPage = async (req, res) => {
         res.render('admin/editOrderAdmin', { order, masters });
     } catch (error) {
         console.error("Error loading edit page:", error);
-        res.status(500).send('Error loading edit page');
+        // res.status(500).send('Error loading edit page');
+        next(error);
     }
 };
 
@@ -210,6 +220,7 @@ export const createMaster = async (req, res) => {
         res.status(201).json(newMaster);
     } catch (error) {
         console.error("Create Master Error:", error);
-        res.status(500).json({ error: 'User already exists or data is invalid' });
+        // res.status(500).json({ error: 'User already exists or data is invalid' });
+        next(error);
     }
 };

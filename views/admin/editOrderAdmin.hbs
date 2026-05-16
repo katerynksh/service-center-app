@@ -76,7 +76,7 @@ document.getElementById('adminEditForm').addEventListener('submit', async (e) =>
     const formData = Object.fromEntries(new FormData(e.target));
 
     if (formData.cost && parseFloat(formData.cost) < 0) {
-        alert("Cost cannot be negative!");
+        Swal.fire('Error', 'Cost cannot be negative!', 'error');
         return;
     }
 
@@ -89,15 +89,31 @@ document.getElementById('adminEditForm').addEventListener('submit', async (e) =>
     });
 
     if (res.ok) {
-        alert('Order updated successfully!');
-        window.location.href = '/admin';
+        Swal.fire('Success', 'Order updated successfully!', 'success').then(() => {
+            window.location.href = '/admin';
+        });
     }
 });
 
 async function confirmDelete(id) {
-    if (confirm('Are you sure you want to PERMANENTLY delete this order?')) {
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You will permanently delete this order!",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
         const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
-        if (res.ok) window.location.href = '/admin';
+        if (res.ok) {
+            Swal.fire('Deleted!', 'The order has been deleted successfully.', 'success').then(() => {
+                window.location.href = '/admin';
+            });
+        }
     }
 }
 </script>

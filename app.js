@@ -53,6 +53,34 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Main', layout: false});
 });
 
+// 1. Обробка 404 (коли сторінку не знайдено)
+app.use((req, res, next) => {
+    const err = new Error('Сторінку не знайдено');
+    err.status = 404;
+    next(err);
+});
+
+// 2. Глобальний обробник помилок (перехоплює ВСІ інші помилки)
+app.use((err, req, res, next) => {
+    console.error('Помилка сервера:', err.message); // Логуємо в консоль для себе
+
+    const status = err.status || 500;
+    const message = err.message || 'Щось пішло не так на сервері';
+
+    // Якщо це AJAX-запит (наприклад, fetch з фронтенду, як при редагуванні)
+    // повертаємо JSON, щоб фронтенд міг показати акуратний alert або повідомлення
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(status).json({ success: false, message: message });
+    }
+
+    // Якщо це звичайний перехід по сторінці - рендеримо наш кастомний шаблон
+    res.status(status).render('error', {
+        title: 'Помилка',
+        message: message,
+        status: status
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

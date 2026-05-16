@@ -186,9 +186,21 @@
     }
 
     async function archiveOrder(id) {
-        if (!confirm('Move this order to archive (set status to DONE)?')) return;
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'The status will be changed to DONE',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, archive it',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
         const order = allData.orders.find(o => o.order_id === id);
-        if (!order) { alert('Order data not found!'); return; }
+        if (!order) { Swal.fire('Error', 'Order data not found!', 'error'); return; }
 
         const payload = {
             device_type: order.device_type, device_model: order.device_model, os_version: order.os_version,
@@ -196,19 +208,34 @@
             assigned_to: order.assigned_to || "", technician_comment: order.technician_comment || "",
             client_email: order.client_email || "", date_of_purchase: order.date_of_purchase || null, master_email: order.master_email || null
         };
-        
+
         try {
             const res = await fetch(`/admin/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (res.ok) { alert('Order moved to archive successfully!'); loadAdminData(); } 
-            else { const data = await res.json(); alert('Error: ' + data.error); }
-        } catch (err) { console.error(err); alert('Server error'); }
+            if (res.ok) { Swal.fire('Success!', 'Order moved to archive successfully.', 'success'); loadAdminData(); } 
+            else { const data = await res.json(); Swal.fire('Error', 'Error: ' + data.error, 'error'); }
+        } catch (err) { console.error(err); Swal.fire('Error', 'Server error', 'error'); }
     }
 
     async function deleteOrder(id) {
-        if (!confirm('Are you sure you want to PERMANENTLY delete this order?')) return;
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You will permanently delete this order!",
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
         try {
             const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
-            if (res.ok) { alert('Order deleted successfully'); loadAdminData(); }
+            if (res.ok) { 
+                Swal.fire('Deleted!', 'The order has been deleted successfully.', 'success'); 
+                loadAdminData(); 
+            }
         } catch (err) { console.error(err); }
     }
 
@@ -224,11 +251,10 @@
     async function confirmDialogAssign() {
         const orderId = document.getElementById('dialogOrderId').value;
         const email = document.getElementById('dialogMasterSelect').value;
-        if (!email) { alert("Please select a master!"); return; }
-
+        if (!email) { Swal.fire('Warning', 'Please select a master!', 'warning'); return; }
         try {
             const res = await fetch('/admin/assign-master', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: parseInt(orderId), masterEmail: email }) });
-            if (res.ok) { alert("Master assigned successfully!"); document.getElementById('assignDialog').close(); loadAdminData(); }
+            if (res.ok) { Swal.fire('Success', 'Master assigned successfully!', 'success'); document.getElementById('assignDialog').close(); loadAdminData(); }
         } catch (err) { console.error(err); }
     }
 

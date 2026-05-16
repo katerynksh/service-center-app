@@ -128,20 +128,43 @@
     }
 
     async function archiveOrder(id) {
-        if (!confirm('Move this order to archive (set status to DONE)?')) return;
-        const order = currentOrders.myOrders.find(o => o.order_id === id);
-        if (!order) { alert('Order data not found!'); return; }
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will move the order to the archive.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, archive it',
+        cancelButtonText: 'Cancel'
+    });
 
-        const payload = { status: 'done', comment: order.technician_comment || '', cost: order.cost || 0 };
-        
-        try {
-            const res = await fetch(`/master/order/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (res.ok) { alert('Order moved to archive successfully!'); load(); } 
-            else { const data = await res.json(); alert('Error: ' + data.error); }
-        } catch (err) { console.error(err); alert('Server error'); }
+    if (!result.isConfirmed) return;
+
+    const order = currentOrders.myOrders.find(o => o.order_id === id);
+    if (!order) { 
+        Swal.fire('Error', 'Order data not found!', 'error'); 
+        return; 
     }
 
-    function switchTab(tab) {
+    const payload = { status: 'done', comment: order.technician_comment || '', cost: order.cost || 0 };
+    
+    try {
+        const res = await fetch(`/master/order/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (res.ok) { 
+            Swal.fire('Success', 'Order moved to archive successfully!', 'success'); 
+            load(); 
+        } else { 
+            const data = await res.json(); 
+            Swal.fire('Error', 'Error: ' + data.error, 'error'); 
+        }
+    } catch (err) { 
+        console.error(err); 
+        Swal.fire('Server Error', 'Something went wrong.', 'error'); 
+    }
+}
+
+function switchTab(tab) {
         activeTab = tab;
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');

@@ -33,7 +33,8 @@ export const getDashboard = async (req, res) => {
         });
     } catch (error) {
         console.error("Dashboard error:", error);
-        res.status(500).json({ error: 'Server error' });
+        // res.status(500).json({ error: 'Server error' });
+        next(error); 
     }
 };
 export const getOrderDetails = async (req, res) => {
@@ -48,7 +49,8 @@ export const getOrderDetails = async (req, res) => {
         res.json(order);
     } catch (error) {
         console.error('Error fetching order details:', error);
-        res.status(500).json({ error: 'Server error' });
+        // res.status(500).json({ error: 'Server error' });
+        next(error);
     }
 };
 
@@ -70,7 +72,8 @@ export const updateOrder = async (req, res) => {
         const updated = await OrderModel.updateStatus(id, updatedStatus, updatedComment, updatedCost);
         res.json(updated);
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        // res.status(500).json({ error: 'Server error' });
+        next(error); 
     }
 };
 
@@ -86,6 +89,7 @@ export const acceptOrder = async (req, res) => {
         res.json(updatedOrder);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error accepting order' });
+        // res.status(500).json({ error: 'Error accepting order' });
+        next(error);
     }
 };

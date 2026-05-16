@@ -338,7 +338,13 @@
     // Копіювання ID в буфер
     function copyId() {
         navigator.clipboard.writeText(orderId).then(() => {
-            alert("ID " + orderId + " copied to clipboard!");
+            Swal.fire({
+                icon: 'success',
+                title: 'Скопійовано',
+                text: `ID ${orderId} copied to clipboard!`,
+                timer: 1500,
+                showConfirmButton: false
+            });
         });
     }
 
@@ -393,8 +399,7 @@
 
         } catch (err) {
             console.error('Error:', err);
-            alert('Could not load order details.');
-        }
+            Swal.fire('Error', 'Failed to load order details.', 'error');        }
     }
 
     // Встановлення кольору бейджа статусу
@@ -460,11 +465,11 @@
                     window.location.href = '/master';
                 }, 1500);
             } else {
-                alert('Failed to update order.');
+                Swal.fire('Error', 'Failed to update order.', 'error');
             }
         } catch (err) {
             console.error('Error:', err);
-            alert('An error occurred while saving.');
+            Swal.fire('Error', 'An error occurred while saving.', 'error');
         }
     });
 
