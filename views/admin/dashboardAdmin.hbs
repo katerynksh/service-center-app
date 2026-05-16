@@ -11,27 +11,13 @@
         --border-color: #e2e8f0;
         --row-bg: #f8f9fa; 
 
-        --status-new-bg: #e0f7ff; --status-new-text: #00a8e8; --status-new-border: #00a8e8;
+        --status-new-bg: #e0f7ff; --status-new-text: #00a8e8;
+        --status-new-border: #00a8e8;
         --status-progress-bg: #fff3e0; --status-progress-text: #ff9800; --status-progress-border: #ff9800;
         --status-waiting-bg: #e0fbff; --status-waiting-text: #00c4cc; --status-waiting-border: #00c4cc;
         --status-parts-bg: #f0f4f8; --status-parts-text: #607d8b; --status-parts-border: #607d8b;
         --status-fail-bg: #ffebee; --status-fail-text: #e53935; --status-fail-border: #e53935;
         --status-done-bg: #e8f5e9; --status-done-text: #43a047; --status-done-border: #43a047;
-    }
-
-    body.dark-theme {
-        --bg-body: #0f172a;
-        --card-bg: #1e293b;
-        --text-main: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border-color: #334155;
-        --row-bg: rgba(255, 255, 255, 0.03);
-    }
-
-    body {
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        transition: background 0.3s ease;
     }
 
     /* Адаптація заголовка */
@@ -43,14 +29,19 @@
     .btn-new-order { background-color: var(--primary-violet); color: white; padding: 10px 22px; border-radius: 10px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border: none; cursor: pointer; }
     .btn-new-order:hover { background-color: var(--hover-violet); transform: translateY(-1px); color: white; }
 
-    /* Таби */
+    /* Таби - ВИПРАВЛЕНО */
     .custom-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: var(--card-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border-color); }
-    .custom-tabs .nav-link { flex: 1; text-align: center; color: var(--text-muted); font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
     .custom-tabs .nav-link { flex: 1; text-align: center; color: var(--text-main); font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
+    
+    /* Фон для активної вкладки */
+    .custom-tabs .nav-link.active {
+        background-color: var(--primary-violet) !important;
+        color: white !important;
+    }
 
-    .dark-theme .custom-tabs .nav-link {color: #cbd5e1 !important;}
-    .dark-theme .custom-tabs .nav-link:hover {color: #ffffff !important;}
-    .dark-theme .custom-tabs .nav-link.active {color: #ffffff !important;}
+    body.dark-theme .custom-tabs .nav-link {color: #cbd5e1;}
+    body.dark-theme .custom-tabs .nav-link:hover {color: #ffffff;}
+    body.dark-theme .custom-tabs .nav-link.active {color: #ffffff !important;}
 
     /* Пошук */
     .search-container { display: flex; gap: 10px; align-items: center; margin-bottom: 30px; }
@@ -60,7 +51,7 @@
     .search-select { padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; }
 
     /* Картки */
-    .order-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 25px; transition: all 0.3s ease; }
+    .order-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;}
     .order-card:hover { border-color: var(--primary-violet); box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25); transform: translateY(-2px); }
     
     .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 8px; }
@@ -103,7 +94,7 @@
         <p>{{title}} — {{user.name}}</p>
     </div>
     <div style="display: flex; gap: 20px; align-items: center;">
-        <i class="fas fa-moon" style="cursor:pointer; font-size: 1.2rem; color: var(--text-main);" onclick="document.body.classList.toggle('dark-theme')"></i>
+        <i class="fas fa-moon theme-icon" style="cursor:pointer; font-size: 1.2rem; color: var(--text-main);" onclick="toggleTheme()"></i>
         <a href="/" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 </div>
@@ -196,7 +187,6 @@
             confirmButtonText: 'Yes, archive it',
             cancelButtonText: 'Cancel'
         });
-
         if (!result.isConfirmed) return;
 
         const order = allData.orders.find(o => o.order_id === id);
@@ -208,7 +198,6 @@
             assigned_to: order.assigned_to || "", technician_comment: order.technician_comment || "",
             client_email: order.client_email || "", date_of_purchase: order.date_of_purchase || null, master_email: order.master_email || null
         };
-
         try {
             const res = await fetch(`/admin/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             if (res.ok) { Swal.fire('Success!', 'Order moved to archive successfully.', 'success'); loadAdminData(); } 
@@ -227,15 +216,11 @@
             confirmButtonText: 'Yes, delete it!',
             cancelButtonText: 'Cancel'
         });
-
         if (!result.isConfirmed) return;
 
         try {
             const res = await fetch(`/admin/orders/${id}`, { method: 'DELETE' });
-            if (res.ok) { 
-                Swal.fire('Deleted!', 'The order has been deleted successfully.', 'success'); 
-                loadAdminData(); 
-            }
+            if (res.ok) { Swal.fire('Deleted!', 'The order has been deleted successfully.', 'success'); loadAdminData(); }
         } catch (err) { console.error(err); }
     }
 
@@ -263,7 +248,6 @@
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');
         
-        // Перемикання блоків пошуку
         if (tab === 'orders' || tab === 'archive') {
             document.getElementById('order-search-block').style.display = 'flex';
             document.getElementById('master-search-block').style.display = 'none';
@@ -272,14 +256,10 @@
             document.getElementById('master-search-block').style.display = 'flex';
         }
 
-        // перемикання видимості кнопки Create New Order
         const createBtnContainer = document.getElementById('create-order-container');
         if (createBtnContainer) {
-            if (tab === 'orders') {
-                createBtnContainer.style.display = 'flex';
-            } else {
-                createBtnContainer.style.display = 'none';
-            }
+            if (tab === 'orders') { createBtnContainer.style.display = 'flex'; } 
+            else { createBtnContainer.style.display = 'none'; }
         }
 
         renderContent();
@@ -299,7 +279,6 @@
 
     function renderContent() {
         const container = document.getElementById('admin-content-container');
-
         if (activeTab === 'masters') {
             const term = document.getElementById('master-search').value.toLowerCase();
             const cat = document.getElementById('master-search-category').value;
@@ -329,7 +308,7 @@
                         </div>
                     </div>
                 </div>
-            `).join('');    
+            `).join('');
         } else {
             const term = document.getElementById('order-search').value.toLowerCase();
             const cat = document.getElementById('search-category').value;
@@ -338,13 +317,11 @@
             let targetOrders = activeTab === 'orders' 
                 ? allData.orders.filter(o => !archiveStatuses.includes(o.status.toLowerCase()))
                 : allData.orders.filter(o => archiveStatuses.includes(o.status.toLowerCase()));
-            
             let filteredOrders = targetOrders.filter(o => {
                 if (!term) return true;
                 const fields = { order_id: String(o.order_id), device_model: o.device_model.toLowerCase(), status: o.status.toLowerCase(), client_email: (o.client_email || "").toLowerCase(), master_email: (o.master_email || "").toLowerCase() };
                 return cat === 'all' ? Object.values(fields).some(v => v.includes(term)) : fields[cat]?.includes(term);
             });
-
             if (filteredOrders.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas ${activeTab === 'archive' ? 'fa-archive' : 'fa-inbox'}" style="font-size: 3rem;"></i><p style="margin-top: 15px;">No orders found.</p></div>`;
                 return;

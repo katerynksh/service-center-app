@@ -55,17 +55,17 @@ app.get('/', (req, res) => {
 
 // 1. Обробка 404 (коли сторінку не знайдено)
 app.use((req, res, next) => {
-    const err = new Error('Сторінку не знайдено');
+    const err = new Error('Page not found');
     err.status = 404;
     next(err);
 });
 
 // 2. Глобальний обробник помилок (перехоплює ВСІ інші помилки)
 app.use((err, req, res, next) => {
-    console.error('Помилка сервера:', err.message); // Логуємо в консоль для себе
+    console.error('Server Error:', err.message); // Логуємо в консоль для себе
 
     const status = err.status || 500;
-    const message = err.message || 'Щось пішло не так на сервері';
+    const message = err.message || 'Something went wrong';
 
     // Якщо це AJAX-запит (наприклад, fetch з фронтенду, як при редагуванні)
     // повертаємо JSON, щоб фронтенд міг показати акуратний alert або повідомлення
@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
 
     // Якщо це звичайний перехід по сторінці - рендеримо наш кастомний шаблон
     res.status(status).render('error', {
-        title: 'Помилка',
+        title: 'Error',
         message: message,
         status: status
     });

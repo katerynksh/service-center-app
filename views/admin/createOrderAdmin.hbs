@@ -1,6 +1,6 @@
 <div class="container mt-4">
     <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+        <div class="card-header border-bottom-0 pt-4 px-4" style="background-color: transparent;">
             <h4 class="fw-bold mb-0">Create New Order</h4>
         </div>
         <div class="card-body p-4">
@@ -60,12 +60,9 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
     e.preventDefault();
     const form = e.target;
     
-    // Очищення попередніх помилок
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
     let isValid = true;
 
-    // Перевірка на порожні значення
     form.querySelectorAll('[required]').forEach(field => {
         if (!field.value.trim()) {
             isValid = false;
@@ -77,7 +74,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         }
     });
 
-    // Валідація Email
     const emailField = form.querySelector('input[type="email"]');
     if (emailField && emailField.value.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -91,7 +87,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         }
     }
 
-    // Валідація довжини пароля
     const passwordField = form.querySelector('input[type="password"]');
     if (passwordField && passwordField.value.trim() && passwordField.value.length < 6) {
         isValid = false;
@@ -102,7 +97,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         }
     }
 
-    // Валідація імені клієнта
     const nameField = form.querySelector('input[name="client_name"]');
     const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
     if (nameField && (!nameField.value.trim() || !nameRegex.test(nameField.value.trim()))) {
@@ -114,18 +108,15 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
         }
     }
 
-    // Валідація дати покупки (від 1900 року до сьогодні)
     const dateField = form.querySelector('input[name="date_of_purchase"]');
     if (dateField && dateField.value) {
         const selectedDate = new Date(dateField.value);
         const today = new Date();
-        today.setHours(23, 59, 59, 999); // Враховуємо весь сьогоднішній день
-        const minDate = new Date('1900-01-01'); 
-        
+        today.setHours(23, 59, 59, 999); 
+        const minDate = new Date('1900-01-01');
         if (selectedDate > today || selectedDate < minDate) {
             isValid = false;
             dateField.classList.add('is-invalid');
-            
             let errorDiv = dateField.nextElementSibling;
             if (!errorDiv || !errorDiv.classList.contains('error-text')) {
                 errorDiv = document.createElement('div');
@@ -139,7 +130,6 @@ document.getElementById('createOrderForm').addEventListener('submit', async (e) 
     if (!isValid) return; 
 
     const formData = Object.fromEntries(new FormData(form));
-
     try {
         const res = await fetch('/admin/orders', {
             method: 'POST',

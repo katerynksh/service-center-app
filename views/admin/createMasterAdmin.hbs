@@ -1,6 +1,6 @@
 <div class="container mt-4">
     <div class="card shadow-sm border-0 rounded-3" style="max-width: 500px; margin: 0 auto;">
-        <div class="card-header bg-white border-bottom-0 pt-4 px-4 text-center">
+        <div class="card-header border-bottom-0 pt-4 px-4 text-center" style="background-color: transparent;">
             <h4 class="fw-bold mb-0">Register New Master</h4>
             <p class="text-muted small">Create an account for a service technician</p>
         </div>
@@ -9,7 +9,8 @@
                 <div class="mb-3">
                     <label class="form-label text-muted small">Master Email</label>
                     <input type="email" class="form-control" name="email" placeholder="master@service.com" required>
-                    <div class="error-text">Please enter a valid email address.</div>                </div>
+                    <div class="error-text">Please enter a valid email address.</div>           
+                </div>
                 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Master Name</label>
@@ -38,23 +39,18 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
     const form = e.target;
     let isValid = true;
 
-    // Очищення попередніх помилок
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
     const emailInput = form.querySelector('[name="email"]');
     const nameInput = form.querySelector('[name="name"]');
     const passwordInput = form.querySelector('[name="password"]');
 
-    // Валідація Email
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
     if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
         isValid = false;
         emailInput.classList.add('is-invalid');
         emailInput.nextElementSibling.textContent = 'Please enter a valid email address.';
     }
 
-    // Валідація Імені
     const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
     if (!nameInput.value.trim() || !nameRegex.test(nameInput.value.trim())) {
         isValid = false;
@@ -62,7 +58,6 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
         nameInput.nextElementSibling.textContent = 'Name can only contain letters, spaces, hyphens, and apostrophes.';
     }
 
-    // Валідація Пароля
     if (!passwordInput.value.trim() || passwordInput.value.length < 6) {
         isValid = false;
         passwordInput.classList.add('is-invalid');
@@ -70,7 +65,6 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
     }
 
     if (!isValid) return;
-
     const formData = Object.fromEntries(new FormData(form));
 
     try {
@@ -79,14 +73,12 @@ document.getElementById('createMasterForm').addEventListener('submit', async (e)
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
-
         const data = await res.json();
 
         if (res.ok) {
             Swal.fire('Success', 'Master account created successfully!', 'success').then(() => {
                 window.location.href = '/admin';
             });
-            {{!-- window.location.href = '/admin';  --}}
         } else {
             if (data.error && data.error.toLowerCase().includes('email')) {
                 emailInput.classList.add('is-invalid');

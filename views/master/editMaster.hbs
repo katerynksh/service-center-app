@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,11 +10,6 @@
         :root {
             --bs-success-bg-subtle: #d1e7dd;
             --bs-success-text-emphasis: #0f5132;
-        }
-
-        body {
-            background-color: white;
-            color: #980808c8;
         }
 
         .main-container {
@@ -42,7 +37,7 @@
         }
 
         .header-actions a {
-            color: #212529;
+            color: var(--text-main); /* Змінна замість чорного */
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -52,8 +47,8 @@
         /* Стилі для карток */
         .card {
             border-radius: 12px;
-            border: 1px solid #e0e0e0;
-            background: white;
+            border: 1px solid var(--border-color); /* Змінна */
+            background: var(--card-bg); /* Змінна */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
@@ -80,7 +75,7 @@
 
         .order-meta-info {
             font-size: 0.9rem;
-            color: #6c757d;
+            color: var(--text-muted); /* Змінна */
         }
 
         .order-meta-info i {
@@ -91,7 +86,7 @@
             font-size: 0.9rem;
             background: transparent;
             border: none;
-            color: #6c757d;
+            color: var(--text-muted); /* Змінна */
             cursor: pointer;
         }
 
@@ -101,21 +96,6 @@
             padding: 4px 8px;
             font-size: 0.75rem;
             text-transform: uppercase;
-        }
-
-        /* Вкладки (Tabs) */
-        .nav-pills.custom-tabs .nav-link {
-            color: #6c757d;
-            background-color: transparent;
-            font-weight: 500;
-            border-radius: 8px;
-            padding: 10px 15px;
-            margin-right: 10px;
-        }
-
-        .nav-pills.custom-tabs .nav-link.active {
-            background-color: #c093ef91; 
-            color: rgb(255, 255, 255);
         }
 
         /* Інформаційні блоки */
@@ -131,7 +111,7 @@
         }
 
         .info-label {
-            color: #6c757d;
+            color: var(--text-muted); /* Змінна */
             font-size: 0.85rem;
             display: flex;
             align-items: center;
@@ -141,19 +121,19 @@
 
         .info-value {
             font-weight: 500;
-            color: #212529;
+            color: var(--text-main); /* Змінна */
             font-size: 0.95rem;
         }
 
         .info-value.unspecified {
-            color: #adb5bd;
+            color: var(--text-muted);
             font-style: italic;
         }
 
         /* Коментарі та опис */
         .section-box {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
+            background-color: var(--row-bg); /* Змінна замість сірого */
+            border: 1px solid var(--border-color); /* Змінна */
             border-radius: 8px;
             padding: 16px;
             margin-top: 15px;
@@ -164,19 +144,19 @@
             align-items: center;
             gap: 8px;
             font-size: 0.9rem;
-            color: #6c757d;
+            color: var(--text-muted); /* Змінна */
             margin-bottom: 8px;
         }
 
         .empty-text {
-            color: #adb5bd;
+            color: var(--text-muted);
             font-style: italic;
         }
 
         /* Форма редагування */
         .form-section {
             margin-top: 24px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--border-color); /* Змінна */
             padding-top: 24px;
         }
 
@@ -193,12 +173,12 @@
         }
 
         .btn-update {
-            background-color: #1987545a;
-            color: rgba(21, 93, 35, 0.658);
+            background-color: var(--primary-violet); /* Змінна */
+            color: white;
         }
         
         .btn-update:hover {
-            background-color: #09543198;
+            background-color: var(--hover-violet); /* Змінна */
             color: white;
         }
 
@@ -207,7 +187,6 @@
             margin-top: 15px;
             display: none;
         }
-
     </style>
 </head>
 <body>
@@ -220,7 +199,11 @@
         </div>
         <div class="header-actions">
             <a href="/master"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
-            <button class="btn btn-link p-0 text-dark"><i class="bi bi-moon"></i></button>
+            
+            <button type="button" class="btn btn-link p-0" style="color: var(--text-main);" onclick="toggleTheme()">
+                <i class="fas fa-moon theme-icon fs-5"></i>
+            </button>
+            
             <a href="/auth/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </div>
     </div>
@@ -241,11 +224,6 @@
                 <span id="info-status-badge"></span>
             </div>
 
-            {{!-- <ul class="nav nav-pills custom-tabs mb-4">
-                <li class="nav-link active">General Info</li>
-                <li class="nav-link">History</li>
-            </ul> --}}
-
             <div id="general-info-tab">
                 
                 <h6 class="form-title mb-3">Order Details</h6>
@@ -261,7 +239,7 @@
                         <div class="info-label mt-3"><i class="bi bi-tools"></i> Date of Purchase:</div>
                         <div class="info-value" id="info-purchase-date"></div>
                     </div>
-                    
+                   
                     <div class="info-block">
                         <div class="info-label"><i class="bi bi-currency-dollar"></i> Cost ($):</div>
                         <div class="info-value unspecified" id="info-cost">Not set</div>
@@ -278,11 +256,6 @@
                     <div class="box-label"><i class="bi bi-bug"></i> Description of the Issue:</div>
                     <p class="mb-0" id="info-issue-description"></p>
                 </div>
-{{!-- 
-                <div class="section-box">
-                    <div class="box-label"><i class="bi bi-chat-left-text"></i> Client Comment:</div>
-                    <p class="mb-0 empty-text" id="info-client-comment">Not set</p>
-                </div> --}}
 
                 <div class="section-box">
                     <div class="box-label"><i class="bi bi-chat-text"></i> Technician Comment:</div>
@@ -331,11 +304,9 @@
             </div> </div> </div> </div>
 
 <script>
-    // Отримуємо ID замовлення з URL
     const pathParts = window.location.pathname.split('/');
     const orderId = pathParts[pathParts.length - 1];
 
-    // Копіювання ID в буфер
     function copyId() {
         navigator.clipboard.writeText(orderId).then(() => {
             Swal.fire({
@@ -348,20 +319,16 @@
         });
     }
 
-    // Завантаження деталей замовлення
     async function loadOrderDetails() {
         try {
-            // Викликаємо API-маршрут getOrderDetails
             const res = await fetch(`/master/order-details/${orderId}`);
             if (!res.ok) throw new Error('Failed to load order');
             const o = await res.json();
             
-            // Заповнюємо заголовки
             document.querySelectorAll('.header-id').forEach(el => el.innerText = o.order_id);
             document.getElementById('header-id').innerText = o.order_id;
             document.getElementById('cost').value = o.cost || '';
             
-            // Заповнюємо інформаційні поля
             document.getElementById('info-created').innerText = new Date(o.created_at).toLocaleString();
             document.getElementById('info-device-type').innerText = o.device_type;
             document.getElementById('info-client-email').innerText = o.client_email;
@@ -378,7 +345,7 @@
             document.getElementById('info-issue-description').innerText = o.issue_description;
             
             const clientCommentEl = document.getElementById('info-client-comment');
-            if (o.client_comment) {
+            if (o.client_comment && clientCommentEl) {
                 clientCommentEl.innerText = o.client_comment;
                 clientCommentEl.classList.remove('empty-text');
             }
@@ -390,49 +357,45 @@
                 techCommentEl.classList.add('empty-text');
             }
 
-            // Статус-бейдж (змінюємо колір залежно від статусу)
             setStatusBadge(o.status);
-
-            // Попередньо заповнюємо форму редагування
             document.getElementById('status').value = o.status;
             document.getElementById('technician_comment').value = o.technician_comment || '';
 
         } catch (err) {
             console.error('Error:', err);
-            Swal.fire('Error', 'Failed to load order details.', 'error');        }
-    }
-
-    // Встановлення кольору бейджа статусу
-    function setStatusBadge(status) {
-        const badge = document.getElementById('info-status-badge');
-        badge.innerText = status.toUpperCase();
-        badge.className = 'status-badge'; // reset
-        
-        switch(status) {
-            case 'new':
-                badge.classList.add('bg-warning-subtle', 'text-warning'); break;
-            case 'in progress':
-                badge.classList.add('bg-warning-subtle', 'text-warning'); break;
-            case 'done':
-                badge.classList.add('bg-success-subtle', 'text-success'); break;
-            case 'canceled':
-                badge.classList.add('bg-danger-subtle', 'text-danger'); break;
-            default:
-                badge.classList.add('bg-secondary', 'text-white'); break;
+            Swal.fire('Error', 'Failed to load order details.', 'error');        
         }
     }
 
-    // Обробка відправки форми (оновлення замовлення)
+    function setStatusBadge(status) {
+        const badge = document.getElementById('info-status-badge');
+        badge.innerText = status.toUpperCase();
+        badge.className = 'status-badge'; 
+        
+        switch(status) {
+            case 'new':
+            case 'in progress':
+                badge.classList.add('bg-warning-subtle', 'text-warning');
+                break;
+            case 'done':
+                badge.classList.add('bg-success-subtle', 'text-success');
+                break;
+            case 'canceled':
+                badge.classList.add('bg-danger-subtle', 'text-danger');
+                break;
+            default:
+                badge.classList.add('bg-secondary', 'text-white'); 
+                break;
+        }
+    }
+
     document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
 
-        // Очищення попередніх помилок
         form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
         let isValid = true;
         
-        // Валідація вартості (щоб не була від'ємною)
         const costField = document.getElementById('cost');
         if (costField.value && parseFloat(costField.value) < 0) {
             isValid = false;
@@ -450,14 +413,12 @@
             comment: document.getElementById('technician_comment').value,
             cost: document.getElementById('cost').value
         };
-
         try {
             const response = await fetch(`/master/order/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
-
             if (response.ok) {
                 document.getElementById('status-message').style.display = 'block';
                 loadOrderDetails();
@@ -473,7 +434,6 @@
         }
     });
 
-    // Завантаження при старті
     loadOrderDetails();
 </script>
 
