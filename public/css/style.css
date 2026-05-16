@@ -291,3 +291,19 @@ input.is-invalid ~ .error-text,
 textarea.is-invalid ~ .error-text {
     display: block !important;
 }
+
+.error, 
+.error-message, 
+.alert-danger {
+    display: block !important;
+    color: #721c24 !important;
+    background-color: #f8d7da !important;
+    border: 1px solid #f5c6cb !important;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
