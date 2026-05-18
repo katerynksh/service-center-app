@@ -53,7 +53,7 @@ class AuthValidator {
   static validateLoginEmail(email) {
     if (!email || email.trim().length === 0) return "Email is required.";
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) return "Please enter a valid email address.";
+    if (!re.test(email)) return "Please enter a valid email address (for example: service@email.com .)";
     return null;
   }
 
