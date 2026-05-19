@@ -3,9 +3,16 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/User.js";
 
 export const getLoginView = (req, res) => {
+  let errorMessage = null;
+  
+  if (req.query.error === 'expired') {
+    errorMessage = "Session expired. Please log in again.";
+  }
+
   res.render("auth/login", {
     title: "Login - Service Center",
     layout: false,
+    error: errorMessage 
   });
 };
 
@@ -207,6 +214,20 @@ export const login = async (req, res) => {
       layout: false,
     });
   }
+};
+
+export const getLogin = (req, res) => {
+    let errorMessage = null;
+    
+    // чи прийшла помилка про вичерпану сесію
+    if (req.query.error === 'expired') {
+        errorMessage = "Session expired. Please log in again.";
+    }
+
+    res.render('auth/login', { 
+        title: 'Login - Service Center',
+        errorMessage: errorMessage 
+    });
 };
 
 export const logout = (req, res) => {
