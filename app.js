@@ -4,13 +4,12 @@ import hbs from "hbs";
 import path from "path";
 import session from "express-session";
 
-import { setUser } from "./middleware/authMiddleware.js";
+import { setUser, requireAuth, requireRole } from "./middleware/authMiddleware.js";
 
 import authRoutes from "./routes/auth.js";
 import masterRoutes from "./routes/master.js";
 import adminRoutes from "./routes/admin.js";
 import clientRoutes from "./routes/client.js";
-// import masterViewRoutes from "./views/master/editMaster.js";
 
 dotenv.config();
 const app = express();
@@ -21,7 +20,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     secure: false, 
-    maxAge: 1000 * 60 * 60 * 24 
+    maxAge: 1000 * 60 * 15 
   },
   name: 'sid' 
 }));
@@ -43,9 +42,9 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/master", masterRoutes);
-app.use("/admin", adminRoutes);
-app.use("/client", clientRoutes);
+app.use("/master", requireAuth, requireRole("master"), masterRoutes);
+app.use("/admin", requireAuth, requireRole("admin"), adminRoutes);
+app.use("/client", requireAuth, requireRole("client"), clientRoutes);
 // app.use("/master", masterViewRoutes);
 
 

@@ -1,23 +1,21 @@
 # СТРУКТУРА:
       SERVICE-CENTER-APP/
       ├── config/
-      │   └── db.js      # Налаштування підключення database, створення таблиць (User, Order)
+      │   └── db.js      # Налаштування підключення database, створення таблиць (users, orders)
       ├── controllers/
       │   ├── authController.js     # Реєстрація, вхід, вихід
       │   ├── clientController.js   # Створення замовлення, перегляд своїх замовлень
-      │   ├── masterController.js   # Керування замовленнями, оновлення статусу
-      │   └── adminController.js    # Керування користувачами, призначення майстрів
+      │   ├── masterController.js   # Керування замовленнями, оновлення статусу, коментаря, ціни
+      │   └── adminController.js    # Керування замовленнями, призначення майстрів, створення нових замовлень і майстрів
       ├── middleware/
-      │   └── authMiddleware.js     # Перевірка: чи залогінений юзер? чи він адмін?
+      │   └── authMiddleware.js     # Перевірка: чи залогінений юзер? яка його роль (клієнт, майстер, адмін)?
       ├── models/             
       │   ├── index.js        
-      │   ├── user.js        
-      │   └── order.js
+      │   ├── User.js        
+      │   └── Order.js
       ├── public/
       │   ├── css/
       │       └── style.css
-      │   ├── js/
-      │   └── pictures/
       ├── routes/
       │   ├── auth.js
       │   ├── client.js
@@ -26,12 +24,27 @@
       ├── views/              
       │   ├── partials/
       │   ├── auth/
+      │   │    ├── login.hbs        
+      │   │    └── register.hbs
       │   ├── client/
+      │   │    ├── createClient.hbs          # Створення клієнтів 
+      │   │    └── dashboardClient.hbs       # Перегляд замовлень клієнтом
       │   ├── master/
-      │   └── admin/
+      │   │    ├── dashboardMaster.hbs       # Перегляд і керування своїми замовленнями
+      │   │    ├── dashboardMaster.js        
+      │   │    ├── editMaster.hbs            # Редаагування своїх замовлень 
+      │   │    └── editMaster.js            
+      │   ├── admin/
+      │   │    ├── createMasterAdmin.hbs     # сторінка створення майстрів адміном
+      │   │    ├── createOrderAdmin.hbs      # Створення замовлення 
+      │   │    ├── dashboardAdmin.hbs        # Перегляд і керування усіма замовленнями
+      │   │    ├── dashboardAdmin.js        
+      │   │    └── editOrderAdmin.js         # Редагування усіх замовлень
+      │   ├── error.hbs
+      │   ├── index.hbs
+      │   └── loyout.hbs
       ├── .env                 
-      ├── app.js               
-      └── ... (інші файли)
+      └── app.js                
 
 # Специфікація маршрутів (API & Views)
 
