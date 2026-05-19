@@ -12,38 +12,66 @@ export const getCreateOrderView = (req, res) => {
 class OrderValidator {
   static validateDeviceType(type) {
     if (!type || type.trim().length === 0) return "Device type is required.";
-    if (type.length > 50) return "Device type is too long.";
-    if (type.length < 4) return "Device type is too short.";
+    const trimmedType = type.trim();
+    if (trimmedType.length > 50) return "Device type is too long.";
+    if (trimmedType.length < 4) return "Device type is too short.";
+    const typeRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-]+$/;
+    if (!typeRegex.test(trimmedType)) {
+      return "Device type contains invalid characters.";
+    }
     return null;
   }
 
   static validateDeviceModel(model) {
     if (!model || model.trim().length === 0) return "Device model is required.";
-    if (model.length > 100) return "Device model cannot exceed 100 characters.";
-    if (model.length < 4)
+    const trimmedModel = model.trim();
+    if (trimmedModel.length > 100)
+      return "Device model cannot exceed 100 characters.";
+    if (trimmedModel.length < 4)
       return "Device model cannot be less than 4 characters.";
+    const modelRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-+]+$/;
+    if (!modelRegex.test(trimmedModel)) {
+      return "Device model contains invalid characters.";
+    }
+
     return null;
   }
 
   static validateOsVersion(os) {
     if (!os || os.trim().length === 0) return null;
-    if (os.length > 50) return "OS version description is too long.";
+    const trimmedOs = os.trim();
+    if (trimmedOs.length > 50) return "OS version description is too long.";
+    if (trimmedOs.length < 2) return "OS version description is too short.";
+    const osRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-_]+$/;
+
+    if (!osRegex.test(trimmedOs)) {
+      return "OS version contains invalid characters (only letters, numbers, spaces, dots, and dashes are allowed).";
+    }
+
     return null;
   }
+
   static validateDateOfPurchase(dateString) {
     if (!dateString || dateString.trim().length === 0) return null;
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "Invalid date format.";
     const today = new Date();
+    const minDate = new Date("1900-01-01");
     if (date > today) return "Purchase date cannot be in the future.";
+    if (date < minDate) return "Purchase date cannot be earlier than 1900.";
     return null;
   }
 
   static validateIssueDescription(issue) {
     if (!issue || issue.trim().length === 0)
       return "Issue description is required.";
-    if (issue.length < 10) return "Please describe the issue in more detail.";
-    if (issue.length > 1000) return "Issue description is too long.";
+    const trimmedIssue = issue.trim();
+    if (trimmedIssue.length < 10) return "Please describe the issue in more detail.";
+    if (trimmedIssue.length > 1000) return "Issue description is too long.";
+    if (/[<>]/.test(trimmedIssue)) {
+      return "Issue description cannot contain HTML tags (< or >).";
+    }
+
     return null;
   }
 }
@@ -60,7 +88,7 @@ export const createOrderValidation = (req, res, next) => {
 
   let typeToValidate = device_type;
   if (device_type === "Other") {
-    typeToValidate = custom_device_type; 
+    typeToValidate = custom_device_type;
   }
 
   const validationResults = {
@@ -68,7 +96,8 @@ export const createOrderValidation = (req, res, next) => {
     device_model: OrderValidator.validateDeviceModel(device_model),
     os_version: OrderValidator.validateOsVersion(os_version),
     date_of_purchase: OrderValidator.validateDateOfPurchase(date_of_purchase),
-    issue_description: OrderValidator.validateIssueDescription(issue_description),
+    issue_description:
+      OrderValidator.validateIssueDescription(issue_description),
   };
 
   const hasErrors = Object.values(validationResults).some(
