@@ -25,24 +25,32 @@ export const getRegisterView = (req, res) => {
 
 class AuthValidator {
   static validateEmail(email) {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!email || email.trim().length === 0) return "Email is required.";
-    if (!re.test(email))
-      return "Invalid format (for example: service@email.com .)";
-    if (email.length > 255) return "Email is too long.";
-    if (email.length < 4) return "Email is too short.";
+    const trimmedEmail = email.trim();
+    if (trimmedEmail.length > 255) return "Email is too long.";
+    if (trimmedEmail.length < 5) return "Email is too short.";
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!re.test(trimmedEmail)) {
+      return "Invalid format (for example: service@email.com).";
+    }
     return null;
   }
 
   static validateName(name) {
     if (!name || name.trim().length === 0) return "Name is required.";
-    if (name.length < 2) return "Name must be at least 2 characters.";
-    if (name.length > 50) return "Name is too long.";
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2) return "Name must be at least 2 characters.";
+    if (trimmedName.length > 50) return "Name is too long.";
+    const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-']+$/;
+    if (!nameRegex.test(trimmedName)) {
+      return "Name can only contain letters, spaces, hyphens, and apostrophes.";
+    }
     return null;
   }
 
   static validatePassword(password) {
     if (!password) return "Password is required.";
+    if (password.length > 128) return "Password is too long (maximum 128 characters).";
     if (password.length < 6) return "Password must be at least 6 characters.";
     if (!/[A-Z]/.test(password))
       return "Password must contain at least one uppercase letter.";
@@ -59,13 +67,18 @@ class AuthValidator {
 
   static validateLoginEmail(email) {
     if (!email || email.trim().length === 0) return "Email is required.";
+    const trimmedEmail = email.trim();
+    if (trimmedEmail.length > 255) return "Email is too long.";
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) return "Please enter a valid email address.";
+    if (!re.test(trimmedEmail)) {
+      return "Please enter a valid email address (for example: service@email.com).";
+    }
     return null;
   }
 
   static validateLoginPassword(password) {
     if (!password) return "Password is required.";
+    if (password.length > 128) return "Password is too long.";
     if (password.length < 6) return "Password must be at least 6 characters.";
     return null;
   }
