@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Repair Orders — Service Center</title>
+    <title>Order Archive — Service Center</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -15,23 +15,6 @@
             --text-muted: #718096;
             --border-color: #e2e8f0;
             --row-bg: #f8f9fa; 
-            
-
-            --status-new-bg: #e0f7ff;
-            --status-new-text: #00a8e8;
-            --status-new-border: #00a8e8;
-
-            --status-progress-bg: #fff3e0;
-            --status-progress-text: #ff9800;
-            --status-progress-border: #ff9800;
-
-            --status-waiting-bg: #e0fbff;
-            --status-waiting-text: #00c4cc;
-            --status-waiting-border: #00c4cc;
-
-            --status-parts-bg: #f0f4f8;
-            --status-parts-text: #607d8b;
-            --status-parts-border: #607d8b;
 
             --status-fail-bg: #ffebee;
             --status-fail-text: #e53935;
@@ -98,24 +81,7 @@
             margin-bottom: 30px;
         }
 
-        .btn-new-order {
-            background-color: var(--primary-violet);
-            color: white;
-            padding: 10px 22px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
-        }
-        .btn-new-order:hover { 
-            background-color: var(--hover-violet);
-            transform: translateY(-1px);
-        }
-
-        .btn-archive {
+        .btn-back {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -129,7 +95,7 @@
             font-size: 14px;
             transition: all 0.2s;
         }
-        .btn-archive:hover {
+        .btn-back:hover {
             background-color: var(--row-bg);
             border-color: var(--primary-violet);
             transform: translateY(-1px);
@@ -186,11 +152,6 @@
             margin: 0 auto 20px auto;
             line-height: 1.5;
         }
-        
-        .empty-state .btn-new-order {
-            display: inline-flex;
-        }
-
 
         .order-card {
             background: var(--card-bg);
@@ -226,12 +187,9 @@
             display: inline-block;
         }
 
-        .status-new { background: var(--status-new-bg); color: var(--status-new-text); border-color: var(--status-new-border); }
-        .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); border-color: var(--status-progress-border); }
-        .status-waiting-response { background: var(--status-waiting-bg); color: var(--status-waiting-text); border-color: var(--status-waiting-border); }
-        .status-waiting-parts { background: var(--status-parts-bg); color: var(--status-parts-text); border-color: var(--status-parts-border); }
         .status-failed { background: var(--status-fail-bg); color: var(--status-fail-text); border-color: var(--status-fail-border); }
         .status-done { background: var(--status-done-bg); color: var(--status-done-text); border-color: var(--status-done-border); }
+        
         .order-id-row {
             display: flex;
             align-items: center;
@@ -322,7 +280,6 @@
             font-size: 16px;
             color: var(--text-muted);
         }
-
     </style>
 </head>
 <body>
@@ -330,7 +287,7 @@
 <header>
     <div class="header-brand">
         <h1>Service Center</h1>
-        <p>Welcome, {{user.name}}</p>
+        <p>Welcome to Archive, {{user.name}}</p>
     </div>
     <div class="header-right">
         <i class="fas fa-moon" style="cursor:pointer; font-size: 1.2rem;" onclick="document.body.classList.toggle('dark-theme')"></i>
@@ -342,21 +299,16 @@
 
 <div class="container">
     <div class="dashboard-header">
-        <h2 style="margin:0; font-size: 24px;">My Repair Orders</h2>
-        <div style="display: flex; gap: 12px; align-items: center;">
-            <a href="/client/archive" class="btn-archive">
-                <i class="fas fa-archive" style="color: var(--text-muted);"></i> Archive
-            </a>
-            <a href="/client/create" class="btn-new-order">
-                <i class="fas fa-plus"></i> New Order
-            </a>
-        </div>
+        <h2 style="margin:0; font-size: 24px;"><i class="fas fa-archive" style="color: var(--text-muted); margin-right: 10px;"></i>Order Archive</h2>
+        <a href="/client/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Active Orders
+        </a>
     </div>
 
    <div class="search-container" style="display: flex; gap: 10px; align-items: center;">
         <div style="position: relative; flex: 1;">
             <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" class="search-input" placeholder="Start typing to search..." style="width: 100%; padding-left: 45px;">
+            <input type="text" class="search-input" placeholder="Search in archive..." style="width: 100%; padding-left: 45px;">
         </div>
         
         <select id="search-category" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
@@ -373,10 +325,6 @@
         <div class="card-top">
             <h3>{{this.device_model}}</h3>
             <span class="status-badge 
-                {{#if (eq this.status 'new')}}status-new{{/if}}
-                {{#if (eq this.status 'in progress')}}status-in-progress{{/if}}
-                {{#if (eq this.status 'waiting customer response')}}status-waiting-response{{/if}}
-                {{#if (eq this.status 'waiting spare parts')}}status-waiting-parts{{/if}}
                 {{#if (eq this.status 'failed')}}status-failed{{/if}}
                 {{#if (eq this.status 'done')}}status-done{{/if}}">
                 {{this.status}}
@@ -399,7 +347,7 @@
                     {{#if this.master_name}}
                         {{this.master_name}}
                     {{else}}
-                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Waiting for Master</span>
+                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">No master assigned</span>
                     {{/if}}
                 </span>
             </div>
@@ -409,18 +357,18 @@
             </div>
             <div class="data-row">
                 <i class="fas fa-dollar-sign"></i>
-                <span class="label">Cost:</span> 
+                <span class="label">Total Cost:</span> 
                 <span class="value">
                     {{#if this.cost}}
                         ${{this.cost}}
                     {{else}}
-                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Pending Diagnostics</span>
+                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">$0 (Free diagnostics)</span>
                     {{/if}}
                 </span>
             </div>
             <div class="data-row">
                 <i class="far fa-calendar-check"></i>
-                <span class="label">Updated:</span> <span class="value js-date">{{this.updated_at}}</span>
+                <span class="label">Completed:</span> <span class="value js-date">{{this.updated_at}}</span>
             </div>
              <div class="data-row">
                 <i class="fas fa-calendar-alt"></i>
@@ -438,17 +386,14 @@
             </div>
         </div>
         {{else}}
-        <p class="no-comment">No additional notes from the master.</p>
+        <p class="no-comment">No additional resolution notes from the master.</p>
         {{/if}}
     </div>
    {{else}}
     <div class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <h3>No Repair Orders Yet</h3>
-        <p>It looks like you haven't submitted any devices for repair. When you do, you can track their status and master's notes right here.</p>
-        <a href="/client/create" class="btn-new-order">
-            <i class="fas fa-plus"></i> Create Your First Order
-        </a>
+        <i class="fas fa-archive" style="color: var(--border-color); font-size: 48px; margin-bottom: 20px; display: block;"></i>
+        <h3>Archive is Empty</h3>
+        <p>You don't have any completed or canceled requests yet. Once an active repair order is completed, it will appear here.</p>
     </div>
    {{/each}}
 </div>
@@ -471,7 +416,6 @@
             
             let date;
             if (match) {
-                
                 const cleanDate = (match[1] && match[2]) ? `${match[1]}T${match[2]}Z` : new Date(rawValue).toISOString().split('T')[0] + 'T' + rawValue.match(/\d{2}:\d{2}:\d{2}/)[0] + 'Z';
                 date = new Date(cleanDate);
             } else {
@@ -494,41 +438,41 @@
     document.addEventListener('DOMContentLoaded', formatDates);
 
     document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.querySelector('.search-input');
-    const categorySelect = document.querySelector('#search-category');
-    const orderCards = document.querySelectorAll('.order-card');
+        const searchInput = document.querySelector('.search-input');
+        const categorySelect = document.querySelector('#search-category');
+        const orderCards = document.querySelectorAll('.order-card');
 
-    function performSearch() {
-        const query = searchInput.value.toLowerCase().trim();
-        const category = categorySelect.value;
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categorySelect.value;
 
-        orderCards.forEach(card => {
-            const model = card.querySelector('h3').textContent.toLowerCase();
-            const description = card.querySelector('.issue-desc').textContent.toLowerCase();
-            const orderId = card.querySelector('.order-id-row').textContent.toLowerCase();
-            const master = card.querySelector('.value').textContent.toLowerCase(); 
+            orderCards.forEach(card => {
+                const model = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('.issue-desc').textContent.toLowerCase();
+                const orderId = card.querySelector('.order-id-row').textContent.toLowerCase();
+                const master = card.querySelector('.value').textContent.toLowerCase();
 
-            let isMatch = false;
+                let isMatch = false;
 
-            if (category === 'all') {
-                isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
-            } else if (category === 'model') {
-                isMatch = model.includes(query);
-            } else if (category === 'id') {
-                isMatch = orderId.includes(query);
-            } else if (category === 'master') {
-                isMatch = master.includes(query);
-            } else if (category === 'issue') {
-                isMatch = description.includes(query);
-            }
+                if (category === 'all') {
+                    isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
+                } else if (category === 'model') {
+                    isMatch = model.includes(query);
+                } else if (category === 'id') {
+                    isMatch = orderId.includes(query);
+                } else if (category === 'master') {
+                    isMatch = master.includes(query);
+                } else if (category === 'issue') {
+                    isMatch = description.includes(query);
+                }
 
-            card.style.display = isMatch ? '' : 'none';
-        });
-    }
+                card.style.display = isMatch ? '' : 'none';
+            });
+        }
 
-    searchInput.addEventListener('input', performSearch);
-    categorySelect.addEventListener('change', performSearch);
-});
+        searchInput.addEventListener('input', performSearch);
+        categorySelect.addEventListener('change', performSearch);
+    });
 </script>
 
 </body>

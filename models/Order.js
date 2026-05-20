@@ -28,7 +28,7 @@ export const OrderModel = {
 
   // Оновлення статусу майстром
   updateStatus: async (id, status, comment, cost) => {
-      const res = await pool.query(
+    const res = await pool.query(
       "UPDATE orders SET status = $1, technician_comment = $2, cost = $3, updated_at = NOW() WHERE order_id = $4 RETURNING *",
       [status, comment, cost || 0, id], // Записуємо ціну
     );
@@ -162,23 +162,43 @@ export const OrderModel = {
     return res.rows[0];
   },
 
- getOrdersByClientId: async (clientId) => {
+  getOrdersByClientId: async (clientId) => {
     const query = `
         SELECT 
             o.*, 
             m.name AS master_name 
         FROM orders o
         LEFT JOIN users m ON o.assigned_to = m.id
-        WHERE o.client_id = $1
+        WHERE o.client_id = $1 AND o.status NOT IN ('done', 'failed')
         ORDER BY o.created_at DESC
     `;
-    
+
     try {
-        const { rows } = await pool.query(query, [clientId]);
-        return rows;
+      const { rows } = await pool.query(query, [clientId]);
+      return rows;
     } catch (err) {
-        console.error("SQL Error in getOrdersByClientId:", err);
-        throw err;
+      console.error("SQL Error in getOrdersByClientId:", err);
+      throw err;
+    }
+  },
+
+  getArchiveOrdersByClientId: async (clientId) => {
+    const query = `
+        SELECT 
+            o.*, 
+            m.name AS master_name 
+        FROM orders o
+        LEFT JOIN users m ON o.assigned_to = m.id
+        WHERE o.client_id = $1 AND o.status IN ('done', 'failed')
+        ORDER BY o.updated_at DESC
+    `;
+
+    try {
+      const { rows } = await pool.query(query, [clientId]);
+      return rows;
+    } catch (err) {
+      console.error("SQL Error in getArchiveOrdersByClientId:", err);
+      throw err;
     }
   },
 
