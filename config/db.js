@@ -3,6 +3,8 @@ dotenv.config();
 import pg from 'pg';
 const { Pool } = pg;
 
+const connectionString = process.env.DATABASE_URL || process.env.DB_URL;
+
 const pool = new Pool({
     connectionString: process.env.DB_URL,
     ssl: process.env.DB_URL.includes('localhost') ? false : { rejectUnauthorized: false }
