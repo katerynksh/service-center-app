@@ -5,7 +5,6 @@ export const getCreateOrderView = (req, res) => {
   res.render("client/createClient", {
     title: "Create New Request",
     user: req.session.user,
-    layout: false,
   });
 };
 
@@ -116,12 +115,17 @@ export const createOrderValidation = (req, res, next) => {
         date_of_purchase,
         issue_description,
       },
-      layout: false,
     });
   }
   if (device_type === "Other") {
     req.body.device_type = custom_device_type;
   }
+  req.body.date_of_purchase =
+    date_of_purchase && date_of_purchase.trim() !== ""
+      ? date_of_purchase
+      : null;
+  req.body.os_version =
+    os_version && os_version.trim() !== "" ? os_version : null;
 
   next();
 };
@@ -134,11 +138,14 @@ export const getMyOrders = async (req, res) => {
     const clientId = req.session.user.id;
     const orders = await OrderModel.getOrdersByClientId(clientId);
 
+    const archiveOrders = await OrderModel.getArchiveOrdersByClientId(clientId);
+
     res.render("client/dashboardClient", {
       orders: orders,
+      activeCount: orders.length,         
+      archiveCount: archiveOrders.length, 
       user: req.session.user,
       title: "My Repair Orders",
-      layout: false,
     });
   } catch (err) {
     console.error("Error loading history:", err);
@@ -176,7 +183,6 @@ export const createOrder = async (req, res) => {
     console.error("Failed to create request:", err);
     res.render("client/createClient", {
       error: "Failed to create request",
-      layout: false,
       user: req.session.user,
     });
   }
@@ -188,13 +194,14 @@ export const getArchiveOrders = async (req, res) => {
       return res.redirect("/auth/login");
     }
     const clientId = req.session.user.id;
+    const orders = await OrderModel.getOrdersByClientId(clientId);
     const archiveOrders = await OrderModel.getArchiveOrdersByClientId(clientId);
 
     res.render("client/archiveClient", {
       orders: archiveOrders,
+      activeCount: orders.length,
       user: req.session.user,
       title: "Order Archive",
-      layout: false,
     });
   } catch (err) {
     console.error("Error loading archive:", err);

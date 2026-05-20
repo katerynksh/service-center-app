@@ -292,7 +292,7 @@ textarea.is-invalid ~ .error-text {
     display: block !important;
 }
 
-.error, 
+/* .error, 
 .error-message, 
 .alert-danger {
     display: block !important;
@@ -306,4 +306,55 @@ textarea.is-invalid ~ .error-text {
     font-weight: bold;
     opacity: 1 !important;
     visibility: visible !important;
+} */
+
+
+.error, 
+.error-message, 
+.alert-danger {
+    display: block !important;
+    color: #ef4444 !important; /* Яскравий червоний колір, як у твоїх бордерів */
+    background-color: transparent !important; /* Прибираємо фон */
+    border: none !important; /* Прибираємо рамку */
+    padding: 0 !important; /* Прибираємо зайві відступи всередині */
+    margin-top: 4px;
+    margin-bottom: 0;
+    text-align: left; /* Вирівнюємо по лівому краю, щоб було під інпутом */
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+
+/* Робимо обгортку відносною для позиціонування іконки */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Налаштовуємо червоний знак оклику */
+.error-icon {
+    position: absolute;
+    right: 16px;              /* Відступ від правого краю */
+    top: 50%;                 /* Центруємо по вертикалі */
+    transform: translateY(-50%); /* Точне вирівнювання по центру */
+    color: #ef4444 !important; /* Робимо червоним */
+    font-size: 18px;          /* Збільшуємо розмір іконки для видимості */
+    pointer-events: none;     /* Щоб іконка не блокувала клік по інпуту */
+    z-index: 2;
+}
+
+/* Специфічне вирівнювання для textarea (бо воно високе) */
+.textarea-wrapper .error-icon {
+    top: 18px;
+    transform: none;
+}
+
+/* Додаємо відступ тексту в інпуті, щоб текст не налізав на іконку */
+input.is-invalid, 
+select.is-invalid, 
+textarea.is-invalid {
+    padding-right: 45px !important;
 }
