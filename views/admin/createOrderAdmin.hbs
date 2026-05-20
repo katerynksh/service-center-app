@@ -1,0 +1,129 @@
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header border-bottom-0 pt-4 px-4" style="background-color: transparent;">
+            <h4 class="fw-bold mb-0">Create New Order</h4>
+        </div>
+        <div class="card-body p-4">
+            <form id="createOrderForm" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Client Email (New Client)</label>
+                        <input type="email" class="form-control" name="client_email" placeholder="example@mail.com" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Client Name</label>
+                        <input type="text" name="client_name" class="form-control" placeholder="Client Name" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Set Client Password</label>
+                        <input type="password" class="form-control" name="client_password" placeholder="Minimum 6 characters" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Device Model</label>
+                        <input type="text" class="form-control" name="device_model" placeholder="iPhone 15 Pro" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Device Type</label>
+                        <input type="text" class="form-control" name="device_type" placeholder="Smartphone" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">OS Version</label>
+                        <input type="text" class="form-control" name="os_version" placeholder="iOS 17.0">
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Date of Purchase (Optional)</label>
+                        <input type="date" class="form-control" name="date_of_purchase">
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Issue Description</label>
+                        <textarea class="form-control" name="issue_description" rows="3" placeholder="Describe the problem..." required></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-danger px-4 rounded-pill">Create Order</button>
+                    <a href="/admin" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); 
+    
+    const form = this;
+    
+    // Очищаємо помилки
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.innerText = '';
+        el.style.display = 'none';
+    });
+
+    // Функція відображення помилки
+    const showFieldError = (fieldName, message) => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.classList.add('is-invalid'); 
+            let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback text-danger mt-1 small';
+                field.parentNode.appendChild(errorDiv);
+            }
+            
+            errorDiv.innerText = message;
+            errorDiv.style.display = 'block'; 
+        }
+    };
+
+    const formData = Object.fromEntries(new FormData(form));
+    
+    if (!formData.date_of_purchase) {
+        formData.date_of_purchase = null;
+    }
+
+    try {
+        const res = await fetch('/admin/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (res.ok) {
+            Swal.fire('Success', 'Order created successfully!', 'success').then(() => {
+                window.location.href = '/admin';
+            });
+            return;
+        } 
+
+        const err = await res.json();
+
+        // Якщо бекенд повернув об'єкт з кількома помилками
+        if (err.errors) {
+            for (const [field, message] of Object.entries(err.errors)) {
+                showFieldError(field, message);
+            }
+        } 
+        // Якщо це якась загальна помилка (наприклад, 500)
+        else if (err.error) {
+            Swal.fire('Error', err.error, 'error');
+        }
+
+    } catch (err) {
+        console.error("Failed to send request:  ", err);
+        Swal.fire('Error', 'Failed to send request. Check console.', 'error');
+    }
+});
+</script>

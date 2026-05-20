@@ -20,8 +20,12 @@
   },
   "homepage": "https://github.com/katerynksh/service-center-app#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "pg": "^8.20.0"
+    "express-session": "^1.19.0",
+    "hbs": "^4.2.1",
+    "pg": "^8.20.0",
+    "sequelize": "^6.37.8"
   }
 }

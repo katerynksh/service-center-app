@@ -1,0 +1,360 @@
+/* Глобальні змінні з твоєї теми */
+:root {
+    --primary-violet: #ae9ebe;
+    --hover-violet: rgb(145, 132, 179);
+    --bg-body: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-main: #2d3748;
+    --text-muted: #718096;
+    --border-color: #e2e8f0;
+    --row-bg: #f8f9fa; 
+    
+    /* Додаткові змінні для інпутів (логін/реєстрація) */
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+}
+
+/* ТЕМНА ТЕМА */
+body.dark-theme {
+    --bg-body: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --row-bg: rgba(255, 255, 255, 0.03);
+    
+    --input-bg: #0f172a;
+    --input-border: #334155;
+}
+
+/* Базові налаштування тіла сторінки */
+body {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Навігаційна панель */
+.navbar {
+    background: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+.navbar-brand, .nav-link {
+    color: var(--text-main) !important;
+}
+
+/* Картки (зокрема форми Login / Register) */
+.card, .order-card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Форми */
+.form-control, .form-select {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-violet) !important;
+    box-shadow: 0 0 0 3px rgba(174, 158, 190, 0.2) !important;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-main) !important;
+}
+
+/* Кнопки */
+.btn-primary, .btn-danger, .btn-primary-custom {
+    background-color: var(--primary-violet) !important;
+    border-color: var(--primary-violet) !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+.btn-primary:hover, .btn-danger:hover, .btn-primary-custom:hover {
+    background-color: var(--hover-violet) !important;
+    border-color: var(--hover-violet) !important;
+}
+
+/* SweetAlert2 адаптація під темну тему */
+.swal2-popup {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+}
+.swal2-title { color: var(--text-main) !important; }
+.swal2-html-container { color: var(--text-muted) !important; }
+
+/* Тексти */
+h1, h2, h3, h4, h5, h6 { color: var(--text-main); }
+.text-muted { color: var(--text-muted) !important; }
+
+body.dark-theme .form-control, 
+body.dark-theme .form-select,
+body.dark-theme input,
+body.dark-theme textarea {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;          
+    border: 1px solid #334155 !important; 
+}
+
+/* Колір полів, коли на них клікають */
+body.dark-theme .form-control:focus, 
+body.dark-theme .form-select:focus {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: var(--primary-violet) !important;
+    box-shadow: 0 0 0 0.25rem rgba(174, 158, 190, 0.25) !important;
+}
+
+/* Колір підказки (placeholder) у темній темі */
+body.dark-theme .form-control::placeholder,
+body.dark-theme .form-select::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Якщо в Bootstrap десь залишився жорсткий чорний текст */
+body.dark-theme .text-dark {
+    color: #f1f5f9 !important;
+}
+
+/* Фікс для таблиць в темній темі (щоб не було білого фону під рядками) */
+body.dark-theme .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #f1f5f9;
+}
+
+/* Блокування анімацій при завантаженні сторінки (щоб не було спалаху) */
+.preload, .preload * {
+    transition: none !important;
+}
+
+
+/* Головне вікно модалки */
+.swal2-popup {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    font-family: 'Inter', sans-serif !important;
+    padding: 2rem !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Тінь для темної теми */
+body.dark-theme .swal2-popup {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Задній фон (затемнення сторінки) з ефектом розмиття стекляризації */
+.swal2-backdrop-show {
+    background: rgba(15, 23, 42, 0.5) !important;
+    backdrop-filter: blur(4px) !important; /* розмиття заднього плану */
+}
+
+/* Заголовок повідомлення */
+.swal2-title {
+    color: var(--text-main) !important;
+    font-weight: 700 !important;
+    font-size: 1.4rem !important;
+    margin-bottom: 10px !important;
+}
+
+/* Текст опису */
+.swal2-html-container {
+    color: var(--text-muted) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+}
+
+/* ГОЛОВНА КНОПКА (ОК / Підтвердити) */
+.swal2-styled.swal2-confirm {
+    background-color: var(--primary-violet) !important;
+    color: white !important;
+    border-radius: 50px !important; 
+    font-weight: 600 !important;
+    padding: 10px 28px !important;
+    font-size: 14px !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-styled.swal2-confirm:hover {
+    background-color: var(--hover-violet) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* КНОПКА СКАСУВАННЯ (Cancel) */
+.swal2-styled.swal2-cancel {
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 50px !important; 
+    font-weight: 600 !important;
+    padding: 10px 28px !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-styled.swal2-cancel:hover {
+    background-color: var(--row-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--text-muted) !important;
+}
+
+/*  НЕЙТРАЛІЗАЦІЯ ЖОРСТКОГО ДИЗАЙНУ ДЛЯ КНОПОК ВИДАЛЕННЯ */
+.swal2-styled.swal2-confirm[style*="background-color: rgb(211, 51, 51)"],
+.swal2-styled.swal2-confirm[style*="background-color: #d33"],
+.swal2-styled.swal2-confirm[style*="background-color: #dc3545"],
+.swal2-styled.swal2-confirm[style*="background-color: #e53935"] {
+    background-color: #e53935 !important;
+    border-radius: 50px !important;
+    color: white !important;
+}
+
+.swal2-styled.swal2-confirm[style*="background-color: rgb(211, 51, 51)"]:hover,
+.swal2-styled.swal2-confirm[style*="background-color: #d33"]:hover,
+.swal2-styled.swal2-confirm[style*="background-color: #dc3545"]:hover,
+.swal2-styled.swal2-confirm[style*="background-color: #e53935"]:hover {
+    background-color: #c62828 !important;
+}
+
+/* ОПТИМІЗАЦІЯ СТАНДАРТНИХ ІКОНОК SWEETALERT ПІД ТЕМНУ ТЕМУ */
+body.dark-theme .swal2-icon.swal2-success {
+    border-color: #43a047 !important;
+}
+body.dark-theme .swal2-icon.swal2-success .swal2-success-ring {
+    border: .25em solid rgba(67, 160, 71, .2) !important;
+}
+body.dark-theme .swal2-icon.swal2-success [class^=swal2-success-line] {
+    background-color: #43a047 !important;
+}
+
+body.dark-theme .swal2-icon.swal2-error {
+    border-color: #e53935 !important;
+}
+body.dark-theme .swal2-icon.swal2-error [class^=swal2-error-line] {
+    background-color: #e53935 !important;
+}
+
+body.dark-theme .swal2-icon.swal2-warning {
+    border-color: #ff9800 !important;
+    color: #ff9800 !important;
+}
+
+body.dark-theme .swal2-icon.swal2-info {
+    border-color: #00a8e8 !important;
+    color: #00a8e8 !important;
+}
+
+.form-control.is-invalid, 
+.form-select.is-invalid,
+input.is-invalid,
+textarea.is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; 
+    background-image: none !important; 
+}
+
+.form-control.is-invalid:focus, 
+.form-select.is-invalid:focus,
+input.is-invalid:focus,
+textarea.is-invalid:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
+}
+
+.error-text {
+    color: #ef4444 !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: none; /* Приховано, поки немає помилки */
+}
+
+/* Показуємо текст помилки ТІЛЬКИ якщо поле має клас is-invalid */
+.form-control.is-invalid ~ .error-text, 
+.form-select.is-invalid ~ .error-text,
+input.is-invalid ~ .error-text,
+textarea.is-invalid ~ .error-text {
+    display: block !important;
+}
+
+/* .error, 
+.error-message, 
+.alert-danger {
+    display: block !important;
+    color: #721c24 !important;
+    background-color: #f8d7da !important;
+    border: 1px solid #f5c6cb !important;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    opacity: 1 !important;
+    visibility: visible !important;
+} */
+
+
+.error, 
+.error-message, 
+.alert-danger {
+    display: block !important;
+    color: #ef4444 !important; /* Яскравий червоний колір, як у твоїх бордерів */
+    background-color: transparent !important; /* Прибираємо фон */
+    border: none !important; /* Прибираємо рамку */
+    padding: 0 !important; /* Прибираємо зайві відступи всередині */
+    margin-top: 4px;
+    margin-bottom: 0;
+    text-align: left; /* Вирівнюємо по лівому краю, щоб було під інпутом */
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+
+/* Робимо обгортку відносною для позиціонування іконки */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Налаштовуємо червоний знак оклику */
+.error-icon {
+    position: absolute;
+    right: 16px;              /* Відступ від правого краю */
+    top: 50%;                 /* Центруємо по вертикалі */
+    transform: translateY(-50%); /* Точне вирівнювання по центру */
+    color: #ef4444 !important; /* Робимо червоним */
+    font-size: 18px;          /* Збільшуємо розмір іконки для видимості */
+    pointer-events: none;     /* Щоб іконка не блокувала клік по інпуту */
+    z-index: 2;
+}
+
+/* Специфічне вирівнювання для textarea (бо воно високе) */
+.textarea-wrapper .error-icon {
+    top: 18px;
+    transform: none;
+}
+
+/* Додаємо відступ тексту в інпуті, щоб текст не налізав на іконку */
+input.is-invalid, 
+select.is-invalid, 
+textarea.is-invalid {
+    padding-right: 45px !important;
+}

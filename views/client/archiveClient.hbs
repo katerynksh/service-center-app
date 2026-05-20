@@ -1,0 +1,329 @@
+<style>
+    :root {
+        --status-new-bg: #e0f7ff; --status-new-text: #00a8e8; --status-new-border: #00a8e8;
+        --status-progress-bg: #fff3e0; --status-progress-text: #ff9800; --status-progress-border: #ff9800;
+        --status-waiting-bg: #e0fbff; --status-waiting-text: #00c4cc; --status-waiting-border: #00c4cc;
+        --status-parts-bg: #f0f4f8; --status-parts-text: #607d8b; --status-parts-border: #607d8b;
+        --status-fail-bg: #ffebee; --status-fail-text: #e53935; --status-fail-border: #e53935;
+        --status-done-bg: #e8f5e9; --status-done-text: #43a047; --status-done-border: #43a047;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1600px;
+        margin: 20px auto 40px;
+        padding: 0 20px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-title { margin: 0; font-size: 24px; font-weight: 700; }
+    .page-subtitle { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-action {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 10px 16px; border: 1px solid var(--border-color);
+        border-radius: 10px; text-decoration: none; color: var(--text-main);
+        font-weight: 600; background: var(--card-bg); font-size: 14px; transition: all 0.2s;
+    }
+    .btn-action:hover { background-color: var(--row-bg); border-color: var(--primary-violet); }
+
+    .dashboard-tabs {
+        display: flex;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 6px;
+        margin-bottom: 30px;
+    }
+    .tab-item {
+        flex: 1; text-align: center; padding: 12px;
+        text-decoration: none; color: var(--text-main);
+        font-weight: 600; font-size: 15px; border-radius: 8px; transition: all 0.2s;
+    }
+    .tab-item.active { background-color: var(--primary-violet); color: white; pointer-events: none; }
+    .tab-item:not(.active):hover { background-color: var(--row-bg); color: var(--primary-violet); }
+
+    .search-container { position: relative; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+    .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-input {
+        flex: 1; padding: 14px 16px 14px 48px; border: 1px solid var(--border-color);
+        border-radius: 12px; background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;
+    }
+    .search-input:focus { border-color: var(--primary-violet); }
+    .filter-select {
+        padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border-color);
+        background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; min-width: 160px;
+    }
+
+    .order-card {
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 12px; padding: 24px; margin-bottom: 24px; transition: all 0.3s ease;
+    }
+    .order-card:hover { border-color: var(--primary-violet); box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25); transform: translateY(-2px); }
+    
+    .card-top { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 8px; }
+    .card-top h3 { margin: 0; font-size: 20px; font-weight: 700; }
+    
+    .status-badge {
+        font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 8px;
+        text-transform: uppercase; letter-spacing: 0.5px; border: 1.5px solid; display: inline-block;
+    }
+    .status-new { background: var(--status-new-bg); color: var(--status-new-text); border-color: var(--status-new-border); }
+    .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); border-color: var(--status-progress-border); }
+    .status-waiting-response { background: var(--status-waiting-bg); color: var(--status-waiting-text); border-color: var(--status-waiting-border); }
+    .status-waiting-parts { background: var(--status-parts-bg); color: var(--status-parts-text); border-color: var(--status-parts-border); }
+    .status-failed { background: var(--status-fail-bg); color: var(--status-fail-text); border-color: var(--status-fail-border); }
+    .status-done { background: var(--status-done-bg); color: var(--status-done-text); border-color: var(--status-done-border); }
+    
+    .order-id-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .issue-desc { font-size: 14px; margin-bottom: 20px; line-height: 1.5; color: var(--text-main); }
+
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .data-row {
+        background: var(--row-bg); border-radius: 8px; padding: 12px 16px;
+        display: flex; align-items: center; justify-content: flex-start; gap: 4px; font-size: 13px; border: 1px solid var(--border-color);
+    }
+    .data-row i { color: var(--text-muted); width: 16px; text-align: center; margin-right: 4px; }
+    .data-row span.label { color: var(--text-muted); }
+    
+    .data-row span.value { font-weight: 700; margin-left: 4px; }
+
+    .comment-box {
+        margin-top: 20px; padding: 16px 20px; background: var(--row-bg);
+        border-radius: 12px; border: 1px solid var(--border-color); display: flex; gap: 15px; position: relative;
+    }
+    .comment-box::before {
+        content: "MASTER'S NOTE"; position: absolute; top: -9px; left: 15px;
+        background: var(--card-bg); color: var(--text-muted); font-size: 10px; font-weight: 700; padding: 0 8px; letter-spacing: 0.5px;
+    }
+    .comment-box p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-main); font-weight: 400; }
+    .no-comment { font-size: 13px; color: var(--text-muted); margin-top: 15px; opacity: 0.7; }
+
+    .empty-state { text-align: center; padding: 60px 20px; background: var(--card-bg); border: 2px dashed var(--border-color); border-radius: 12px; margin-bottom: 25px; }
+    .empty-state i { font-size: 48px; color: var(--border-color); margin-bottom: 20px; }
+    .empty-state h3 { color: var(--text-main); font-size: 20px; margin: 0 0 10px 0; font-weight: 700; }
+    .empty-state p { color: var(--text-muted); font-size: 15px; max-width: 400px; margin: 0 auto 24px auto; line-height: 1.5; }
+</style>
+
+<div class="dashboard-wrapper">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Service Center</h1>
+            <p class="page-subtitle">Welcome to Archive, <span style="font-weight: 600; color: var(--text-main);">{{user.name}}</span></p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action" style="padding: 10px; border-radius: 50%; width: 40px; height: 40px;" onclick="toggleTheme()" aria-label="Toggle theme">
+                <i class="fas fa-moon theme-icon"></i>
+            </button>
+            <a href="/auth/logout" class="btn-action">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-tabs">
+        <a href="/client/dashboard" class="tab-item text-muted">
+            My Orders {{#if activeCount}}({{activeCount}}){{else}}(0){{/if}}
+        </a>
+        <a href="/client/archive" class="tab-item active">
+            <i class="fas fa-archive me-1"></i> Archive {{#if orders.length}}({{orders.length}}){{else}}(0){{/if}}
+        </a>
+    </div>
+
+    <div class="search-container">
+        <div style="position: relative; flex: 1;">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input w-100" placeholder="Search in archive...">
+        </div>
+        <select id="search-category" class="filter-select">
+            <option value="all">All fields</option>
+            <option value="model">By Model</option>
+            <option value="id">By Order №</option>
+            <option value="master">By Master</option>
+            <option value="issue">By Issue</option>
+        </select>
+    </div>
+
+    <div class="orders-list">
+        {{#each orders}}
+        <div class="order-card">
+            <div class="card-top">
+                <h3>{{this.device_model}}</h3>
+                <span class="status-badge 
+                    {{#if (eq this.status 'new')}}status-new{{/if}}
+                    {{#if (eq this.status 'in progress')}}status-in-progress{{/if}}
+                    {{#if (eq this.status 'waiting customer response')}}status-waiting-response{{/if}}
+                    {{#if (eq this.status 'waiting spare parts')}}status-waiting-parts{{/if}}
+                    {{#if (eq this.status 'failed')}}status-failed{{/if}}
+                    {{#if (eq this.status 'done')}}status-done{{/if}}">
+                    {{this.status}}
+                </span>
+            </div>
+
+            <div class="order-id-row">
+                <i class="fas fa-cube"></i> Order №{{this.order_id}} • {{this.device_type}}
+            </div>
+
+            <div class="issue-desc">
+                {{this.issue_description}}
+            </div>
+
+            <div class="data-grid">
+                <div class="data-row">
+                    <i class="fas fa-wrench"></i>
+                    <span class="label">Master:</span> 
+                    <span class="value">
+                        {{#if this.master_name}}
+                            {{this.master_name}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Waiting for Master</span>
+                        {{/if}}
+                    </span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-microchip"></i>
+                    <span class="label">OS:</span> 
+                    <span class="value">
+                        {{#if this.os_version}}
+                            {{this.os_version}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Unknown</span>
+                        {{/if}}
+                    </span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span class="label">Cost:</span> 
+                    <span class="value">
+                        {{#if this.cost}}
+                            ${{this.cost}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Pending Diagnostics</span>
+                        {{/if}}
+                    </span>
+                </div>
+                
+                <div class="data-row">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="label">Purchase Date:</span> 
+                    <span class="value">
+                        {{#if this.date_of_purchase}}
+                            <span class="js-date-only" style="color: var(--text-main);">{{this.date_of_purchase}}</span>
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Unknown</span>
+                        {{/if}}
+                    </span>
+                </div>
+
+                <div class="data-row">
+                    <i class="far fa-calendar-check"></i>
+                    <span class="label">Completed:</span> <span class="value js-date">{{this.updated_at}}</span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="label">Created at:</span> <span class="value js-date">{{this.created_at}}</span>
+                </div>
+            </div>
+            
+            {{#if this.technician_comment}}
+            <div class="comment-box">
+                <i class="fas fa-comment-dots mt-1 text-muted"></i>
+                <div><p>{{this.technician_comment}}</p></div>
+            </div>
+            {{else}}
+            <p class="no-comment">No additional notes from the master.</p>
+            {{/if}}
+        </div>
+        {{else}}
+        <div class="empty-state">
+            <i class="fas fa-archive" style="color: var(--border-color);"></i>
+            <h3>Archive is Empty</h3>
+            <p>You don't have any completed or canceled requests yet. Once an active repair order is completed, it will appear here.</p>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<script>
+    function formatDates() {
+        document.querySelectorAll('.js-date').forEach(el => {
+            const rawValue = el.innerText.trim();
+            if (!rawValue || rawValue === "undefined") return;
+            const match = rawValue.match(/(\d{4}-\d{2}-\d{2})[\sT](\d{2}:\d{2}:\d{2})/);
+            let date;
+            if (match) {
+                date = new Date(`${match[1]}T${match[2]}Z`);
+            } else {
+                date = new Date(rawValue);
+            }
+            if (isNaN(date.getTime())) return;
+            el.innerText = date.toLocaleString('uk-UA', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kyiv'
+            });
+        });
+
+        document.querySelectorAll('.js-date-only').forEach(el => {
+            const rawValue = el.innerText.trim();
+            if (!rawValue || rawValue === "undefined") return;
+            const date = new Date(rawValue);
+            if (isNaN(date.getTime())) return;
+            el.innerText = date.toLocaleDateString('uk-UA', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        formatDates();
+
+        const searchInput = document.querySelector('.search-input');
+        const categorySelect = document.querySelector('#search-category');
+        const orderCards = document.querySelectorAll('.order-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categorySelect.value;
+
+            orderCards.forEach(card => {
+                const h3Node = card.querySelector('.card-top h3');
+                const model = h3Node ? h3Node.textContent.toLowerCase() : '';
+                
+                const descNode = card.querySelector('.issue-desc');
+                const description = descNode ? descNode.textContent.toLowerCase() : '';
+                
+                const idNode = card.querySelector('.order-id-row');
+                const orderId = idNode ? idNode.textContent.toLowerCase() : '';
+                
+                const wrenchIcon = card.querySelector('.fa-wrench');
+                const master = (wrenchIcon && wrenchIcon.nextElementSibling && wrenchIcon.nextElementSibling.nextElementSibling) 
+                    ? wrenchIcon.nextElementSibling.nextElementSibling.textContent.toLowerCase() 
+                    : '';
+
+                let isMatch = false;
+
+                if (category === 'all') {
+                    isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
+                } else if (category === 'model') {
+                    isMatch = model.includes(query);
+                } else if (category === 'id') {
+                    isMatch = orderId.includes(query);
+                } else if (category === 'master') {
+                    isMatch = master.includes(query);
+                } else if (category === 'issue') {
+                    isMatch = description.includes(query);
+                }
+
+                card.style.display = isMatch ? '' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', performSearch);
+        categorySelect.addEventListener('change', performSearch);
+    });
+</script>

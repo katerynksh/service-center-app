@@ -1,31 +1,79 @@
-//перевірка:
-//isClient
+import UserModel from "../models/User.js";
 
+export const setUser = async (req, res, next) => {
+  const userId = req.session?.user?.id;
 
+  if (!userId) {
+    return next();
+  }
 
-//перевірка:
-//isAdmin
-//isMaster
-export const isMaster = (req, res, next) => {
-    // Доступ дозволено, якщо роль користувача 'master' або 'admin'
-    if (req.user && (req.user.role === 'master' || req.user.role === 'admin')) {
-        return next();
+  try {
+    const user = await UserModel.findUserById(userId);
+    if (user) {
+      req.user = user;
     }
-    return res.status(403).json({ message: "Access denied: you are not a master" });
+    next();
+  } catch (err) {
+    console.error("Error setting user:", err);
+    next();
+  }
 };
-//перевірка:
-//isAdmin
+
+export const isClient = (req, res, next) => {
+  if (!req.user) {
+    return res.redirect("/auth/login?error=expired");
+  }
+  if (req.user.role === "client") {
+    return next();
+  }
+  res.status(403).render("error", { message: "Access denied: This section is only for Clients." });
+};
+
+export const isMaster = (req, res, next) => {
+  if (!req.user) {
+    return res.redirect("/auth/login?error=expired");
+  }
+  if (req.user.role === "master") {
+    return next();
+  }
+  res.status(403).render("error", { message: "Access denied: This section is only for Masters." });
+};
+
 export const isAdmin = (req, res, next) => {
-    // Доступ дозволено лише для ролі 'admin'
-    if (req.user && req.user.role === 'admin') {
-        return next();
-    }
-    return res.status(403).json({ message: "Access denied: you are not an admin" });
+  if (!req.user) {
+    return res.redirect("/auth/login?error=expired");
+  }
+  if (req.user.role === "admin") {
+    return next();
+  }
+  res.status(403).render("error", { message: "Access denied: This section is only for Admins." });
 };
 
 const authMiddleware = (req, res, next) => {
-    if (!req.user) return res.status(401).json({ message: "Access denied: you are not authenticated" });
+  if (!req.user) {
+    return res.redirect("/auth/login");
+  }
+  next();
+};
+
+// Перевіряє, чи користувач авторизований
+export const requireAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.redirect("/auth/login?error=expired");
+  }
+  next(); 
+};
+
+// Перевіряє, чи має користувач потрібну роль
+export const requireRole = (role) => {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== role) {
+      const err = new Error(`Доступ заборонено: ця сторінка доступна лише для ${role}.`);
+      err.status = 403; 
+      return next(err); 
+    }
     next();
+  };
 };
 
 export default authMiddleware;

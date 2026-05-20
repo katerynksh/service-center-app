@@ -1,0 +1,210 @@
+import pool from "../config/db.js";
+import { OrderModel } from "../models/Order.js";
+
+export const getCreateOrderView = (req, res) => {
+  res.render("client/createClient", {
+    title: "Create New Request",
+    user: req.session.user,
+  });
+};
+
+class OrderValidator {
+  static validateDeviceType(type) {
+    if (!type || type.trim().length === 0) return "Device type is required.";
+    const trimmedType = type.trim();
+    if (trimmedType.length > 50) return "Device type is too long.";
+    if (trimmedType.length < 4) return "Device type is too short.";
+    const typeRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-]+$/;
+    if (!typeRegex.test(trimmedType)) {
+      return "Device type contains invalid characters.";
+    }
+    return null;
+  }
+
+  static validateDeviceModel(model) {
+    if (!model || model.trim().length === 0) return "Device model is required.";
+    const trimmedModel = model.trim();
+    if (trimmedModel.length > 100)
+      return "Device model cannot exceed 100 characters.";
+    if (trimmedModel.length < 4)
+      return "Device model cannot be less than 4 characters.";
+    const modelRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-+]+$/;
+    if (!modelRegex.test(trimmedModel)) {
+      return "Device model contains invalid characters.";
+    }
+
+    return null;
+  }
+
+  static validateOsVersion(os) {
+    if (!os || os.trim().length === 0) return null;
+    const trimmedOs = os.trim();
+    if (trimmedOs.length > 50) return "OS version description is too long.";
+    if (trimmedOs.length < 2) return "OS version description is too short.";
+    const osRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ0-9\s.\-_]+$/;
+
+    if (!osRegex.test(trimmedOs)) {
+      return "OS version contains invalid characters (only letters, numbers, spaces, dots, and dashes are allowed).";
+    }
+
+    return null;
+  }
+
+  static validateDateOfPurchase(dateString) {
+    if (!dateString || dateString.trim().length === 0) return null;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid date format.";
+    const today = new Date();
+    const minDate = new Date("1900-01-01");
+    if (date > today) return "Purchase date cannot be in the future.";
+    if (date < minDate) return "Purchase date cannot be earlier than 1900.";
+    return null;
+  }
+
+  static validateIssueDescription(issue) {
+    if (!issue || issue.trim().length === 0)
+      return "Issue description is required.";
+    const trimmedIssue = issue.trim();
+    if (trimmedIssue.length < 10)
+      return "The issue description must be at least 10 characters.";
+    if (trimmedIssue.length > 1000) return "The issue description should not exceed 1000 characters.";
+    if (/[<>]/.test(trimmedIssue)) {
+      return "Issue description cannot contain HTML tags (< or >).";
+    }
+
+    return null;
+  }
+}
+
+export const createOrderValidation = (req, res, next) => {
+  const {
+    device_type,
+    custom_device_type,
+    device_model,
+    os_version,
+    date_of_purchase,
+    issue_description,
+  } = req.body;
+
+  let typeToValidate = device_type;
+  if (device_type === "Other") {
+    typeToValidate = custom_device_type;
+  }
+
+  const validationResults = {
+    device_type: OrderValidator.validateDeviceType(typeToValidate),
+    device_model: OrderValidator.validateDeviceModel(device_model),
+    os_version: OrderValidator.validateOsVersion(os_version),
+    date_of_purchase: OrderValidator.validateDateOfPurchase(date_of_purchase),
+    issue_description:
+      OrderValidator.validateIssueDescription(issue_description),
+  };
+
+  const hasErrors = Object.values(validationResults).some(
+    (msg) => msg !== null,
+  );
+  if (hasErrors) {
+    return res.render("client/createClient", {
+      title: "Create Order - Service Center",
+      errors: validationResults,
+      values: {
+        device_type,
+        custom_device_type,
+        device_model,
+        os_version,
+        date_of_purchase,
+        issue_description,
+      },
+    });
+  }
+  if (device_type === "Other") {
+    req.body.device_type = custom_device_type;
+  }
+  req.body.date_of_purchase =
+    date_of_purchase && date_of_purchase.trim() !== ""
+      ? date_of_purchase
+      : null;
+  req.body.os_version =
+    os_version && os_version.trim() !== "" ? os_version : null;
+
+  next();
+};
+
+export const getMyOrders = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/auth/login");
+    }
+    const clientId = req.session.user.id;
+    const orders = await OrderModel.getOrdersByClientId(clientId);
+
+    const archiveOrders = await OrderModel.getArchiveOrdersByClientId(clientId);
+
+    res.render("client/dashboardClient", {
+      orders: orders,
+      activeCount: orders.length,         
+      archiveCount: archiveOrders.length, 
+      user: req.session.user,
+      title: "My Repair Orders",
+    });
+  } catch (err) {
+    console.error("Error loading history:", err);
+    res.status(500).send("Error loading history");
+  }
+};
+
+export const createOrder = async (req, res) => {
+  const {
+    device_type,
+    device_model,
+    os_version,
+    date_of_purchase,
+    issue_description,
+  } = req.body;
+
+  if (!req.session.user) {
+    return res.status(401).send("Unauthorized");
+  }
+
+  try {
+    const client_id = req.session.user.id;
+
+    await OrderModel.createNewOrder({
+      client_id,
+      device_type,
+      device_model,
+      os_version,
+      date_of_purchase,
+      issue_description,
+    });
+
+    res.redirect(`/client/dashboard`);
+  } catch (err) {
+    console.error("Failed to create request:", err);
+    res.render("client/createClient", {
+      error: "Failed to create request",
+      user: req.session.user,
+    });
+  }
+};
+
+export const getArchiveOrders = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/auth/login");
+    }
+    const clientId = req.session.user.id;
+    const orders = await OrderModel.getOrdersByClientId(clientId);
+    const archiveOrders = await OrderModel.getArchiveOrdersByClientId(clientId);
+
+    res.render("client/archiveClient", {
+      orders: archiveOrders,
+      activeCount: orders.length,
+      user: req.session.user,
+      title: "Order Archive",
+    });
+  } catch (err) {
+    console.error("Error loading archive:", err);
+    res.status(500).send("Error loading archive");
+  }
+};

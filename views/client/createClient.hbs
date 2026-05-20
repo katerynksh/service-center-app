@@ -1,0 +1,417 @@
+<style>
+    :root {
+        --primary-violet: #ae9ebe;
+        --hover-violet: rgb(145, 132, 179);
+        --focus-violet: #9f7aea;
+        --text-main: #1a202c;
+        --text-darker: #171923;
+        --border-color: #e2e8f0;
+        --modal-bg: rgba(255, 255, 255, 0.92);
+        --input-bg: rgba(248, 250, 252, 0.8);
+        --backdrop-color: rgba(26, 32, 44, 0.3);
+    }
+
+    body.dark-theme {
+        --text-main: #f1f5f9;
+        --text-darker: #f8fafc;
+        --border-color: #334155;
+        --modal-bg: rgba(30, 41, 59, 0.95);
+        --input-bg: rgba(15, 23, 42, 0.6);
+        --backdrop-color: rgba(15, 23, 42, 0.6);
+    }
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: transparent; 
+    }
+
+    .page-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--backdrop-color); 
+        backdrop-filter: blur(12px) saturate(140%); 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: background 0.3s ease;
+    }
+
+    .modal-card {
+        background: var(--modal-bg); 
+        width: 90%;
+        max-width: 500px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: modalAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+    @keyframes modalAppear {
+        from { opacity: 0; transform: translateY(20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .close-link {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        color: #a0aec0;
+        text-decoration: none;
+        font-size: 20px;
+        z-index: 1010;
+        transition: all 0.2s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-link:hover {
+        color: var(--text-darker);
+        background: rgba(237, 242, 247, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .modal-header {
+        padding: 30px 35px 20px;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600; 
+        color: var(--text-darker);
+        letter-spacing: -0.5px;
+    }
+
+    .modal-body {
+        padding: 10px 35px 25px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 5px;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    label {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-darker);
+        margin-left: 2px;
+    }
+
+    input, select, textarea {
+        padding: 14px;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 15px;
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--input-bg);
+        color: var(--text-main);
+        transition: all 0.2s ease-in-out;
+    }
+
+    body.dark-theme input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        background: var(--input-bg);
+        border-color: var(--focus-violet);
+        box-shadow: 0 0 0 4px rgba(159, 122, 234, 0.15);
+        transform: translateY(-1px);
+    }
+
+    textarea {
+        height: 110px;
+        resize: none;
+    }
+
+    .modal-footer {
+        padding: 10px 35px 35px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        border: none;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-create {
+        background-color: var(--primary-violet);
+        color: #ffffff;
+        box-shadow: 0 4px 14px 0 rgba(174, 158, 190, 0.5);
+    }
+
+    .btn-create:hover {
+        background-color: var(--hover-violet);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(174, 158, 190, 0.6);
+    }
+
+    .btn-cancel {
+        background-color: rgba(241, 245, 249, 0.9);
+        color: #475569;
+    }
+    body.dark-theme .btn-cancel {
+        background-color: #334155;
+        color: #cbd5e1;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+        color: var(--text-darker);
+    }
+    body.dark-theme .btn-cancel:hover {
+        background-color: #475569;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+        color: var(--text-darker);
+    }
+    body.dark-theme .btn-cancel:hover {
+        background-color: #475569;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+
+    .error-icon {
+        position: absolute;
+        right: 14px;                 
+        top: 50%;                    
+        transform: translateY(-50%); 
+        color: #ef4444 !important;   
+        font-size: 17px;             
+        pointer-events: none;        
+        z-index: 5;
+    }
+
+    .input-wrapper textarea ~ .error-icon {
+        top: 16px;
+        transform: none;
+    }
+
+    input.is-invalid, 
+    select.is-invalid, 
+    textarea.is-invalid {
+        padding-right: 42px !important; 
+    }
+
+</style>
+
+<div class="page-overlay">
+</style>
+
+<div class="page-overlay">
+    <div class="modal-card">
+        <a href="/client/dashboard" class="close-link" title="Close">
+            <i class="fas fa-times"></i>
+        </a>
+        
+        <div class="modal-header">
+            <h2>Create New Repair Order</h2>
+        </div>
+
+       
+
+        <form action="/client/create" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label>Device Type</label>
+                        
+                        <div class="input-wrapper">
+                            <select name="device_type" id="device_type_select">
+                                <option value="" disabled selected>Select type</option>
+                                <option value="Smartphone">Smartphone</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Desktop">Desktop</option>
+                                <option value="Smartwatch">Smartwatch</option>
+                                <option value="Other">Other (Please specify)</option>
+                            </select>
+                            {{#if errors.device_type}}
+                                <i class="fas fa-exclamation-circle error-icon" id="select_error_icon" style="display: none; right: 35px;"></i>
+                            {{/if}}
+                        </div>
+                        
+                        <div class="input-wrapper" id="custom_device_wrapper" style="display: none; margin-top: 10px;">
+                            <input type="text" name="custom_device_type" id="custom_device_input" 
+                                   value="{{values.custom_device_type}}" 
+                                   placeholder="Enter your device type">
+                            {{#if errors.device_type}}
+                                <i class="fas fa-exclamation-circle error-icon" id="custom_error_icon" style="display: none;"></i>
+                            {{/if}}
+                        </div>
+                        
+                        {{#if errors.device_type}}
+                            <div class="error-message" id="device_type_error_msg">{{errors.device_type}}</div>
+                        {{/if}}
+                    </div>
+
+                    <div class="form-group">
+    <label>Device Model</label>
+    <div class="input-wrapper">
+        <input type="text" name="device_model" value="{{values.device_model}}" 
+               placeholder="e.g., iPhone 13 Pro" 
+               class="form-input {{#if errors.device_model}}is-invalid{{/if}}">
+        
+        {{#if errors.device_model}}
+            <i class="fas fa-exclamation-circle error-icon"></i>
+        {{/if}}
+    </div>
+    {{#if errors.device_model}}
+        <div class="error-message">{{errors.device_model}}</div>
+    {{/if}}
+</div>
+
+                    <div class="form-group">
+                        <label>OS Version (Optional)</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="os_version" value="{{values.os_version}}" placeholder="e.g., iOS 17.2" class="{{#if errors.os_version}}is-invalid{{/if}}">
+                            {{#if errors.os_version}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                        </div>
+                        {{#if errors.os_version}}<div class="error-message">{{errors.os_version}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Purchase Date (Optional)</label>
+                        <div class="input-wrapper">
+                            <input type="date" name="date_of_purchase" value="{{values.date_of_purchase}}" class="{{#if errors.date_of_purchase}}is-invalid{{/if}}">
+                            {{#if errors.date_of_purchase}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                        </div>
+                        {{#if errors.date_of_purchase}}<div class="error-message">{{errors.date_of_purchase}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Issue Description</label>
+                        <div class="input-wrapper textarea-wrapper">
+                            <textarea name="issue_description" placeholder="Describe the issue in detail..." class="{{#if errors.issue_description}}is-invalid{{/if}}">{{values.issue_description}}</textarea>
+                            {{#if errors.issue_description}}<i class="fas fa-exclamation-circle error-icon"></i>{{/if}}
+                        </div>
+                        {{#if errors.issue_description}}<div class="error-message">{{errors.issue_description}}</div>{{/if}}
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a href="/client/dashboard" class="btn btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-create">Create Order</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectElement = document.getElementById('device_type_select');
+        const customWrapper = document.getElementById('custom_device_wrapper');
+        const customInput = document.getElementById('custom_device_input');
+        const deviceErrorMsg = document.getElementById('device_type_error_msg');
+
+        const savedDeviceType = "{{values.device_type}}";
+        const savedCustomType = "{{values.custom_device_type}}";
+
+        if (savedDeviceType === 'Other' || savedCustomType) {
+            for (let i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].value === 'Other') {
+                    selectElement.selectedIndex = i;
+                    break;
+                }
+            }
+        } else if (savedDeviceType) {
+            for (let i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].value === savedDeviceType) {
+                    selectElement.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        function toggleCustomInput() {
+            const isOther = selectElement.value === 'Other';
+            
+            if (isOther) {
+                customWrapper.style.display = 'block';
+            } else {
+                customWrapper.style.display = 'none';
+            }
+
+            if (deviceErrorMsg) {
+                if (isOther) {
+                    selectElement.classList.remove('is-invalid');
+                    if (document.getElementById('select_error_icon')) {
+                        document.getElementById('select_error_icon').style.display = 'none';
+                    }
+                    
+                    customInput.classList.add('is-invalid');
+                    if (document.getElementById('custom_error_icon')) {
+                        document.getElementById('custom_error_icon').style.display = 'block';
+                    }
+                } else {
+                    customInput.classList.remove('is-invalid');
+                    if (document.getElementById('custom_error_icon')) {
+                        document.getElementById('custom_error_icon').style.display = 'none';
+                    }
+                    
+                    selectElement.classList.add('is-invalid');
+                    if (document.getElementById('select_error_icon')) {
+                        document.getElementById('select_error_icon').style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        toggleCustomInput();
+
+        selectElement.addEventListener('change', function() {
+            if (selectElement.value !== 'Other') {
+                customInput.value = ''; 
+            }
+            toggleCustomInput();
+        });
+    });
+</script>
