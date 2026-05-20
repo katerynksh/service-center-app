@@ -11,19 +11,22 @@
         </div>
         
         <div class="card-body p-4">
-            <form id="adminEditForm">
+            <form id="adminEditForm" novalidate>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small" style="color: var(--text-muted);">Device Model</label>
                         <input type="text" class="form-control" name="device_model" value="{{order.device_model}}" required>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small" style="color: var(--text-muted);">Type</label>
                         <input type="text" class="form-control" name="device_type" value="{{order.device_type}}" required>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small" style="color: var(--text-muted);">OS Version</label>
                         <input type="text" class="form-control" name="os_version" value="{{order.os_version}}">
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-4">
@@ -36,11 +39,13 @@
                             <option value="failed" {{#if (eq order.status 'failed')}}selected{{/if}}>FAILED</option>
                             <option value="done" {{#if (eq order.status 'done')}}selected{{/if}}>DONE</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label small" style="color: var(--text-muted);">Repair Cost ($)</label>
-                        <input type="number" step="0.01" class="form-control" name="cost" value="{{order.cost}}">
+                        <input type="text" class="form-control" name="cost" value="{{order.cost}}" placeholder="0.00" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                        <div class="invalid-feedback"></div>
                     </div>
                     
                     <div class="col-md-4">
@@ -53,16 +58,19 @@
                                 </option>                            
                             {{/each}}
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-12">
                         <label class="form-label small" style="color: var(--text-muted);">Issue Description</label>
                         <textarea class="form-control" name="issue_description" rows="3">{{order.issue_description}}</textarea>
+                        <div class="invalid-feedback"></div>
                     </div>
                     
                     <div class="col-12">
                         <label class="form-label small" style="color: var(--text-muted);">Technician Comment</label>
                         <textarea class="form-control" name="technician_comment" rows="2">{{order.technician_comment}}</textarea>
+                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
 
@@ -78,24 +86,123 @@
 <script>
 document.getElementById('adminEditForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = Object.fromEntries(new FormData(e.target));
+    const form = e.target;
 
-    if (formData.cost && parseFloat(formData.cost) < 0) {
-        Swal.fire('Error', 'Cost cannot be negative!', 'error');
-        return;
+    // 1. Очищаємо попередні помилки
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.innerText = '';
+        el.style.display = 'none';
+    });
+
+    let isValid = true;
+
+    const showFieldError = (fieldName, message) => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.classList.add('is-invalid');
+            let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback text-danger mt-1 small';
+                field.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.innerText = message;
+            errorDiv.style.display = 'block';
+        }
+    };
+
+    // 2. Перевірка пустих обов'язкових полів
+    form.querySelectorAll('[required]').forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            showFieldError(field.getAttribute('name'), 'This field is required');
+        }
+    });
+
+    const formData = Object.fromEntries(new FormData(form));
+
+    // 3. Валідація ціни (більш сувора через Number)
+    if (formData.cost && formData.cost.trim() !== '') {
+        const costVal = Number(formData.cost.trim());
+        if (isNaN(costVal)) {
+            isValid = false;
+            showFieldError('cost', 'Cost must be a valid number');
+        } else if (costVal < 0) {
+            isValid = false;
+            showFieldError('cost', 'Cost cannot be negative');
+        }
     }
 
-    const id = document.getElementById('order-id-display').innerText;
+    // 4. Валідація опису проблеми
+    if (formData.issue_description && formData.issue_description.trim() !== '') {
+        const issueValue = formData.issue_description.trim();
+        const forbiddenCharsRegex = /[<>\[\]{}'"]/;
+        
+        if (forbiddenCharsRegex.test(issueValue)) {
+            isValid = false;
+            showFieldError('issue_description', "Issue description contains invalid characters (< > [ ] { } ' \")");
+        } else if (issueValue.length < 10 || issueValue.length > 5000) {
+            isValid = false;
+            showFieldError('issue_description', "Issue description must be between 10 and 5000 characters");
+        }
+    }
 
-    const res = await fetch(`/admin/orders/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-    });
-    if (res.ok) {
-        Swal.fire('Success', 'Order updated successfully!', 'success').then(() => {
-            window.location.href = '/admin';
+    // 5. Валідація коментаря техніка
+    if (formData.technician_comment && formData.technician_comment.trim() !== '') {
+        const commentValue = formData.technician_comment.trim();
+        const forbiddenCharsRegex = /[<>\[\]{}'"]/;
+        
+        if (forbiddenCharsRegex.test(commentValue)) {
+            isValid = false;
+            showFieldError('technician_comment', "Comment contains invalid characters (< > [ ] { } ' \")");
+        } else if (commentValue.length < 5 || commentValue.length > 500) {
+            isValid = false;
+            showFieldError('technician_comment', "Comment must be between 5 and 500 characters");
+        }
+    }
+
+    if (!isValid) return;
+
+    const id = document.getElementById('order-id-display').innerText.trim();
+
+    try {
+        const res = await fetch(`/admin/orders/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
         });
+        
+        if (res.ok) {
+            Swal.fire('Success', 'Order updated successfully!', 'success').then(() => {
+                window.location.href = '/admin';
+            });
+            return;
+        }
+
+        const err = await res.json();
+        
+        // 6. Обробка помилок сервера
+        if (err.errors) {
+            for (const [field, message] of Object.entries(err.errors)) {
+                showFieldError(field, message);
+            }
+        } else if (err.error) {
+            const errorMsg = err.error.toLowerCase();
+            if (errorMsg.includes('cost') || errorMsg.includes('numeric') || errorMsg.includes('number')) {
+                showFieldError('cost', err.error);
+            } else if (errorMsg.includes('issue') || errorMsg.includes('description') || errorMsg.includes('опис')) {
+                showFieldError('issue_description', err.error);
+            } else if (errorMsg.includes('comment') || errorMsg.includes('коментар')) {
+                // ВИПРАВЛЕНО: додана закрита дужка, через яку ламався весь скрипт
+                showFieldError('technician_comment', err.error);
+            } else {
+                Swal.fire('Error', err.error, 'error');
+            }
+        }
+    } catch (err) {
+        console.error("Помилка:", err);
+        Swal.fire('Error', 'Failed to update order. Check console.', 'error');
     }
 });
 

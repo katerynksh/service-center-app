@@ -37,18 +37,17 @@
         }
 
         .header-actions a {
-            color: var(--text-main); /* Змінна замість чорного */
+            color: var(--text-main); 
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
-        /* Стилі для карток */
         .card {
             border-radius: 12px;
-            border: 1px solid var(--border-color); /* Змінна */
-            background: var(--card-bg); /* Змінна */
+            border: 1px solid var(--border-color); 
+            background: var(--card-bg); 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
@@ -57,7 +56,6 @@
             padding: 24px;
         }
 
-        /* Заголовок замовлення */
         .order-title-row {
             display: flex;
             justify-content: space-between;
@@ -75,7 +73,7 @@
 
         .order-meta-info {
             font-size: 0.9rem;
-            color: var(--text-muted); /* Змінна */
+            color: var(--text-muted); 
         }
 
         .order-meta-info i {
@@ -86,7 +84,7 @@
             font-size: 0.9rem;
             background: transparent;
             border: none;
-            color: var(--text-muted); /* Змінна */
+            color: var(--text-muted); 
             cursor: pointer;
         }
 
@@ -98,7 +96,6 @@
             text-transform: uppercase;
         }
 
-        /* Інформаційні блоки */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -111,7 +108,7 @@
         }
 
         .info-label {
-            color: var(--text-muted); /* Змінна */
+            color: var(--text-muted); 
             font-size: 0.85rem;
             display: flex;
             align-items: center;
@@ -121,7 +118,7 @@
 
         .info-value {
             font-weight: 500;
-            color: var(--text-main); /* Змінна */
+            color: var(--text-main); 
             font-size: 0.95rem;
         }
 
@@ -130,10 +127,9 @@
             font-style: italic;
         }
 
-        /* Коментарі та опис */
         .section-box {
-            background-color: var(--row-bg); /* Змінна замість сірого */
-            border: 1px solid var(--border-color); /* Змінна */
+            background-color: var(--row-bg); 
+            border: 1px solid var(--border-color); 
             border-radius: 8px;
             padding: 16px;
             margin-top: 15px;
@@ -144,7 +140,7 @@
             align-items: center;
             gap: 8px;
             font-size: 0.9rem;
-            color: var(--text-muted); /* Змінна */
+            color: var(--text-muted); 
             margin-bottom: 8px;
         }
 
@@ -153,10 +149,9 @@
             font-style: italic;
         }
 
-        /* Форма редагування */
         .form-section {
             margin-top: 24px;
-            border-top: 1px solid var(--border-color); /* Змінна */
+            border-top: 1px solid var(--border-color); 
             padding-top: 24px;
         }
 
@@ -165,7 +160,6 @@
             margin-bottom: 15px;
         }
 
-        /* Кнопки дій */
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -173,16 +167,15 @@
         }
 
         .btn-update {
-            background-color: var(--primary-violet); /* Змінна */
+            background-color: var(--primary-violet); 
             color: white;
         }
         
         .btn-update:hover {
-            background-color: var(--hover-violet); /* Змінна */
+            background-color: var(--hover-violet); 
             color: white;
         }
 
-        /* Повідомлення про успіх */
         #status-message {
             margin-top: 15px;
             display: none;
@@ -281,8 +274,8 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="cost" class="form-label info-label"><i class="bi bi-currency-dollar"></i> Service Cost ($):</label>
-                                    <input type="number" class="form-control" id="cost" name="cost" step="0.01" min="0" placeholder="0.00">
-                                    <div class="error-text">Please enter a valid service cost</div>
+                                    <input type="text" class="form-control" id="cost" name="cost" placeholder="0.00" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
@@ -290,6 +283,7 @@
                         <div class="mb-3 mt-1">
                             <label for="technician_comment" class="form-label info-label"><i class="bi bi-chat-quote"></i> Technician Comment (Internal):</label>
                             <textarea class="form-control" id="technician_comment" name="technician_comment" rows="4" placeholder="Add technical notes..."></textarea>
+                            <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="action-buttons">
@@ -389,36 +383,82 @@
         }
     }
 
+    // --- Оновлена логіка відправки форми та валідації ---
     document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
 
+        // Очищаємо всі попередні помилки
         form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.innerText = '';
+            el.style.display = 'none';
+        });
+        
         let isValid = true;
         
+        const showFieldError = (fieldName, message) => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                field.classList.add('is-invalid');
+                let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback text-danger mt-1 small';
+                    field.parentNode.appendChild(errorDiv);
+                }
+                errorDiv.innerText = message;
+                errorDiv.style.display = 'block';
+            }
+        };
+
+        // 1. Валідація ціни
         const costField = document.getElementById('cost');
-        if (costField.value && parseFloat(costField.value) < 0) {
-            isValid = false;
-            costField.classList.add('is-invalid');
-            const errDiv = costField.nextElementSibling;
-            if (errDiv && errDiv.classList.contains('error-text')) {
-                errDiv.innerText = 'Cost cannot be negative';
+        let costValue = costField.value.trim();
+        if (costValue !== '') {
+            const parsedCost = parseFloat(costValue);
+            if (isNaN(parsedCost)) {
+                isValid = false;
+                showFieldError('cost', 'Cost must be a valid number');
+            } else if (parsedCost < 0) {
+                isValid = false;
+                showFieldError('cost', 'Cost cannot be negative');
             }
         }
 
-        if (!isValid) return;
+        // 2. Валідація коментаря
+        const commentField = document.getElementById('technician_comment');
+        const commentValue = commentField.value.trim();
+        const forbiddenCharsRegex = /[<>\[\]{}'"]/;
 
+        if (commentValue.length > 0) {
+            if (forbiddenCharsRegex.test(commentValue)) {
+                isValid = false;
+                showFieldError('technician_comment', 'Comment contains invalid characters (< > [ ] { } \' ")');
+            } else if (commentValue.length < 5 || commentValue.length > 500) {
+                isValid = false;
+                showFieldError('technician_comment', 'Comment must be between 5 and 500 characters');
+            }
+        }
+
+        if (!isValid) return; 
+
+        // Контролер майстра очікує поля: status, comment, cost
         const formData = {
             status: document.getElementById('status').value,
-            comment: document.getElementById('technician_comment').value,
-            cost: document.getElementById('cost').value
+            comment: commentValue, 
+            cost: costValue
         };
+
         try {
             const response = await fetch(`/master/order/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
+
+            const data = await response.json(); 
+
             if (response.ok) {
                 document.getElementById('status-message').style.display = 'block';
                 loadOrderDetails();
@@ -426,7 +466,18 @@
                     window.location.href = '/master';
                 }, 1500);
             } else {
-                Swal.fire('Error', 'Failed to update order.', 'error');
+                if (data.error) {
+                    const errorMsg = data.error.toLowerCase();
+                    if (errorMsg.includes('cost')) {
+                        showFieldError('cost', data.error);
+                    } else if (errorMsg.includes('comment') || errorMsg.includes('коментар')) {
+                        showFieldError('technician_comment', data.error);
+                    } else {
+                        Swal.fire('Error', data.error, 'error');
+                    }
+                } else {
+                    Swal.fire('Error', 'Failed to update order.', 'error');
+                }
             }
         } catch (err) {
             console.error('Error:', err);
