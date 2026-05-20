@@ -5,7 +5,7 @@ import { getAdminDashboardView } from '../views/admin/dashboardAdmin.js';
 const router = express.Router();
 
 router.get('/', isAdmin, getAdminDashboardView);
-outer.get('/edit/:id', isAdmin, admin.getEditPage);             
+router.get('/edit/:id', isAdmin, admin.getEditPage);             
 router.get('/create-order', isAdmin, (req, res) => {
     res.render('admin/createOrderAdmin', { 
         title: 'Create New Order' 
