@@ -68,7 +68,7 @@ export const requireAuth = (req, res, next) => {
 export const requireRole = (role) => {
   return (req, res, next) => {
     if (!req.user || req.user.role !== role) {
-      const err = new Error(`Доступ заборонено: ця сторінка доступна лише для ${role}.`);
+      const err = new Error(`Access denied: This section is only for ${role}.`);
       err.status = 403; 
       return next(err); 
     }

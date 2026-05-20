@@ -45,7 +45,6 @@ app.use("/auth", authRoutes);
 app.use("/master", requireAuth, requireRole("master"), masterRoutes);
 app.use("/admin", requireAuth, requireRole("admin"), adminRoutes);
 app.use("/client", requireAuth, requireRole("client"), clientRoutes);
-// app.use("/master", masterViewRoutes);
 
 
 app.get('/', (req, res) => {
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
 
 // 2. Глобальний обробник помилок (перехоплює ВСІ інші помилки)
 app.use((err, req, res, next) => {
-    console.error('Server Error:', err.message); // Логуємо в консоль для себе
+    console.error('Server Error:', err.message); 
 
     const status = err.status || 500;
     const message = err.message || 'Something went wrong';
