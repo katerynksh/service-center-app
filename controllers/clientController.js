@@ -66,8 +66,8 @@ class OrderValidator {
       return "Issue description is required.";
     const trimmedIssue = issue.trim();
     if (trimmedIssue.length < 10)
-      return "Please describe the issue in more detail.";
-    if (trimmedIssue.length > 1000) return "Issue description is too long.";
+      return "The issue description must be at least 10 characters.";
+    if (trimmedIssue.length > 1000) return "The issue description should not exceed 1000 characters.";
     if (/[<>]/.test(trimmedIssue)) {
       return "Issue description cannot contain HTML tags (< or >).";
     }
