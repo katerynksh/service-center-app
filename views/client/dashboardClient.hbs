@@ -1,366 +1,165 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Repair Orders — Service Center</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-violet: #cbbdf0;
-            --hover-violet: #b8a9e0;
-            --bg-body: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --border-color: #e2e8f0;
-            --row-bg: #f8f9fa; 
-            
+<style>
+    :root {
+        --status-new-bg: #e0f7ff; --status-new-text: #00a8e8; --status-new-border: #00a8e8;
+        --status-progress-bg: #fff3e0; --status-progress-text: #ff9800; --status-progress-border: #ff9800;
+        --status-waiting-bg: #e0fbff; --status-waiting-text: #00c4cc; --status-waiting-border: #00c4cc;
+        --status-parts-bg: #f0f4f8; --status-parts-text: #607d8b; --status-parts-border: #607d8b;
+        --status-fail-bg: #ffebee; --status-fail-text: #e53935; --status-fail-border: #e53935;
+        --status-done-bg: #e8f5e9; --status-done-text: #43a047; --status-done-border: #43a047;
+    }
 
-            --status-new-bg: #e0f7ff;
-            --status-new-text: #00a8e8;
-            --status-new-border: #00a8e8;
+    .dashboard-wrapper {
+        max-width: 1600px;
+        margin: 20px auto 40px;
+        padding: 0 20px;
+    }
 
-            --status-progress-bg: #fff3e0;
-            --status-progress-text: #ff9800;
-            --status-progress-border: #ff9800;
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-title { margin: 0; font-size: 24px; font-weight: 700; }
+    .page-subtitle { margin: 4px 0 0; font-size: 14px; color: var(--text-muted); }
 
-            --status-waiting-bg: #e0fbff;
-            --status-waiting-text: #00c4cc;
-            --status-waiting-border: #00c4cc;
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-action {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 10px 16px; border: 1px solid var(--border-color);
+        border-radius: 10px; text-decoration: none; color: var(--text-main);
+        font-weight: 600; background: var(--card-bg); font-size: 14px; transition: all 0.2s;
+    }
+    .btn-action:hover { background-color: var(--row-bg); border-color: var(--primary-violet); }
 
-            --status-parts-bg: #f0f4f8;
-            --status-parts-text: #607d8b;
-            --status-parts-border: #607d8b;
+    .dashboard-tabs {
+        display: flex;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 6px;
+        margin-bottom: 30px;
+    }
+    .tab-item {
+        flex: 1; text-align: center; padding: 12px;
+        text-decoration: none; color: var(--text-main);
+        font-weight: 600; font-size: 15px; border-radius: 8px; transition: all 0.2s;
+    }
+    .tab-item.active { background-color: var(--primary-violet); color: white; pointer-events: none; }
+    .tab-item:not(.active):hover { background-color: var(--row-bg); color: var(--primary-violet); }
 
-            --status-fail-bg: #ffebee;
-            --status-fail-text: #e53935;
-            --status-fail-border: #e53935;
+    .search-container { position: relative; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+    .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-input {
+        flex: 1; padding: 14px 16px 14px 48px; border: 1px solid var(--border-color);
+        border-radius: 12px; background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;
+    }
+    .search-input:focus { border-color: var(--primary-violet); }
+    .filter-select {
+        padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border-color);
+        background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; min-width: 160px;
+    }
 
-            --status-done-bg: #e8f5e9;
-            --status-done-text: #43a047;
-            --status-done-border: #43a047;
-        }
+    .create-action-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 24px;
+    }
 
-        body.dark-theme {
-            --bg-body: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --row-bg: rgba(255, 255, 255, 0.03);
-        }
+    .order-card {
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 12px; padding: 24px; margin-bottom: 24px; transition: all 0.3s ease;
+    }
+    .order-card:hover { border-color: var(--primary-violet); box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25); transform: translateY(-2px); }
+    .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 8px; }
+    .card-top h3 { margin: 0; font-size: 20px; font-weight: 700; }
+    
+    .status-badge {
+        font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 8px;
+        text-transform: uppercase; letter-spacing: 0.5px; border: 1.5px solid; display: inline-block;
+    }
+    .status-new { background: var(--status-new-bg); color: var(--status-new-text); border-color: var(--status-new-border); }
+    .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); border-color: var(--status-progress-border); }
+    .status-waiting-response { background: var(--status-waiting-bg); color: var(--status-waiting-text); border-color: var(--status-waiting-border); }
+    .status-waiting-parts { background: var(--status-parts-bg); color: var(--status-parts-text); border-color: var(--status-parts-border); }
+    .status-failed { background: var(--status-fail-bg); color: var(--status-fail-text); border-color: var(--status-fail-border); }
+    .status-done { background: var(--status-done-bg); color: var(--status-done-text); border-color: var(--status-done-border); }
+    
+    .order-id-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .issue-desc { font-size: 14px; margin-bottom: 20px; line-height: 1.5; color: var(--text-main); }
 
-        body {
-            margin: 0;
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            transition: background 0.3s ease;
-        }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .data-row {
+        background: var(--row-bg); border-radius: 8px; padding: 12px 16px;
+        display: flex; align-items: center; gap: 8px; font-size: 13px; border: 1px solid var(--border-color);
+    }
+    .data-row i { color: var(--text-muted); width: 16px; text-align: center; }
+    .data-row span.label { color: var(--text-muted); }
+    .data-row span.value { font-weight: 700; margin-left: 0; }
 
-        header {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .comment-box {
+        margin-top: 20px; padding: 16px 20px; background: var(--row-bg);
+        border-radius: 12px; border: 1px solid var(--border-color); display: flex; gap: 15px; position: relative;
+    }
+    .comment-box::before {
+        content: "MASTER'S NOTE"; position: absolute; top: -9px; left: 15px;
+        background: var(--card-bg); color: var(--text-muted); font-size: 10px; font-weight: 700; padding: 0 8px; letter-spacing: 0.5px;
+    }
+    .comment-box p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-main); font-weight: 400; }
+    .no-comment { font-size: 13px; color: var(--text-muted); margin-top: 15px; opacity: 0.7; }
 
-        .header-brand h1 { font-size: 18px; margin: 0; font-weight: 700; }
-        .header-brand p { font-size: 13px; margin: 2px 0 0; color: var(--text-muted); }
-        .header-right { display: flex; align-items: center; gap: 20px; }
-        
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 500;
-        }
+    .empty-state { text-align: center; padding: 60px 20px; background: var(--card-bg); border: 2px dashed var(--border-color); border-radius: 12px; margin-bottom: 25px; }
+    .empty-state i { font-size: 48px; color: var(--border-color); margin-bottom: 20px; }
+    .empty-state h3 { color: var(--text-main); font-size: 20px; margin: 0 0 10px 0; font-weight: 700; }
+    .empty-state p { color: var(--text-muted); font-size: 15px; max-width: 400px; margin: 0 auto 24px auto; line-height: 1.5; }
+    
+    .btn-create-primary { 
+        background-color: var(--primary-violet); 
+        color: white; 
+        padding: 12px 24px; 
+        border-radius: 10px; 
+        text-decoration: none; 
+        font-weight: 700; 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 10px; 
+        border: none;
+        transition: all 0.2s ease;
+    }
+    .btn-create-primary:hover { background-color: var(--hover-violet); color: white; transform: translateY(-1px); }
+</style>
 
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .btn-new-order {
-            background-color: var(--primary-violet);
-            color: white;
-            padding: 10px 22px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
-        }
-        .btn-new-order:hover { 
-            background-color: var(--hover-violet);
-            transform: translateY(-1px);
-        }
-
-        .btn-archive {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--text-main);
-            font-weight: 600;
-            background: var(--card-bg);
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .btn-archive:hover {
-            background-color: var(--row-bg);
-            border-color: var(--primary-violet);
-            transform: translateY(-1px);
-        }
-
-        .search-container {
-            position: relative;
-            margin-bottom: 30px;
-        }
-        .search-container i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-        .search-input {
-            width: 100%;
-            padding: 14px 15px 14px 45px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--card-bg);
-            color: var(--text-main);
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: var(--card-bg);
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-        
-        .empty-state > i {
-            font-size: 48px;
-            color: var(--border-color);
-            margin-bottom: 20px;
-        }
-        
-        .empty-state h3 {
-            color: var(--text-main);
-            font-size: 20px;
-            margin: 0 0 10px 0;
-            font-weight: 700;
-        }
-        
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 15px;
-            max-width: 400px;
-            margin: 0 auto 20px auto;
-            line-height: 1.5;
-        }
-        
-        .empty-state .btn-new-order {
-            display: inline-flex;
-        }
-
-
-        .order-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-        }
-
-        .order-card:hover {
-            border-color: var(--primary-violet);
-            box-shadow: 0 8px 24px rgba(203, 189, 240, 0.25);
-            transform: translateY(-2px);
-        }
-
-        .card-top {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 8px;
-        }
-        .card-top h3 { margin: 0; font-size: 18px; font-weight: 700; }
-
-        .status-badge {
-            font-size: 11px;
-            font-weight: 800;
-            padding: 6px 14px;
-            border-radius: 8px; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 1.5px solid; 
-            display: inline-block;
-        }
-
-        .status-new { background: var(--status-new-bg); color: var(--status-new-text); border-color: var(--status-new-border); }
-        .status-in-progress { background: var(--status-progress-bg); color: var(--status-progress-text); border-color: var(--status-progress-border); }
-        .status-waiting-response { background: var(--status-waiting-bg); color: var(--status-waiting-text); border-color: var(--status-waiting-border); }
-        .status-waiting-parts { background: var(--status-parts-bg); color: var(--status-parts-text); border-color: var(--status-parts-border); }
-        .status-failed { background: var(--status-fail-bg); color: var(--status-fail-text); border-color: var(--status-fail-border); }
-        .status-done { background: var(--status-done-bg); color: var(--status-done-text); border-color: var(--status-done-border); }
-        .order-id-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-        }
-
-        .issue-desc {
-            font-size: 14px;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .data-row {
-            background: var(--row-bg);
-            border-radius: 8px;
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-        }
-        .data-row i { color: var(--text-muted); width: 16px; text-align: center; }
-        .data-row span.label { color: var(--text-muted); }
-        .data-row span.value { font-weight: 700; }
-
-        .comment-box {
-            margin-top: 20px;
-            padding: 16px 20px;
-            background: var(--row-bg); 
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            gap: 15px;
-            position: relative;
-        }
-
-        .comment-box::before {
-            content: "MASTER'S NOTE";
-            position: absolute;
-            top: -9px;
-            left: 15px;
-            background: var(--card-bg); 
-            color: var(--text-muted);
-            font-size: 10px;
-            font-weight: 700;
-            padding: 0 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .comment-box i { 
-            color: var(--text-muted); 
-            font-size: 16px; 
-            margin-top: 3px;
-        }
-
-        .comment-content p { 
-            margin: 0; 
-            font-size: 14px; 
-            line-height: 1.5; 
-            color: var(--text-main);
-            font-weight: 400;
-        }
-
-        .no-comment {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 15px;
-            opacity: 0.7;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 30px 40px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-        }
-        .footer-copy {
-            font-size: 16px;
-            color: var(--text-muted);
-        }
-
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="header-brand">
-        <h1>Service Center</h1>
-        <p>Welcome, {{user.name}}</p>
+<div class="dashboard-wrapper">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Service Center</h1>
+            <p class="page-subtitle">Client Dashboard — <span style="font-weight: 600; color: var(--text-main);">{{user.name}}</span></p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action" style="padding: 10px; border-radius: 50%; width: 40px; height: 40px;" onclick="toggleTheme()" aria-label="Toggle theme">
+                <i class="fas fa-moon theme-icon"></i>
+            </button>
+            <a href="/auth/logout" class="btn-action">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
     </div>
-    <div class="header-right">
-        <i class="fas fa-moon" style="cursor:pointer; font-size: 1.2rem;" onclick="document.body.classList.toggle('dark-theme')"></i>
-        <a href="/auth/logout" class="btn-logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
+
+    <div class="dashboard-tabs">
+        <a href="/client/dashboard" class="tab-item {{#if activeCount}}active{{else}}text-muted{{/if}}">
+            My Orders ({{activeCount}})
+        </a>
+        <a href="/client/archive" class="tab-item {{#if archiveCount}}text-muted{{/if}}">
+            <i class="fas fa-archive me-1"></i> Archive ({{archiveCount}})
         </a>
     </div>
-</header>
-
-<div class="container">
-    <div class="dashboard-header">
-        <h2 style="margin:0; font-size: 24px;">My Repair Orders</h2>
-        <div style="display: flex; gap: 12px; align-items: center;">
-            <a href="/client/archive" class="btn-archive">
-                <i class="fas fa-archive" style="color: var(--text-muted);"></i> Archive
-            </a>
-            <a href="/client/create" class="btn-new-order">
-                <i class="fas fa-plus"></i> New Order
-            </a>
-        </div>
-    </div>
-
-   <div class="search-container" style="display: flex; gap: 10px; align-items: center;">
+    <div class="search-container">
         <div style="position: relative; flex: 1;">
-            <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" class="search-input" placeholder="Start typing to search..." style="width: 100%; padding-left: 45px;">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input w-100" placeholder="Search by order ID, model, or client...">
         </div>
-        
-        <select id="search-category" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
-            <option value="all">Everywhere</option>
+        <select id="search-category" class="filter-select">
+            <option value="all">All fields</option>
             <option value="model">By Model</option>
             <option value="id">By Order №</option>
             <option value="master">By Master</option>
@@ -368,96 +167,116 @@
         </select>
     </div>
 
-   {{#each orders}}
-    <div class="order-card">
-        <div class="card-top">
-            <h3>{{this.device_model}}</h3>
-            <span class="status-badge 
-                {{#if (eq this.status 'new')}}status-new{{/if}}
-                {{#if (eq this.status 'in progress')}}status-in-progress{{/if}}
-                {{#if (eq this.status 'waiting customer response')}}status-waiting-response{{/if}}
-                {{#if (eq this.status 'waiting spare parts')}}status-waiting-parts{{/if}}
-                {{#if (eq this.status 'failed')}}status-failed{{/if}}
-                {{#if (eq this.status 'done')}}status-done{{/if}}">
-                {{this.status}}
-            </span>
-        </div>
-
-        <div class="order-id-row">
-            <i class="fas fa-cube"></i> Order №{{this.order_id}} • {{this.device_type}}
-        </div>
-
-        <div class="issue-desc">
-            {{this.issue_description}}
-        </div>
-
-        <div class="data-grid">
-            <div class="data-row">
-                <i class="fas fa-wrench"></i>
-                <span class="label">Master:</span> 
-                <span class="value">
-                    {{#if this.master_name}}
-                        {{this.master_name}}
-                    {{else}}
-                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Waiting for Master</span>
-                    {{/if}}
-                </span>
-            </div>
-            <div class="data-row">
-                <i class="fas fa-microchip"></i>
-                <span class="label">OS:</span> <span class="value">{{this.os_version}}</span>
-            </div>
-            <div class="data-row">
-                <i class="fas fa-dollar-sign"></i>
-                <span class="label">Cost:</span> 
-                <span class="value">
-                    {{#if this.cost}}
-                        ${{this.cost}}
-                    {{else}}
-                        <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Pending Diagnostics</span>
-                    {{/if}}
-                </span>
-            </div>
-            <div class="data-row">
-                <i class="far fa-calendar-check"></i>
-                <span class="label">Updated:</span> <span class="value js-date">{{this.updated_at}}</span>
-            </div>
-             <div class="data-row">
-                <i class="fas fa-calendar-alt"></i>
-                <span class="label">Created:</span> <span class="value js-date">{{this.created_at}}</span>
-            </div>
-        </div>
-        
-        {{#if this.technician_comment}}
-        <div class="comment-box">
-            <div class="comment-icon">
-                <i class="fas fa-comment-dots"></i>
-            </div>
-            <div class="comment-content">
-                <p>{{this.technician_comment}}</p>
-            </div>
-        </div>
-        {{else}}
-        <p class="no-comment">No additional notes from the master.</p>
-        {{/if}}
-    </div>
-   {{else}}
-    <div class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <h3>No Repair Orders Yet</h3>
-        <p>It looks like you haven't submitted any devices for repair. When you do, you can track their status and master's notes right here.</p>
-        <a href="/client/create" class="btn-new-order">
-            <i class="fas fa-plus"></i> Create Your First Order
+    {{#if orders.length}}
+    <div class="create-action-container">
+        <a href="/client/create" class="btn-create-primary">
+            <i class="fas fa-plus"></i> Create New Request
         </a>
     </div>
-   {{/each}}
-</div>
+    {{/if}}
 
-<footer>
-    <div class="footer-copy">
-        © 2026 Service Center. All rights reserved.
+    <div class="orders-list">
+        {{#each orders}}
+        <div class="order-card">
+            <div class="card-top">
+                <h3>{{this.device_model}}</h3>
+                <span class="status-badge 
+                    {{#if (eq this.status 'new')}}status-new{{/if}}
+                    {{#if (eq this.status 'in progress')}}status-in-progress{{/if}}
+                    {{#if (eq this.status 'waiting customer response')}}status-waiting-response{{/if}}
+                    {{#if (eq this.status 'waiting spare parts')}}status-waiting-parts{{/if}}
+                    {{#if (eq this.status 'failed')}}status-failed{{/if}}
+                    {{#if (eq this.status 'done')}}status-done{{/if}}">
+                    {{this.status}}
+                </span>
+            </div>
+
+            <div class="order-id-row">
+                <i class="fas fa-cube"></i> Order №{{this.order_id}} • {{this.device_type}}
+            </div>
+
+            <div class="issue-desc">
+                {{this.issue_description}}
+            </div>
+
+            <div class="data-grid">
+                <div class="data-row">
+                    <i class="fas fa-wrench"></i>
+                    <span class="label">Master:</span> 
+                    <span class="value">
+                        {{#if this.master_name}}
+                            {{this.master_name}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Waiting for Master</span>
+                        {{/if}}
+                    </span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-microchip"></i>
+                    <span class="label">OS:</span> 
+                    <span class="value">
+                        {{#if this.os_version}}
+                            {{this.os_version}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Unknown</span>
+                        {{/if}}
+                    </span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span class="label">Cost:</span> 
+                    <span class="value">
+                        {{#if this.cost}}
+                            ${{this.cost}}
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Pending Diagnostics</span>
+                        {{/if}}
+                    </span>
+                </div>
+                
+                <div class="data-row">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="label">Purchase Date:</span> 
+                    <span class="value">
+                        {{#if this.date_of_purchase}}
+                            <span class="js-date-only" style="color: var(--text-main);">{{this.date_of_purchase}}</span>
+                        {{else}}
+                            <span style="color: var(--text-muted); font-weight: normal; font-style: italic;">Unknown</span>
+                        {{/if}}
+                    </span>
+                </div>
+
+                <div class="data-row">
+                    <i class="far fa-calendar-check"></i>
+                    <span class="label">Last Update:</span> <span class="value js-date">{{this.updated_at}}</span>
+                </div>
+                <div class="data-row">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="label">Created at:</span> <span class="value js-date">{{this.created_at}}</span>
+                </div>
+            </div>
+            
+            {{#if this.technician_comment}}
+            <div class="comment-box">
+                <i class="fas fa-comment-dots mt-1 text-muted"></i>
+                <div><p>{{this.technician_comment}}</p></div>
+            </div>
+            {{else}}
+            <p class="no-comment">No additional notes from the master.</p>
+            {{/if}}
+        </div>
+        {{else}}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No Repair Orders Yet</h3>
+            <p>It looks like you haven't submitted any devices for repair. When you do, you can track their status and master's notes right here.</p>
+            <a href="/client/create" class="btn-create-primary">
+                <i class="fas fa-plus"></i> Create Your First Order
+            </a>
+        </div>
+        {{/each}}
     </div>
-</footer>
+</div>
 
 <script>
     function formatDates() {
@@ -465,13 +284,12 @@
         
         elements.forEach(el => {
             const rawValue = el.innerText.trim();
-            if (!rawValue || rawValue === "undefined") return;
+            if (!rawValue || rawValue === "undefined" || /unknown|pending|діагностика|не вказано/i.test(rawValue)) return;
 
             const match = rawValue.match(/(\d{4}-\d{2}-\d{2})[\sT](\d{2}:\d{2}:\d{2})|(\w{3}\s\w{3}\s\d{2}\s\d{4}\s\d{2}:\d{2}:\d{2})/);
             
             let date;
             if (match) {
-                
                 const cleanDate = (match[1] && match[2]) ? `${match[1]}T${match[2]}Z` : new Date(rawValue).toISOString().split('T')[0] + 'T' + rawValue.match(/\d{2}:\d{2}:\d{2}/)[0] + 'Z';
                 date = new Date(cleanDate);
             } else {
@@ -489,47 +307,68 @@
                 timeZone: 'Europe/Kyiv'
             });
         });
-    }
 
-    document.addEventListener('DOMContentLoaded', formatDates);
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.querySelector('.search-input');
-    const categorySelect = document.querySelector('#search-category');
-    const orderCards = document.querySelectorAll('.order-card');
-
-    function performSearch() {
-        const query = searchInput.value.toLowerCase().trim();
-        const category = categorySelect.value;
-
-        orderCards.forEach(card => {
-            const model = card.querySelector('h3').textContent.toLowerCase();
-            const description = card.querySelector('.issue-desc').textContent.toLowerCase();
-            const orderId = card.querySelector('.order-id-row').textContent.toLowerCase();
-            const master = card.querySelector('.value').textContent.toLowerCase(); 
-
-            let isMatch = false;
-
-            if (category === 'all') {
-                isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
-            } else if (category === 'model') {
-                isMatch = model.includes(query);
-            } else if (category === 'id') {
-                isMatch = orderId.includes(query);
-            } else if (category === 'master') {
-                isMatch = master.includes(query);
-            } else if (category === 'issue') {
-                isMatch = description.includes(query);
-            }
-
-            card.style.display = isMatch ? '' : 'none';
+        document.querySelectorAll('.js-date-only').forEach(el => {
+            const rawValue = el.innerText.trim();
+            if (!rawValue || rawValue === "undefined" || /unknown|pending|не вказано/i.test(rawValue)) return;
+            
+            const date = new Date(rawValue);
+            if (isNaN(date.getTime())) return;
+            
+            el.innerText = date.toLocaleDateString('uk-UA', {
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                timeZone: 'Europe/Kyiv'
+            });
         });
     }
 
-    searchInput.addEventListener('input', performSearch);
-    categorySelect.addEventListener('change', performSearch);
-});
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+        formatDates();
 
-</body>
-</html>
+        const searchInput = document.querySelector('.search-input');
+        const categorySelect = document.querySelector('#search-category');
+        const orderCards = document.querySelectorAll('.order-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categorySelect.value;
+
+            orderCards.forEach(card => {
+                const h3Node = card.querySelector('.card-top h3');
+                const model = h3Node ? h3Node.textContent.toLowerCase() : '';
+                
+                const descNode = card.querySelector('.issue-desc');
+                const description = descNode ? descNode.textContent.toLowerCase() : '';
+                
+                const idNode = card.querySelector('.order-id-row');
+                const orderId = idNode ? idNode.textContent.toLowerCase() : '';
+                
+                const wrenchIcon = card.querySelector('.fa-wrench');
+                const master = (wrenchIcon && wrenchIcon.nextElementSibling && wrenchIcon.nextElementSibling.nextElementSibling) 
+                    ? wrenchIcon.nextElementSibling.nextElementSibling.textContent.toLowerCase() 
+                    : '';
+
+                let isMatch = false;
+
+                if (category === 'all') {
+                    isMatch = model.includes(query) || description.includes(query) || orderId.includes(query) || master.includes(query);
+                } else if (category === 'model') {
+                    isMatch = model.includes(query);
+                } else if (category === 'id') {
+                    isMatch = orderId.includes(query);
+                } else if (category === 'master') {
+                    isMatch = master.includes(query);
+                } else if (category === 'issue') {
+                    isMatch = description.includes(query);
+                }
+
+                card.style.display = isMatch ? '' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', performSearch);
+        categorySelect.addEventListener('change', performSearch);
+    });
+</script>
