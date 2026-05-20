@@ -1,7 +1,7 @@
 import e from 'express';
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
-import { error } from 'console';
+// import { error } from 'console';
 
 export const getAllData = async (req, res) => {
     try {

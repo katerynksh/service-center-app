@@ -18,15 +18,11 @@ router.get('/edit/:id', isMaster, getEditMasterView, (req, res) => {
 });
 
 router.get('/order-details/:id', isMaster, master.getOrderDetails);
-// router.get('/order-details/:id', master.getOrderDetails); //тестoвий маршрут для отримання деталей замовлення майстром без авторизації
 
 router.get('/dashboard', isMaster, master.getDashboard); 
-// router.get('/dashboard', master.getDashboard); //тестовий маршрут для отримання даних майстра без авторизації
 
-// router.put('/order/:id', master.updateOrder); //тестовий маршрут для оновлення замовлення майстром без авторизації
 router.put('/order/:id', isMaster, master.updateOrder);
 
-// router.put('/order/accept/:id', master.acceptOrder); //тестовий маршрут для прийняття замовлення майстром без авторизації
 router.put('/order/accept/:id', isMaster, master.acceptOrder);
 
 export default router;

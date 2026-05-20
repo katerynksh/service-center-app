@@ -5,8 +5,7 @@ import { getAdminDashboardView } from '../views/admin/dashboardAdmin.js';
 const router = express.Router();
 
 router.get('/', isAdmin, getAdminDashboardView);
-// router.get('/', getAdminDashboardView); //тестовий маршрут для відображення адмінської панелі без авторизації
-router.get('/edit/:id', isAdmin, admin.getEditPage);             
+outer.get('/edit/:id', isAdmin, admin.getEditPage);             
 router.get('/create-order', isAdmin, (req, res) => {
     res.render('admin/createOrderAdmin', { 
         title: 'Create New Order' 
@@ -18,7 +17,6 @@ router.post('/orders', admin.createOrderAdmin);
 
 
 router.get('/all-info', isAdmin, admin.getAllData);
-// router.get('/all-info', admin.getAllData); //тестовий маршрут для отримання всіх даних без авторизації
 router.get('/create-master', isAdmin, (req, res) => {
     res.render('admin/createMasterAdmin');
 });
