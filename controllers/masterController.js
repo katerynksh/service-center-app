@@ -2,11 +2,10 @@ import OrderModel from '../models/Order.js';
 import UserModel from '../models/User.js';
 import { Op } from 'sequelize';
 
-export const getDashboard = async (req, res) => {
+export const getDashboard = async (req, res, next) => {
     try {
         const masterId = req.user.id;
         
-        // const masterId = 2; //тестовий майстер
 
         const { search, category } = req.query;
 
@@ -37,7 +36,7 @@ export const getDashboard = async (req, res) => {
         next(error); 
     }
 };
-export const getOrderDetails = async (req, res) => {
+export const getOrderDetails = async (req, res, next) => {
     try {
         const { id } = req.params;
         const order = await OrderModel.getOrderDetails(id);
@@ -54,15 +53,32 @@ export const getOrderDetails = async (req, res) => {
     }
 };
 
-export const updateOrder = async (req, res) => {
+export const updateOrder = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status, comment, cost } = req.body;
 
-        if (cost !== undefined && cost !== null && parseFloat(cost) < 0) {
-            return res.status(400).json({ error: 'Cost cannot be negative' });
+        // Більш сувора перевірка ціни
+        if (cost !== undefined && cost !== null && cost !== "") {
+            const parsedCost = Number(cost);
+            if (isNaN(parsedCost)) {
+                return res.status(400).json({ error: 'Cost must be a valid number' });
+            }
+            if (parsedCost < 0) {
+                return res.status(400).json({ error: 'Cost cannot be negative' });
+            }
         }
-        
+
+        if (comment !== undefined && comment !== null && comment !== "") {
+            const forbiddenCharsRegex = /[<>\[\]{}'"]/;
+            if (forbiddenCharsRegex.test(comment)) {
+                return res.status(400).json({ error: 'Comment contains invalid characters (< > [ ] { } \' ")' });
+            }
+            if (comment.length < 5 || comment.length > 500) {
+                return res.status(400).json({ error: 'Comment must be between 5 and 500 characters' });
+            }
+        }
+
         const currentOrder = await OrderModel.getOrderById(id);
         
         const updatedStatus = status || currentOrder.status;
@@ -72,12 +88,18 @@ export const updateOrder = async (req, res) => {
         const updated = await OrderModel.updateStatus(id, updatedStatus, updatedComment, updatedCost);
         res.json(updated);
     } catch (error) {
-        // res.status(500).json({ error: 'Server error' });
-        next(error); 
+        console.error("Master Update Error:", error);
+
+        // Перехоплення помилки формату чисел від бази даних
+        if (error.message.includes('invalid input syntax for type numeric')) {
+            return res.status(400).json({ error: 'Cost field contains an invalid number format' });
+        }
+
+        next(error);
     }
 };
 
-export const acceptOrder = async (req, res) => {
+export const acceptOrder = async (req, res, next) => {
     try {
         const { id } = req.params;
         const orderId = req.params.id;

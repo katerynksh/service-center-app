@@ -225,7 +225,7 @@ function switchTab(tab) {
                     </div>
                     <div class="data-row">
                         <i class="fas fa-dollar-sign"></i> <span class="label">Cost:</span> 
-                        <span class="value">$${o.cost || 'Not specified'}</span>
+                        <span class="value">${o.cost ? '$' + o.cost : 'Not specified'}</span>
                     </div>
                     <div class="data-row">
                         <i class="fas fa-microchip"></i> <span class="label">OS:</span> 
@@ -255,12 +255,13 @@ function switchTab(tab) {
                     <div style="margin-top: 20px;">
                         <button onclick="takeInWork(${o.order_id})" class="btn-take-work">Take in Work</button>
                     </div>
+                ` : activeTab === 'my' ? `
+                    <div class="card-actions">
+                        <a href="/master/edit/${o.order_id}" class="btn-action outline-primary"><i class="fas fa-edit"></i> Edit</a>
+                    </div>
                 ` : `
                     <div class="card-actions">
-                        ${activeTab === 'my' ? `
-                        <button onclick="archiveOrder(${o.order_id})" class="btn-action outline-secondary"><i class="fas fa-archive"></i> Archive</button>
-                        ` : ''}
-                        <a href="/master/edit/${o.order_id}" class="btn-action outline-primary"><i class="fas fa-edit"></i> Edit</a>
+                        <span style="color: var(--text-muted); font-size: 13px; font-weight: 600;"><i class="fas fa-lock"></i> Archived (Read-only)</span>
                     </div>
                 `}
             </div>

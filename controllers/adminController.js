@@ -1,7 +1,6 @@
 import e from 'express';
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
-// import { error } from 'console';
 
 export const getAllData = async (req, res) => {
     try {
@@ -22,11 +21,10 @@ export const assignToMaster = async (req, res) => {
         res.json(updated);
     } catch (error) {
         console.error("AssignToMaster error:", error);
-        // res.status(500).json({ error: 'Server error' });
         next(error);
     }
 };
-export const assignMaster = async (req, res) => {
+export const assignMaster = async (req, res, next) => {
     try {
         const { orderId, masterEmail } = req.body;
         
@@ -38,11 +36,10 @@ export const assignMaster = async (req, res) => {
         res.json(updatedOrder);
     } catch (error) {
         console.error("Assign error:", error.message);
-        // res.status(400).json({ error: error.message });
         next(error);
     }
 };
-export const createOrderAdmin = async (req, res) => {
+export const createOrderAdmin = async (req, res, next) => {
     try {
         const { 
             client_email, 
@@ -51,26 +48,49 @@ export const createOrderAdmin = async (req, res) => {
             device_type, 
             device_model, 
             os_version, 
-            issue_description 
+            issue_description,
+            date_of_purchase
         } = req.body;
 
-        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
-        if (!nameRegex.test(client_name)) {
-            return res.status(400).json({ error: 'Name should only contain letters, spaces, hyphens, and apostrophes' });
+        const errors = {}; 
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!client_email || !emailRegex.test(client_email)) {
+            errors.client_email = 'Please enter a valid email address (e.g., name@mail.com)';
         }
 
-        if (client_password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
+        if (!client_name || !nameRegex.test(client_name)) {
+            errors.client_name = 'Name should only contain letters, spaces, hyphens, and apostrophes';
+        } else if (client_name.length < 2) {
+            errors.client_name = 'Client name must be at least 2 characters long';
+        }
+
+        if (!client_password || client_password.length < 6) {
+            errors.client_password = 'Password must be at least 6 characters long';
+        }
+
+        if (issue_description) {
+            const forbiddenCharsRegex = /[<>\[\]{}'"]/;
+            if (forbiddenCharsRegex.test(issue_description)) {
+                errors.issue_description = 'Issue description contains invalid characters (< > [ ] { } \' ")';
+            } else if (issue_description.length < 10 || issue_description.length > 5000) {
+                errors.issue_description = 'Issue description must be between 10 and 5000 characters';
+            }
         }
 
         if (date_of_purchase) {
             const selectedDate = new Date(date_of_purchase);
             const today = new Date();
             const minDate = new Date('1900-01-01');
+            today.setHours(23, 59, 59, 999);
             if (selectedDate > today || selectedDate < minDate) {
-                return res.status(400).json({ error: 'Invalid purchase date' });
-                // next(error);
+                errors.date_of_purchase = 'Invalid purchase date. Must be between 1900 and today.';
             }
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ errors }); 
         }
 
         const newUser = await UserModel.createUser({
@@ -80,48 +100,31 @@ export const createOrderAdmin = async (req, res) => {
             role: 'client'
         });
 
+        const finalDateOfPurchase = date_of_purchase ? date_of_purchase : null;
         const newOrder = await OrderModel.createNewOrder({
             client_id: newUser.id,
             device_type,
             device_model,
             os_version,
-            issue_description
+            issue_description,
+            date_of_purchase: finalDateOfPurchase
         });
 
         res.status(201).json(newOrder);
     } catch (error) {
         console.error("Error creating order:", error.message);
-        // res.status(500).json({ error: 'Failed to create order, maybe this user already exists' });
-        next(error);
+        
+        if (error.message.includes('duplicate key') || error.message.includes('users_email_key')) {
+            return res.status(400).json({ 
+                errors: { client_email: 'User with this email already exists! Please use a different email.' }
+            });
+        }
+
+        res.status(500).json({ error: 'Internal server error while creating order.' });
     }
 };
-// export const assignMaster = async (req, res) => {
-//     try {
-//         const { orderId, masterEmail } = req.body;
-//         // Перевіряємо, чи замовлення належить саме цьому клієнту (безпека)
-//         const order = await OrderModel.getOrderById(orderId);
-        
-//         if (!order || order.client_id !== req.user.id) {
-//             return res.status(403).json({ error: 'Доступ заборонено' });
-//         }
 
-//         const updatedOrder = await OrderModel.assignMasterByEmail(orderId, masterEmail);
-//         res.json(updatedOrder);
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// };
-// export const updateOrderFull = async (req, res) => {
-//     try {
-//         const updated = await OrderModel.updateFullOrder(req.params.id, req.body);
-//         res.json(updated);
-//     } catch (error) {
-//         console.error("Error updating order:", error.message);
-//         res.status(500).json({ error: 'Error updating order' });
-//     }
-// };
-
-export const updateOrderFull = async (req, res) => {
+export const updateOrderFull = async (req, res, next) => {
     try {
         const orderId = req.params.id;
         const { 
@@ -135,8 +138,34 @@ export const updateOrderFull = async (req, res) => {
             technician_comment 
         } = req.body;
 
-        if (cost !== undefined && cost !== null && parseFloat(cost) < 0) {
-            return res.status(400).json({ error: 'Cost cannot be negative' });
+        if (cost !== undefined && cost !== null && cost !== "") {
+            const parsedCost = Number(cost); 
+            if (isNaN(parsedCost)) {
+                return res.status(400).json({ error: 'Cost must be a valid number (e.g. 15.50)' });
+            }
+            if (parsedCost < 0) {
+                return res.status(400).json({ error: 'Cost cannot be negative' });
+            }
+        }
+
+        const forbiddenCharsRegex = /[<>\[\]{}'"]/;
+
+        if (technician_comment) {
+            if (forbiddenCharsRegex.test(technician_comment)) {
+                return res.status(400).json({ error: 'Comment contains invalid characters (< > [ ] { } \' ")' });
+            }
+            if (technician_comment.length < 5 || technician_comment.length > 500) {
+                return res.status(400).json({ error: 'Comment must be between 5 and 500 characters' });
+            }
+        }
+
+        if (issue_description) {
+            if (forbiddenCharsRegex.test(issue_description)) {
+                return res.status(400).json({ error: 'Issue description contains invalid characters' });
+            }
+            if (issue_description.length < 10 || issue_description.length > 1000) {
+                return res.status(400).json({ error: 'Issue description must be between 10 and 1000 characters' });
+            }
         }
 
         const updated = await OrderModel.updateFullOrder(orderId, {
@@ -146,19 +175,24 @@ export const updateOrderFull = async (req, res) => {
             issue_description,
             status,
             cost: cost || 0,
-            assigned_to: assigned_to === "" ? null : assigned_to, // Обробка порожнього значення
+            assigned_to: assigned_to === "" ? null : assigned_to, 
             technician_comment
         });
 
         res.json(updated);
     } catch (error) {
         console.error("Update Error:", error);
-        // res.status(500).json({ error: 'Failed to update order' });
+        
+        // Зловлюємо помилку бази даних щодо неправильного формату чисел
+        if (error.message.includes('invalid input syntax for type numeric')) {
+            return res.status(400).json({ error: 'Cost field contains an invalid number format' });
+        }
+        
         next(error);
     }
 };
 
-export const updateOrderAdmin = async (req, res) => {
+export const updateOrderAdmin = async (req, res, next) => {
     try {
         const updated = await OrderModel.updateFullOrder(req.params.id, req.body);
         res.json(updated);
@@ -168,7 +202,7 @@ export const updateOrderAdmin = async (req, res) => {
     }
 };
 
-export const deleteOrder = async (req, res) => {
+export const deleteOrder = async (req, res, next) => {
     try {
         await OrderModel.deleteOrder(req.params.id);
         res.json({ message: 'Order deleted successfully' });
@@ -179,7 +213,7 @@ export const deleteOrder = async (req, res) => {
     }
 };
 
-export const getEditPage = async (req, res) => {
+export const getEditPage = async (req, res, next) => {
     try {
         const order = await OrderModel.getOrderDetails(req.params.id);
         const masters = await OrderModel.getAllMasters();
@@ -191,7 +225,7 @@ export const getEditPage = async (req, res) => {
     }
 };
 
-export const createMaster = async (req, res) => {
+export const createMaster = async (req, res, next) => {
     try {
         console.log("Create Master - Received data:", req.body);
         const { email, name, password } = req.body;
@@ -199,6 +233,11 @@ export const createMaster = async (req, res) => {
         if (!email || !name || !password) {
             console.error(error);
             return res.status(400).json({ error: 'Email, name, and password are required' });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Please enter a valid email address' });
         }
 
         const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;

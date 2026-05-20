@@ -9,40 +9,42 @@
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Client Email (New Client)</label>
                         <input type="email" class="form-control" name="client_email" placeholder="example@mail.com" required>
-                        <div class="error-text">Please enter a valid email address</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Client Name</label>
-                        <input type="name" name="client_name" class="form-control" placeholder="Client Name" required>
-                        <div class="error-text">Please enter a valid client name</div>
+                        <input type="text" name="client_name" class="form-control" placeholder="Client Name" required>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Set Client Password</label>
                         <input type="password" class="form-control" name="client_password" placeholder="Minimum 6 characters" required>
-                        <div class="error-text">Password must be at least 6 characters long</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Device Model</label>
                         <input type="text" class="form-control" name="device_model" placeholder="iPhone 15 Pro" required>
-                        <div class="error-text">Please enter a device model</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Device Type</label>
                         <input type="text" class="form-control" name="device_type" placeholder="Smartphone" required>
-                        <div class="error-text">Please enter a device type</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">OS Version</label>
                         <input type="text" class="form-control" name="os_version" placeholder="iOS 17.0">
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small">Date of Purchase (Optional)</label>
                         <input type="date" class="form-control" name="date_of_purchase">
+                        <div class="invalid-feedback"></div>
                     </div>
                     <div class="col-12">
                         <label class="form-label text-muted small">Issue Description</label>
                         <textarea class="form-control" name="issue_description" rows="3" placeholder="Describe the problem..." required></textarea>
-                        <div class="error-text">Please enter an issue description</div>
+                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
 
@@ -56,97 +58,72 @@
 </div>
 
 <script>
-document.getElementById('createOrderForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
+document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); 
     
+    const form = this;
+    
+    // Очищаємо помилки
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    let isValid = true;
-
-    form.querySelectorAll('[required]').forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('is-invalid');
-            const errorDiv = field.nextElementSibling;
-            if (errorDiv && errorDiv.classList.contains('error-text')) {
-                errorDiv.innerText = 'This field is required';
-            }
-        }
+    form.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.innerText = '';
+        el.style.display = 'none';
     });
 
-    const emailField = form.querySelector('input[type="email"]');
-    if (emailField && emailField.value.trim()) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailField.value.trim())) {
-            isValid = false;
-            emailField.classList.add('is-invalid');
-            const errorDiv = emailField.nextElementSibling;
-            if (errorDiv && errorDiv.classList.contains('error-text')) {
-                errorDiv.innerText = 'Please enter a valid email address';
-            }
-        }
-    }
-
-    const passwordField = form.querySelector('input[type="password"]');
-    if (passwordField && passwordField.value.trim() && passwordField.value.length < 6) {
-        isValid = false;
-        passwordField.classList.add('is-invalid');
-        const errorDiv = passwordField.nextElementSibling;
-        if (errorDiv && errorDiv.classList.contains('error-text')) {
-            errorDiv.innerText = 'Password must be at least 6 characters long';
-        }
-    }
-
-    const nameField = form.querySelector('input[name="client_name"]');
-    const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s\-\']+$/;
-    if (nameField && (!nameField.value.trim() || !nameRegex.test(nameField.value.trim()))) {
-        isValid = false;
-        nameField.classList.add('is-invalid');
-        const errorDiv = nameField.nextElementSibling;
-        if (errorDiv && errorDiv.classList.contains('error-text')) {
-            errorDiv.innerText = 'Client name should only contain letters, spaces, hyphens, and apostrophes';
-        }
-    }
-
-    const dateField = form.querySelector('input[name="date_of_purchase"]');
-    if (dateField && dateField.value) {
-        const selectedDate = new Date(dateField.value);
-        const today = new Date();
-        today.setHours(23, 59, 59, 999); 
-        const minDate = new Date('1900-01-01');
-        if (selectedDate > today || selectedDate < minDate) {
-            isValid = false;
-            dateField.classList.add('is-invalid');
-            let errorDiv = dateField.nextElementSibling;
-            if (!errorDiv || !errorDiv.classList.contains('error-text')) {
+    // Функція відображення помилки
+    const showFieldError = (fieldName, message) => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.classList.add('is-invalid'); 
+            let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            
+            if (!errorDiv) {
                 errorDiv = document.createElement('div');
-                errorDiv.className = 'error-text text-danger mt-1 small';
-                dateField.parentNode.insertBefore(errorDiv, dateField.nextSibling);
+                errorDiv.className = 'invalid-feedback text-danger mt-1 small';
+                field.parentNode.appendChild(errorDiv);
             }
-            errorDiv.innerText = 'Please select a valid purchase date (between 1900 and today)';
+            
+            errorDiv.innerText = message;
+            errorDiv.style.display = 'block'; 
         }
-    }
-
-    if (!isValid) return; 
+    };
 
     const formData = Object.fromEntries(new FormData(form));
+    
+    if (!formData.date_of_purchase) {
+        formData.date_of_purchase = null;
+    }
+
     try {
         const res = await fetch('/admin/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
+        
         if (res.ok) {
             Swal.fire('Success', 'Order created successfully!', 'success').then(() => {
                 window.location.href = '/admin';
             });
-        } else {
-            const err = await res.json();
-            Swal.fire('Error', 'Error: ' + err.error, 'error');
+            return;
+        } 
+
+        const err = await res.json();
+
+        // Якщо бекенд повернув об'єкт з кількома помилками
+        if (err.errors) {
+            for (const [field, message] of Object.entries(err.errors)) {
+                showFieldError(field, message);
+            }
+        } 
+        // Якщо це якась загальна помилка (наприклад, 500)
+        else if (err.error) {
+            Swal.fire('Error', err.error, 'error');
         }
+
     } catch (err) {
-        console.error(err);
-        Swal.fire('Error', 'Failed to send request', 'error');
+        console.error("Failed to send request:  ", err);
+        Swal.fire('Error', 'Failed to send request. Check console.', 'error');
     }
 });
 </script>
