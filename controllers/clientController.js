@@ -66,7 +66,8 @@ class OrderValidator {
     if (!issue || issue.trim().length === 0)
       return "Issue description is required.";
     const trimmedIssue = issue.trim();
-    if (trimmedIssue.length < 10) return "Please describe the issue in more detail.";
+    if (trimmedIssue.length < 10)
+      return "Please describe the issue in more detail.";
     if (trimmedIssue.length > 1000) return "Issue description is too long.";
     if (/[<>]/.test(trimmedIssue)) {
       return "Issue description cannot contain HTML tags (< or >).";
@@ -178,5 +179,25 @@ export const createOrder = async (req, res) => {
       layout: false,
       user: req.session.user,
     });
+  }
+};
+
+export const getArchiveOrders = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/auth/login");
+    }
+    const clientId = req.session.user.id;
+    const archiveOrders = await OrderModel.getArchiveOrdersByClientId(clientId);
+
+    res.render("client/archiveClient", {
+      orders: archiveOrders,
+      user: req.session.user,
+      title: "Order Archive",
+      layout: false,
+    });
+  } catch (err) {
+    console.error("Error loading archive:", err);
+    res.status(500).send("Error loading archive");
   }
 };
