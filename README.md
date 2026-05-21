@@ -1,112 +1,117 @@
-# СТРУКТУРА:
+#  [Service Center App](https://service-center-app-sc1d.onrender.com/)
+ Professional request and repair management system for service centers.</b></p>
+
+---
+
+##  About the Project
+
+This full-fledged web application is designed to automate business processes in a service center. The system provides convenient interaction between clients, masters, and administration, optimizing the accounting of repair work and improving the quality of service.
+
+--- 
+
+##  Core Features
+
+The application is built using a strict Role-Based Access Control (RBAC) model:
+
+- **Administrator (Admin):** - Full control over the system and dashboard.
+  - Creation and management of master accounts.
+  - Editing and distribution of all orders in the system.
+- **Master:** - Personal cabinet for viewing assigned orders.
+  - Updating stages and statuses of repair execution in real-time.
+- **Client:** - Registration and secure login.
+  - Creation of new service requests.
+  - Tracking the current status of their devices and viewing the history of requests (archive).
+
+---
+
+##  Tech Stack
+
+- **Backend:** Node.js, Express.js
+- **Database:** PostgreSQL
+- **Frontend:** Handlebars (.hbs) template engine, HTML5, CSS3
+- **Security:** Password hashing, route protection via custom Auth Middleware
+
+---
+
+##  Installation and Local Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/katerynksh/service-center-app.git
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables:**
+   Create a `.env` file in the project root based on the provided `.env.example` and specify your configurations (e.g., PostgreSQL database access):
+   ```env
+      DB_URL = <your db url>
+      PORT = <3000>
+   ```
+
+4. **Start the server:**
+   ```bash
+   npm start
+   ```
+   *After starting, the application will be available at `http://localhost:3000` (or another port specified in `.env`).*
+
+---
+## Project Structure
       SERVICE-CENTER-APP/
-      ├── config/
-      │   └── db.js      # Налаштування підключення database, створення таблиць (users, orders)
-      ├── controllers/
-      │   ├── authController.js     # Реєстрація, вхід, вихід
-      │   ├── clientController.js   # Створення замовлення, перегляд своїх замовлень
-      │   ├── masterController.js   # Керування замовленнями, оновлення статусу, коментаря, ціни
-      │   └── adminController.js    # Керування замовленнями, призначення майстрів, створення нових замовлень і майстрів
-      ├── middleware/
-      │   └── authMiddleware.js     # Перевірка: чи залогінений юзер? яка його роль (клієнт, майстер, адмін)?
-      ├── models/             
-      │   ├── index.js        
-      │   ├── User.js        
-      │   └── Order.js
-      ├── public/
-      │   ├── css/
-      │       └── style.css
-      ├── routes/
-      │   ├── auth.js
-      │   ├── client.js
-      │   ├── master.js
-      │   └── admin.js
-      ├── views/              
-      │   ├── partials/
-      │   ├── auth/
-      │   │    ├── login.hbs        
-      │   │    └── register.hbs
-      │   ├── client/
-      │   │    ├── createClient.hbs          # Створення клієнтів 
-      │   │    └── dashboardClient.hbs       # Перегляд замовлень клієнтом
-      │   ├── master/
-      │   │    ├── dashboardMaster.hbs       # Перегляд і керування своїми замовленнями
-      │   │    ├── dashboardMaster.js        
-      │   │    ├── editMaster.hbs            # Редаагування своїх замовлень 
-      │   │    └── editMaster.js            
-      │   ├── admin/
-      │   │    ├── createMasterAdmin.hbs     # сторінка створення майстрів адміном
-      │   │    ├── createOrderAdmin.hbs      # Створення замовлення 
-      │   │    ├── dashboardAdmin.hbs        # Перегляд і керування усіма замовленнями
-      │   │    ├── dashboardAdmin.js        
-      │   │    └── editOrderAdmin.js         # Редагування усіх замовлень
-      │   ├── error.hbs
-      │   ├── index.hbs
-      │   └── loyout.hbs
-      ├── .env                 
-      └── app.js                
-
-# Специфікація маршрутів (API & Views)
-
-## 1. Авторизація (Auth API)
-*Базовий шлях: `/api/auth`*
-
-| Метод | Шлях | Опис |
-| :--- | :--- | :--- |
-| **POST** | `/register` | Реєстрація нового користувача (роль за замовчуванням: `client`). |
-| **POST** | `/login` | Вхід у систему. Дані зберігаються в сесії (`req.user`). |
-| **POST** | `/logout` | Вихід із системи та очищення сесії. |
+            ├── config/
+            │ └── db.js             # Setting up database connection, creating tables (users, orders)
+            ├── controllers/
+            │ ├── authController.js             # Registration, login, logout
+            │ ├── clientController.js           # Creating an order, viewing your orders
+            │ ├── masterController.js           # Managing orders, updating status, comments, prices
+            │ └── adminController.js            # Managing orders, assigning masters, creating new orders and masters
+            ├── middleware/
+            │ └── authMiddleware.js             # Checking: is the user logged in? What is his role (client, master, admin)?
+            ├── models/
+            │ ├── index.js
+            │ ├── User.js
+            │ └── Order.js
+            ├── public/
+            │ ├── css/
+            │ └── style.css
+            ├── routes/
+            │ ├── auth.js
+            │ ├── client.js
+            │ ├── master.js
+            │ └── admin.js
+            ├── views/
+            │ ├── partials/
+            │ ├── auth/
+            │ │ ├── login.hbs
+            │ │ └── register.hbs
+            │ ├── client/
+            │ │ ├── createClient.hbs          # Create clients
+            │ │ └── dashboardClient.hbs       # View client orders
+            │ ├── master/
+            │ │ ├── dashboardMaster.hbs       # View and manage your orders
+            │ │ ├── dashboardMaster.js
+            │ │ ├── dashboardMaster.js
+            │ │ ├── editMaster.hbs            # Editing your orders
+            │ │ └── editMaster.js
+            │ ├── admin/
+            │ │ ├── createMasterAdmin.hbs     # page for creating masters by admin
+            │ │ ├── createOrderAdmin.hbs      # Creating an order
+            │ │ ├── dashboardAdmin.hbs        # View and manage all orders
+            │ │ ├── dashboardAdmin.js
+            │ └── editOrderAdmin.js           # Editing all orders
+            │ ├── error.hbs
+            │ ├── index.hbs
+            │ └── loyout.hbs
+            ├── .env
+            └── app.js               
 
 ---
 
-## 2. Панель Майстра (Master API)
-*Доступ: `isMaster` (ролі: `master`, `admin`). Базовий шлях: `/api/master`*
-
-| Метод | Шлях | Опис |
-| :--- | :--- | :--- |
-| **GET** | `/dashboard` | Повертає `newOrders` (статус `new`) та `myOrders` (закріплені за майстром). |
-| **PUT** | `/order/:id` | Оновлення замовлення: зміна `status` та додавання `technician_comment`. |
-
+## Authors
+- **Kateryna Sherepera:** *Master - Admin Developer*
+- **Anna Luzhetska:** *Client - Auth Developer*
 ---
-
-## 3. Панель Адміністратора (Admin API)
-*Доступ: `isAdmin` (роль: `admin`). Базовий шлях: `/api/admin`*
-
-| Метод | Шлях | Опис |
-| :--- | :--- | :--- |
-| **GET** | `/all-info` | Отримання всіх замовлень та списку всіх майстрів для призначення. |
-| **POST** | `/assign` | Призначення майстра на замовлення (змінює статус на `in progress`). |
-
 ---
-
-## 4. Клієнтська частина (Client API)
-*Доступ: Авторизовані користувачі. Базовий шлях: `/api/client`*
-
-| Метод | Шлях | Опис |
-| :--- | :--- | :--- |
-| **GET** | `/orders` | Отримання списку замовлень лише поточного клієнта. |
-| **POST** | `/create` | Створення нової заявки на ремонт. |
-
----
-
-## Маршрути інтерфейсу (View Routes)
-*Шляхи для відображення HTML-сторінок у браузері*
-
-| Роль | Шлях | Файл сторінки |
-| :--- | :--- | :--- |
-| **Клієнт** | `/api/client` | `dashboardClient.js` |
-| **Клієнт** | `/api/client/create` | `createClient.js` |
-| **Майстер** | `/api/master` | `dashboardMaster.js` |
-| **Майстер** | `/api/master/edit/:id` | `editMaster.js` |
-| **Адмін** | `/api/admin/dashboard` | `dashboardAdmin.js` |
-
----
-
-## Статуси замовлень (Order Statuses)
-Для консистентності даних у БД використовуйте лише ці значення статусу:
-* `new` — створено клієнтом.
-* `in progress` — прийнято в роботу / призначено майстра.
-* `waiting customer response` — очікує погодження з клієнтом.
-* `waiting spare parts` — очікування запчастин.
-* `failed` — ремонт неможливий.
-* `done` — ремонт завершено.

@@ -127,6 +127,27 @@
         transition: all 0.2s ease;
     }
     .btn-create-primary:hover { background-color: var(--hover-violet); color: white; transform: translateY(-1px); }
+
+    /* Базова кнопка для порожнього стану, що ідеально вписується в дизайн сайту */
+    .btn-basic-cta {
+        display: inline-block;
+        background-color: var(--primary-violet, #8b5cf6);
+        color: #ffffff !important;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 32px;
+        border-radius: 10px; /* Таке ж заокруглення, як у інших кнопок на сайті */
+        text-decoration: none;
+        border: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-basic-cta:hover {
+        background-color: var(--hover-violet, #7c3aed);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25); /* Легка тінь при наведенні */
+    }
 </style>
 
 <div class="dashboard-wrapper">
@@ -170,7 +191,7 @@
     {{#if orders.length}}
     <div class="create-action-container">
         <a href="/client/create" class="btn-create-primary">
-            <i class="fas fa-plus"></i> Create New Request
+            <i class="fas fa-plus"></i> Create New Order 
         </a>
     </div>
     {{/if}}
@@ -270,8 +291,8 @@
             <i class="fas fa-inbox"></i>
             <h3>No Repair Orders Yet</h3>
             <p>It looks like you haven't submitted any devices for repair. When you do, you can track their status and master's notes right here.</p>
-            <a href="/client/create" class="btn-create-primary">
-                <i class="fas fa-plus"></i> Create Your First Order
+            <a href="/client/create" class="btn-basic-cta">
+                Create Your First Order
             </a>
         </div>
         {{/each}}

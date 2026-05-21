@@ -292,20 +292,20 @@
                     </div>
 
                     <div class="form-group">
-    <label>Device Model</label>
-    <div class="input-wrapper">
-        <input type="text" name="device_model" value="{{values.device_model}}" 
-               placeholder="e.g., iPhone 13 Pro" 
-               class="form-input {{#if errors.device_model}}is-invalid{{/if}}">
-        
-        {{#if errors.device_model}}
-            <i class="fas fa-exclamation-circle error-icon"></i>
-        {{/if}}
-    </div>
-    {{#if errors.device_model}}
-        <div class="error-message">{{errors.device_model}}</div>
-    {{/if}}
-</div>
+                        <label>Device Model</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="device_model" value="{{values.device_model}}" 
+                                placeholder="e.g., iPhone 13 Pro" 
+                                class="form-input {{#if errors.device_model}}is-invalid{{/if}}">
+                                
+                                {{#if errors.device_model}}
+                                    <i class="fas fa-exclamation-circle error-icon"></i>
+                                {{/if}}
+                            </div>
+                            {{#if errors.device_model}}
+                                <div class="error-message">{{errors.device_model}}</div>
+                            {{/if}}
+                        </div>
 
                     <div class="form-group">
                         <label>OS Version (Optional)</label>

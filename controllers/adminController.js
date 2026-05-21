@@ -2,7 +2,7 @@ import e from 'express';
 import { OrderModel } from '../models/Order.js';
 import UserModel from '../models/User.js';
 
-export const getAllData = async (req, res) => {
+export const getAllData = async (req, res, next) => {
     try {
         const orders = await OrderModel.getAllOrders();
         const masters = await OrderModel.getMasterStatus(); 
@@ -14,7 +14,7 @@ export const getAllData = async (req, res) => {
     }
 };
 
-export const assignToMaster = async (req, res) => {
+export const assignToMaster = async (req, res, next) => {
     try {
         const { orderId, masterId } = req.body;
         const updated = await OrderModel.assignMaster(orderId, masterId);
