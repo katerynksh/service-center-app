@@ -62,49 +62,49 @@ The application is built using a strict Role-Based Access Control (RBAC) model:
 ## Project Structure
       SERVICE-CENTER-APP/
             ├── config/
-            │ └── db.js             # Setting up database connection, creating tables (users, orders)
+            │     └── db.js             # Setting up database connection, creating tables (users, orders)
             ├── controllers/
-            │ ├── authController.js             # Registration, login, logout
-            │ ├── clientController.js           # Creating an order, viewing your orders
-            │ ├── masterController.js           # Managing orders, updating status, comments, prices
-            │ └── adminController.js            # Managing orders, assigning masters, creating new orders and masters
+            │     ├── authController.js             # Registration, login, logout
+            │     ├── clientController.js           # Creating an order, viewing your orders
+            │     ├── masterController.js           # Managing orders, updating status, comments, prices
+            │     └── adminController.js            # Managing orders, assigning masters, creating new orders and masters
             ├── middleware/
-            │ └── authMiddleware.js             # Checking: is the user logged in? What is his role (client, master, admin)?
+            │     └── authMiddleware.js             # Checking: is the user logged in? What is his role (client, master, admin)?
             ├── models/
-            │ ├── index.js
-            │ ├── User.js
-            │ └── Order.js
+            │     ├── index.js
+            │     ├── User.js
+            │     └── Order.js
             ├── public/
-            │ ├── css/
-            │ └── style.css
+            │     ├── css/
+            │     └── style.css
             ├── routes/
-            │ ├── auth.js
-            │ ├── client.js
-            │ ├── master.js
-            │ └── admin.js
+            │     ├── auth.js
+            │     ├── client.js
+            │     ├── master.js
+            │     └── admin.js
             ├── views/
-            │ ├── partials/
-            │ ├── auth/
-            │ │ ├── login.hbs
-            │ │ └── register.hbs
-            │ ├── client/
-            │ │ ├── createClient.hbs          # Create clients
-            │ │ └── dashboardClient.hbs       # View client orders
-            │ ├── master/
-            │ │ ├── dashboardMaster.hbs       # View and manage your orders
-            │ │ ├── dashboardMaster.js
-            │ │ ├── dashboardMaster.js
-            │ │ ├── editMaster.hbs            # Editing your orders
-            │ │ └── editMaster.js
-            │ ├── admin/
-            │ │ ├── createMasterAdmin.hbs     # page for creating masters by admin
-            │ │ ├── createOrderAdmin.hbs      # Creating an order
-            │ │ ├── dashboardAdmin.hbs        # View and manage all orders
-            │ │ ├── dashboardAdmin.js
-            │ └── editOrderAdmin.js           # Editing all orders
-            │ ├── error.hbs
-            │ ├── index.hbs
-            │ └── loyout.hbs
+            │     ├── partials/
+            │     ├── auth/
+            │     │     ├── login.hbs
+            │     │     └── register.hbs
+            │     ├── client/
+            │     │     ├── createClient.hbs          # Create clients
+            │     │     └── dashboardClient.hbs       # View client orders
+            │     ├── master/
+            │     │     ├── dashboardMaster.hbs       # View and manage your orders
+            │     │     ├── dashboardMaster.js
+            │     │     ├── dashboardMaster.js
+            │     │     ├── editMaster.hbs            # Editing your orders
+            │     │     └── editMaster.js
+            │     ├── admin/
+            │     │     ├── createMasterAdmin.hbs     # page for creating masters by admin
+            │     │     ├── createOrderAdmin.hbs      # Creating an order
+            │     │     ├── dashboardAdmin.hbs        # View and manage all orders
+            │     │     ├── dashboardAdmin.js
+            │     │     └── editOrderAdmin.js           # Editing all orders
+            │     ├── error.hbs
+            │     ├── index.hbs
+            │     └── layout.hbs
             ├── .env
             └── app.js               
 
